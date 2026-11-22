@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>리츠 투자 | 2030을 위한 리츠 안내</title>
+  <meta name="description" content="리츠를 생활 언어로 번역해서 보여주는 대학 수업 과제 사이트">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* 첫 화면 전용 스타일 (접두어 home-) */
+    .home-targets { display: grid; gap: var(--space-3); grid-template-columns: 1fr; }
+    @media (min-width: 640px) { .home-targets { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    .home-target-btn { display: block; width: 100%; padding: var(--dim-20); border: var(--dim-1) solid transparent; border-radius: var(--radius); background: var(--color-surface); text-align: left; cursor: pointer; transition: border-color 0.15s, background-color 0.15s; }
+    .home-target-btn:hover { border-color: var(--color-line); }
+    .home-target-btn.is-active { border-color: var(--color-primary); background: var(--color-primary-soft); }
+    .home-target-who { display: block; font-size: var(--fs-xs); color: var(--color-text-sub); }
+    .home-target-name { display: block; font-size: var(--fs-lg); font-weight: 800; }
+    .home-target-sort { display: block; margin-top: var(--space-2); font-size: var(--fs-xs); color: var(--color-primary); font-weight: 700; }
+    .home-rule { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+    .home-item-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); }
+    .home-item-price { margin-top: var(--space-3); font-size: var(--fs-price); font-weight: 800; letter-spacing: var(--tracking-tight); line-height: 1.2; }
+    .home-item-change { font-size: var(--fs-sm); font-weight: 700; }
+    .home-item-top { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--space-3); }
+    .home-item-chart { flex: none; width: var(--dim-112); }
+    .home-headline { margin-top: var(--space-2); font-size: var(--fs-lg); font-weight: 700; color: var(--color-gold); letter-spacing: var(--tracking-card); }
+    .home-item-sub { margin-top: var(--dim-2); font-size: var(--fs-xs); color: var(--color-text-sub); }
+    .home-item .translated { margin-top: var(--space-3); font-size: var(--fs-md); }
+    .home-item-actions { margin-top: var(--space-3); }
+    .home-links .card { display: block; text-decoration: none; color: inherit; }
+    .home-links .card:hover { background: var(--color-primary-soft); }
+    .home-link-step { font-size: var(--fs-xs); font-weight: 700; letter-spacing: var(--tracking-step); color: var(--color-accent); }
+  </style>
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <div class="hero">
+    <div class="container">
+      <p class="hero-kicker">2030을 위한 리츠 안내 · 수업 과제</p>
+      <h1 class="hero-title">리츠 투자</h1>
+      <p class="home-headline" id="home-headline"></p>
+      <p class="hero-text">리츠는 여러 사람이 돈을 모아 건물을 사고 임대료를 나눠 갖는 상품이에요. 어려운 숫자를 생활 언어로 바꾸고, 좋은 점과 위험을 같은 크기로 보여드려요.</p>
+    </div>
+  </div>
+
+  <main class="container section stack">
+
+    <section class="stack" aria-label="타깃 선택">
+      <h2 class="sec-title"><span class="sec-no">01</span>나는 ○○예요</h2>
+      <p class="source-note">고르면 아래 목록의 정렬 기준과 설명이 바뀌어요. 선택은 이 기기에만 저장돼요.</p>
+      <div class="home-targets" id="home-targets"></div>
+    </section>
+
+    <div class="ad-slot ad-slot--banner" data-ad="home-top"></div>
+
+    <section class="stack" aria-label="리츠 목록">
+      <h2 class="sec-title"><span class="sec-no">02</span>리츠 둘러보기</h2>
+      <!-- 국내 리츠 / 해외 리츠 전환 버튼 -->
+      <div class="chip-row" id="home-market" role="group" aria-label="국내 리츠와 해외 리츠 전환"></div>
+      <div class="note-box home-rule">
+        <span><b>정렬 기준</b> <span id="home-sort-label"></span></span>
+        <span class="label-risk">원금 손실 가능</span>
+      </div>
+      <p class="source-note">이 순서는 권유가 아니에요. 위에 적은 기준 하나로만 줄을 세운 것이고, 값이 없는 상품은 맨 뒤에 있어요.</p>
+      <p class="notice is-hidden" id="home-notice"></p>
+      <div class="grid grid-3" id="home-list"></div>
+      <div><button class="btn btn-ghost is-hidden" id="home-more" type="button">전체 보기</button></div>
+    </section>
+
+    <section class="stack" aria-label="둘러볼 곳">
+      <h2 class="sec-title"><span class="sec-no">03</span>어디부터 볼까요</h2>
+      <div class="grid grid-2 home-links">
+        <a class="card" href="map.html">
+          <p class="home-link-step">MAP</p>
+          <p class="card-title">내가 자주 가는 곳에서 시작하기</p>
+          <p class="card-sub">학교, 회사, 자취방 근처에 리츠가 가진 건물이 있는지 지도에서 찾아봐요.</p>
+        </a>
+        <a class="card" href="compare.html">
+          <p class="home-link-step">COMPARE</p>
+          <p class="card-title">적금과 나란히 비교하기</p>
+          <p class="card-sub">리츠·ETF를 3개까지 골라 은행 적금과 같은 잣대로 비교해요.</p>
+        </a>
+        <a class="card" href="learn.html">
+          <p class="home-link-step">LEARN</p>
+          <p class="card-title">어려운 말 쉬운 말로 배우기</p>
+          <p class="card-sub">배당, P/NAV, WALE 같은 말을 하나씩 쉬운 말로 풀었어요.</p>
+        </a>
+        <a class="card" href="card.html">
+          <p class="home-link-step">CARD</p>
+          <p class="card-title">홍보 카드 만들어 보기</p>
+          <p class="card-sub">타깃에 맞는 문구로 인스타 카드를 만들어요. 쓰면 안 되는 표현은 자동으로 걸러요.</p>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="js/common.js"></script>
+  <script>
+    /* 첫 화면 스크립트: 타깃 선택 → 정렬 기준대로 목록 표시 */
+    (function () {
+      "use strict";
+      var FIRST_COUNT = 9;                 // 처음에 보여줄 상품 수
+      var state = { target: Common.getTarget() || "student", products: [], showAll: false, market: "kr" };   // market: "kr" 국내 / "global" 해외
+
+      // 지금 고른 쪽(국내 또는 해외)의 상품만
+      function marketProducts(market) {
+        return state.products.filter(function (p) { return market === "global" ? p.type === "global" : p.type !== "global"; });
+      }
+
+      function renderMarket() {
+        var tabs = [["kr", "국내 리츠"], ["global", "해외 리츠"]];
+        document.getElementById("home-market").innerHTML = tabs.map(function (tab) {
+          var active = tab[0] === state.market;
+          return '<button type="button" class="chip' + (active ? " is-active" : "") + '" data-market="' + tab[0] +
+            '" aria-pressed="' + active + '">' + tab[1] + " " + marketProducts(tab[0]).length + "</button>";
+        }).join("");
+      }
+
+      function targetInfo() {
+        return Common.TARGETS.filter(function (t) { return t.key === state.target; })[0];
+      }
+
+      // 받침이 있으면 "이에요", 없으면 "예요"  (대학생이에요 / 1인가구예요)
+      function withEnding(word) {
+        var code = word.charCodeAt(word.length - 1) - 0xAC00;
+        var hasFinal = code >= 0 && code <= 11171 && code % 28 !== 0;
+        return word + (hasFinal ? "이에요" : "예요");
+      }
+
+      function renderTargets() {
+        document.getElementById("home-targets").innerHTML = Common.TARGETS.map(function (t) {
+          var active = t.key === state.target;
+          return '<button type="button" class="home-target-btn' + (active ? " is-active" : "") +
+            '" data-target="' + t.key + '" aria-pressed="' + active + '">' +
+            '<span class="home-target-who">나는</span>' +
+            '<span class="home-target-name">' + Common.escapeHtml(withEnding(t.label)) + "</span>" +
+            '<span class="home-target-sort">정렬 기준: ' + Common.escapeHtml(t.sortLabel) + "</span></button>";
+        }).join("");
+        var info = targetInfo();
+        document.getElementById("home-sort-label").textContent = info.sortLabel + " — " + info.reason;
+      }
+
+      // 타깃마다 카드에서 가장 크게 보여줄 번역 문구 하나
+      function mainLine(p) {
+        if (state.target === "rookie") {
+          if (p.type === "etf") { return { text: Common.NA_ETF, raw: "WALE" }; }
+          if (p.type === "global") { return { text: Common.NA_GLOBAL, raw: "WALE" }; }
+          return Common.translateWale(p.waleYears);
+        }
+        if (state.target === "renter") {
+          return Common.translateDividend(p.priceYield);
+        }
+        var cups = (typeof p.price === "number" && typeof Common.COFFEE.price === "number" &&
+          Common.COFFEE.price > 0) ? Math.ceil(p.price / Common.COFFEE.price) : null;
+        return {
+          text: cups === null ? Common.NA : "커피 " + cups + "잔 값이면 1주를 살 수 있어요",
+          raw: "1주 가격 " + Common.formatWon(p.price) + " · 커피 한 잔 " + Common.formatWon(Common.COFFEE.price) + " 가정"
+        };
+      }
+
+      function itemHtml(p) {
+        var line = mainLine(p);
+        var change = Common.formatChange(p.changePct);
+        var chart = Common.sparkline(p.history, { width: 120, height: 44 });       // 최근 1년 주가 그래프
+        var compare ='<a class="btn" href="compare.html?ids=' + encodeURIComponent(p.key) + '">적금과 비교하기</a>';
+        return '<article class="card home-item">' +
+          '<div class="home-item-head"><h3 class="card-title">' + Common.escapeHtml(p.name) + "</h3>" +
+          '<span class="badge">' + (p.type === "etf" ? "리츠 ETF" : (p.type === "global"
+            ? "해외 리츠" + (p.country ? " · " + Common.escapeHtml(p.country) : "") : Common.escapeHtml(p.assetType || "리츠"))) + "</span></div>" +
+          '<div class="home-item-top"><div>' +
+          '<p class="home-item-price">' + (typeof p.price === "number" ? Common.formatWon(p.price) : '<span class="na">' + Common.NA + "</span>") +
+          (change.text ? ' <span class="home-item-change ' + change.cls + '">' + change.text + "</span>" : "") + "</p>" +
+          '<p class="home-item-sub">1주 가격' + (p.priceDate ? " · " + Common.formatDate(p.priceDate) + " 종가" : "") +
+          (p.type === "global" && p.priceLocal !== null ? " · " + Common.formatUsd(p.priceLocal) + "를 원으로 바꾼 값" : "") + "</p></div>" +
+          (chart.svg ? '<div class="home-item-chart">' + chart.svg + '<p class="spark-caption">최근 1년 <span class="' +
+            (chart.changePct > 0 ? "num-up" : (chart.changePct < 0 ? "num-down" : "")) + '">' +
+            (chart.changePct > 0 ? "+" : "") + chart.changePct.toFixed(1) + "%</span></p></div>" : "") +
+          "</div>" +
+          '<p class="translated' + (line.text === Common.NA ? " na" : "") + '">' + Common.escapeHtml(line.text) + "</p>" +
+          '<p class="raw-note">' + Common.escapeHtml(line.raw || "") + "</p>" +
+          (line.caution ? '<p class="caution-note">' + Common.escapeHtml(line.caution) + "</p>" : "") +
+          '<div class="home-item-actions">' + compare + "</div></article>";
+      }
+
+      function renderList() {
+        var notice = document.getElementById("home-notice");
+        var list = document.getElementById("home-list");
+        var more = document.getElementById("home-more");
+        if (!state.products.length) {
+          notice.textContent = "아직 받은 데이터가 없어요. 데이터 담당이 scripts/build_all.py 를 실행하면 이 자리에 리츠 목록이 나와요.";
+          notice.classList.remove("is-hidden");
+          list.innerHTML = "";
+          more.classList.add("is-hidden");
+          return;
+        }
+        var hasPrice = state.products.some(function (p) { return typeof p.price === "number"; });
+        notice.classList.toggle("is-hidden", hasPrice);
+        if (!hasPrice) {
+          notice.textContent = "시세와 배당 데이터는 아직 받지 못했어요. 지금은 리츠정보시스템 지표만 보여요.";
+        }
+        if (state.market === "global") {
+          notice.textContent = "해외 리츠는 미국 S&P 500에 들어 있는 리츠 중 시가총액이 큰 순서로 골랐어요. 가격은 달러를 원으로 바꾼 값이고, WALE·P/NAV 같은 국내 공시 지표는 없어요.";
+          notice.classList.remove("is-hidden");
+        }
+        var sorted = Common.sortByTarget(marketProducts(state.market), state.target);
+        var shown = state.showAll ? sorted : sorted.slice(0, FIRST_COUNT);
+        list.innerHTML = shown.map(itemHtml).join("");
+        more.classList.toggle("is-hidden", state.showAll || sorted.length <= FIRST_COUNT);
+        more.textContent = "전체 " + sorted.length + "개 보기";
+      }
+
+      // 큰 제목 아래 한 줄: 고른 타깃에 맞는 문구
+      function renderHeadline() {
+        document.getElementById("home-headline").textContent = targetInfo().headline;
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        Common.initPage({ active: "index", sources: ["reits", "metrics", "prices", "dividends", "assumptions"] });
+        renderTargets();
+        renderHeadline();
+        Common.loadAll(["reits", "metrics", "prices", "dividends", "history", "assumptions"]).then(function (data) {
+          Common.applyAssumptions(data.assumptions);
+          state.products = Common.buildProducts(data);
+          renderMarket();
+          renderList();
+        });
+        document.getElementById("home-market").addEventListener("click", function (event) {
+          var button = event.target.closest("[data-market]");
+          if (!button) { return; }
+          state.market = button.getAttribute("data-market");
+          state.showAll = false;
+          renderMarket();
+          renderList();
+        });
+        document.getElementById("home-targets").addEventListener("click", function (event) {
+          var button = event.target.closest("[data-target]");
+          if (!button) { return; }
+          state.target = button.getAttribute("data-target");
+          Common.setTarget(state.target);
+          renderTargets();
+          renderHeadline();
+          renderList();
+        });
+        document.getElementById("home-more").addEventListener("click", function () {
+          state.showAll = true;
+          renderList();
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

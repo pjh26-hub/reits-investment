@@ -1,0 +1,1229 @@
+{
+  "as_of": "2026-11-15",
+  "source": "야후 파이낸스 (비공식 · 거래소 시세 지연 제공)",
+  "items": [
+    {
+      "id": "365550",
+      "name": "ESR켄달스퀘어리츠",
+      "corp_code": null,
+      "dps_annual": 278.0,
+      "dps_basis": "최근 1년 배당 2건 합계(2025-11-27 139원, 2026-05-28 139원). 리츠정보시스템 기준 연 2회 결산과 건수가 일치",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-05-28",
+          "dps": 139.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-11-27",
+          "dps": 139.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-05-29",
+          "dps": 137.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2024-11-28",
+          "dps": 135.24255,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "432320",
+      "name": "KB스타리츠",
+      "corp_code": null,
+      "dps_annual": 260.0,
+      "dps_basis": "최근 1년 배당 2건 합계(2026-05-07 170원, 2026-11-05 90원). 리츠정보시스템 기준 연 2회 결산과 건수가 일치",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-11-05",
+          "dps": 90.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-05-07",
+          "dps": 170.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-07-30",
+          "dps": 156.03957,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-01-24",
+          "dps": 165.21837,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "400760",
+      "name": "NH올원리츠",
+      "corp_code": null,
+      "dps_annual": 300.0,
+      "dps_basis": "최근 1년 배당 2건 합계(2025-12-29 150원, 2026-06-29 150원). 리츠정보시스템 기준 연 2회 결산과 건수가 일치",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-06-29",
+          "dps": 150.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-29",
+          "dps": 150.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-06-27",
+          "dps": 166.3584,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2024-12-27",
+          "dps": 195.71576,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "338100",
+      "name": "NH프라임리츠",
+      "corp_code": null,
+      "dps_annual": 1462.0,
+      "dps_basis": "최근 1년 배당 2건 합계(2025-11-27 625원, 2026-05-28 837원). 리츠정보시스템 기준 연 2회 결산과 건수가 일치",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-05-28",
+          "dps": 837.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-11-27",
+          "dps": 625.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-05-29",
+          "dps": 126.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2024-11-28",
+          "dps": 518.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "395400",
+      "name": "SK리츠",
+      "corp_code": null,
+      "dps_annual": 274.0,
+      "dps_basis": "최근 1년 배당 4건 합계(2025-12-29 66원, 2026-03-30 68원, 2026-06-29 68원, 2026-09-29 72원). 리츠정보시스템 기준 연 4회 결산과 건수가 일치",
+      "period_months": 3,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-09-29",
+          "dps": 72.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-06-29",
+          "dps": 68.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-03-30",
+          "dps": 68.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-29",
+          "dps": 66.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-09-29",
+          "dps": 66.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-06-27",
+          "dps": 66.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-03-28",
+          "dps": 70.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2024-12-27",
+          "dps": 66.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "0030R0",
+      "name": "대신밸류리츠",
+      "corp_code": null,
+      "dps_annual": null,
+      "dps_basis": "최근 1년 배당 3건(2025-11-27 73원, 2026-02-26 73원, 2026-05-28 73원)이 리츠정보시스템 기준 결산 횟수(4)와 맞지 않아 합계를 내지 않음",
+      "period_months": 3,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-05-28",
+          "dps": 73.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-02-26",
+          "dps": 73.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-11-27",
+          "dps": 73.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-08-28",
+          "dps": 73.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "377190",
+      "name": "디앤디플랫폼리츠",
+      "corp_code": null,
+      "dps_annual": 330.0,
+      "dps_basis": "최근 1년 배당 2건 합계(2026-03-30 120원, 2026-09-29 210원). 리츠정보시스템 기준 연 2회 결산과 건수가 일치",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-09-29",
+          "dps": 210.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-03-30",
+          "dps": 120.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-09-29",
+          "dps": 120.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-03-28",
+          "dps": 126.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "330590",
+      "name": "롯데리츠",
+      "corp_code": null,
+      "dps_annual": 262.0,
+      "dps_basis": "최근 1년 배당 2건 합계(2026-03-24 123원, 2026-10-02 139원). 리츠정보시스템 기준 연 2회 결산과 건수가 일치",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-10-02",
+          "dps": 139.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-03-24",
+          "dps": 123.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-09-25",
+          "dps": 117.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2024-12-27",
+          "dps": 112.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "357430",
+      "name": "마스턴프리미어리츠",
+      "corp_code": null,
+      "dps_annual": null,
+      "dps_basis": "최근 1년 배당 0건(없음)이 리츠정보시스템 기준 결산 횟수(2)와 맞지 않아 합계를 내지 않음",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2025-09-29",
+          "dps": 96.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-03-28",
+          "dps": 61.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "396690",
+      "name": "미래에셋글로벌리츠",
+      "corp_code": null,
+      "dps_annual": null,
+      "dps_basis": "최근 1년 배당 1건(2026-03-30 130원)이 리츠정보시스템 기준 결산 횟수(2)와 맞지 않아 합계를 내지 않음",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-03-30",
+          "dps": 130.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-09-29",
+          "dps": 135.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-03-28",
+          "dps": 142.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "357250",
+      "name": "미래에셋맵스리츠",
+      "corp_code": null,
+      "dps_annual": 232.0,
+      "dps_basis": "최근 1년 배당 2건 합계(2025-11-27 112원, 2026-05-28 120원). 리츠정보시스템 기준 연 2회 결산과 건수가 일치",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-05-28",
+          "dps": 120.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-11-27",
+          "dps": 112.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-05-29",
+          "dps": 137.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2024-11-28",
+          "dps": 132.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "448730",
+      "name": "삼성FN리츠",
+      "corp_code": null,
+      "dps_annual": null,
+      "dps_basis": "최근 1년 배당 3건(2026-01-29 69원, 2026-04-29 69원, 2026-07-30 69원)이 리츠정보시스템 기준 결산 횟수(4)와 맞지 않아 합계를 내지 않음",
+      "period_months": 3,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-07-30",
+          "dps": 69.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-04-29",
+          "dps": 69.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-01-29",
+          "dps": 69.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-10-30",
+          "dps": 69.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-07-30",
+          "dps": 69.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-04-29",
+          "dps": 69.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-01-24",
+          "dps": 73.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "481850",
+      "name": "신한글로벌액티브리츠",
+      "corp_code": null,
+      "dps_annual": 164.0,
+      "dps_basis": "최근 1년 배당 2건 합계(2026-02-26 130원, 2026-08-28 34원). 리츠정보시스템 기준 연 2회 결산과 건수가 일치",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-08-28",
+          "dps": 34.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-02-26",
+          "dps": 130.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-02-27",
+          "dps": 127.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "404990",
+      "name": "신한서부티엔디리츠",
+      "corp_code": null,
+      "dps_annual": 267.0,
+      "dps_basis": "최근 1년 배당 2건 합계(2025-12-29 132원, 2026-09-11 135원). 리츠정보시스템 기준 연 2회 결산과 건수가 일치",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-09-11",
+          "dps": 135.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-29",
+          "dps": 132.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-06-27",
+          "dps": 130.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2024-12-27",
+          "dps": 130.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "293940",
+      "name": "신한알파리츠",
+      "corp_code": null,
+      "dps_annual": 361.0,
+      "dps_basis": "최근 1년 배당 2건 합계(2025-12-12 179원, 2026-06-11 182원). 리츠정보시스템 기준 연 2회 결산과 건수가 일치",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-06-11",
+          "dps": 182.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-12",
+          "dps": 179.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-03-28",
+          "dps": 173.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "088260",
+      "name": "이리츠코크렙",
+      "corp_code": null,
+      "dps_annual": 349.0,
+      "dps_basis": "최근 1년 배당 2건 합계(2025-12-29 176원, 2026-06-29 173원). 리츠정보시스템 기준 연 2회 결산과 건수가 일치",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-06-29",
+          "dps": 173.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-29",
+          "dps": 176.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-06-27",
+          "dps": 174.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2024-12-27",
+          "dps": 176.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "350520",
+      "name": "이지스레지던스리츠",
+      "corp_code": null,
+      "dps_annual": 300.0,
+      "dps_basis": "최근 1년 배당 2건 합계(2025-12-29 150원, 2026-06-29 150원). 리츠정보시스템 기준 연 2회 결산과 건수가 일치",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-06-29",
+          "dps": 150.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-29",
+          "dps": 150.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-06-27",
+          "dps": 150.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2024-12-27",
+          "dps": 150.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "334890",
+      "name": "이지스밸류플러스리츠",
+      "corp_code": null,
+      "dps_annual": 332.0,
+      "dps_basis": "최근 1년 배당 2건 합계(2025-12-04 172원, 2026-06-04 160원). 리츠정보시스템 기준 연 2회 결산과 건수가 일치",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-06-04",
+          "dps": 160.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-04",
+          "dps": 172.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-06-04",
+          "dps": 170.55945,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2024-12-03",
+          "dps": 603.3664,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "348950",
+      "name": "제이알글로벌리츠",
+      "corp_code": null,
+      "dps_annual": null,
+      "dps_basis": "최근 1년 배당 1건(2025-12-29 115원)이 리츠정보시스템 기준 결산 횟수(알 수 없음)와 맞지 않아 합계를 내지 않음",
+      "period_months": null,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2025-12-29",
+          "dps": 115.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-06-27",
+          "dps": 115.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2024-12-27",
+          "dps": 195.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "145270",
+      "name": "케이탑리츠",
+      "corp_code": null,
+      "dps_annual": null,
+      "dps_basis": "최근 1년 배당 0건(없음)이 리츠정보시스템 기준 결산 횟수(1)와 맞지 않아 합계를 내지 않음",
+      "period_months": 12,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2024-12-27",
+          "dps": 68.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "417310",
+      "name": "코람코더원리츠",
+      "corp_code": null,
+      "dps_annual": null,
+      "dps_basis": "최근 1년 배당 3건(2025-11-27 94원, 2026-05-28 114원, 2026-08-28 8974원)이 리츠정보시스템 기준 결산 횟수(4)와 맞지 않아 합계를 내지 않음",
+      "period_months": 3,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-08-28",
+          "dps": 8974.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-05-28",
+          "dps": 114.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-11-27",
+          "dps": 94.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-08-28",
+          "dps": 72.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-05-29",
+          "dps": 94.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-02-27",
+          "dps": 94.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2024-11-28",
+          "dps": 95.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "357120",
+      "name": "코람코라이프인프라리츠",
+      "corp_code": null,
+      "dps_annual": 327.0,
+      "dps_basis": "최근 1년 배당 2건 합계(2025-11-27 164원, 2026-08-28 163원). 리츠정보시스템 기준 연 2회 결산과 건수가 일치",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-08-28",
+          "dps": 163.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-11-27",
+          "dps": 164.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-05-29",
+          "dps": 163.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2024-11-28",
+          "dps": 249.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "451800",
+      "name": "한화리츠",
+      "corp_code": null,
+      "dps_annual": null,
+      "dps_basis": "최근 1년 배당 1건(2026-04-29 135원)이 리츠정보시스템 기준 결산 횟수(2)와 맞지 않아 합계를 내지 않음",
+      "period_months": 6,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-04-29",
+          "dps": 135.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-10-30",
+          "dps": 135.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-04-29",
+          "dps": 135.0,
+          "from": "배당락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "WELL",
+      "name": "Welltower",
+      "corp_code": null,
+      "dps_annual": 4249.12,
+      "dps_annual_local": 3.18,
+      "currency": "USD",
+      "dps_basis": "최근 1년 배당 4건 합계 3.18달러 × 환율 1,336.20원",
+      "period_months": null,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-11-10",
+          "dps": 0.85,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-08-12",
+          "dps": 0.85,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-05-13",
+          "dps": 0.74,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-02-25",
+          "dps": 0.74,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "PLD",
+      "name": "Prologis",
+      "corp_code": null,
+      "dps_annual": 5638.76,
+      "dps_annual_local": 4.22,
+      "currency": "USD",
+      "dps_basis": "최근 1년 배당 4건 합계 4.22달러 × 환율 1,336.20원",
+      "period_months": null,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-09-16",
+          "dps": 1.07,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-06-16",
+          "dps": 1.07,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-03-17",
+          "dps": 1.07,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-16",
+          "dps": 1.01,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "EQIX",
+      "name": "Equinix",
+      "corp_code": null,
+      "dps_annual": 26951.15,
+      "dps_annual_local": 20.17,
+      "currency": "USD",
+      "dps_basis": "최근 1년 배당 4건 합계 20.17달러 × 환율 1,336.20원",
+      "period_months": null,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-08-19",
+          "dps": 5.16,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-05-20",
+          "dps": 5.16,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-02-25",
+          "dps": 5.16,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-11-19",
+          "dps": 4.69,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "AMT",
+      "name": "American Tower",
+      "corp_code": null,
+      "dps_annual": 9446.93,
+      "dps_annual_local": 7.07,
+      "currency": "USD",
+      "dps_basis": "최근 1년 배당 4건 합계 7.07달러 × 환율 1,336.20원",
+      "period_months": null,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-09-30",
+          "dps": 1.79,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-06-12",
+          "dps": 1.79,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-04-14",
+          "dps": 1.79,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-29",
+          "dps": 1.7,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "SPG",
+      "name": "Simon Property Group",
+      "corp_code": null,
+      "dps_annual": 11892.18,
+      "dps_annual_local": 8.9,
+      "currency": "USD",
+      "dps_basis": "최근 1년 배당 4건 합계 8.9달러 × 환율 1,336.20원",
+      "period_months": null,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-09-09",
+          "dps": 2.25,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-06-09",
+          "dps": 2.25,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-03-10",
+          "dps": 2.2,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-10",
+          "dps": 2.2,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "DLR",
+      "name": "Digital Realty",
+      "corp_code": null,
+      "dps_annual": 6520.66,
+      "dps_annual_local": 4.88,
+      "currency": "USD",
+      "dps_basis": "최근 1년 배당 4건 합계 4.88달러 × 환율 1,336.20원",
+      "period_months": null,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-09-15",
+          "dps": 1.22,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-06-15",
+          "dps": 1.22,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-03-13",
+          "dps": 1.22,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-15",
+          "dps": 1.22,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "PSA",
+      "name": "Public Storage",
+      "corp_code": null,
+      "dps_annual": 16034.4,
+      "dps_annual_local": 12.0,
+      "currency": "USD",
+      "dps_basis": "최근 1년 배당 4건 합계 12.0달러 × 환율 1,336.20원",
+      "period_months": null,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-09-15",
+          "dps": 3.0,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-06-15",
+          "dps": 3.0,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-03-16",
+          "dps": 3.0,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-15",
+          "dps": 3.0,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "O",
+      "name": "Realty Income",
+      "corp_code": null,
+      "dps_annual": 4342.65,
+      "dps_annual_local": 3.25,
+      "currency": "USD",
+      "dps_basis": "최근 1년 배당 12건 합계 3.25달러 × 환율 1,336.20원",
+      "period_months": null,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-10-30",
+          "dps": 0.272,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-09-30",
+          "dps": 0.272,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-08-31",
+          "dps": 0.271,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-07-31",
+          "dps": 0.271,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-06-30",
+          "dps": 0.271,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-05-29",
+          "dps": 0.271,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-04-30",
+          "dps": 0.271,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-03-31",
+          "dps": 0.271,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-02-27",
+          "dps": 0.27,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-01-30",
+          "dps": 0.27,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-31",
+          "dps": 0.27,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-11-28",
+          "dps": 0.27,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "VMRK",
+      "name": "Vivmark Residential",
+      "corp_code": null,
+      "dps_annual": 3744.03,
+      "dps_annual_local": 2.802,
+      "currency": "USD",
+      "dps_basis": "최근 1년 배당 4건 합계 2.802달러 × 환율 1,336.20원",
+      "period_months": null,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-10-05",
+          "dps": 0.703,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-06-29",
+          "dps": 0.703,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-03-30",
+          "dps": 0.703,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-01-02",
+          "dps": 0.693,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "VTR",
+      "name": "Ventas",
+      "corp_code": null,
+      "dps_annual": 2725.85,
+      "dps_annual_local": 2.04,
+      "currency": "USD",
+      "dps_basis": "최근 1년 배당 4건 합계 2.04달러 × 환율 1,336.20원",
+      "period_months": null,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-09-30",
+          "dps": 0.52,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-06-30",
+          "dps": 0.52,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-03-31",
+          "dps": 0.52,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-31",
+          "dps": 0.48,
+          "from": "배당락일 기준(달러)",
+          "rcept_no": null
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>적금과 비교 | 리츠 투자</title>
+  <meta name="description" content="리츠·리츠 ETF를 은행 적금과 같은 잣대로 나란히 비교">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* 비교 화면 전용 스타일 (접두어 cmp-) */
+    .cmp-pick { display: grid; gap: var(--space-3); grid-template-columns: 1fr; }
+    @media (min-width: 720px) { .cmp-pick { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    .cmp-assume { display: grid; gap: var(--space-3); grid-template-columns: 1fr 1fr; max-width: var(--dim-480); }
+
+    /* 작은 화면: 상품별로 위에서 아래로 쌓는다 / 큰 화면: 상품이 옆으로 나란히, 줄이 맞게 */
+    .cmp-grid { display: block; }
+    .cmp-cell { padding: var(--space-3) var(--space-4); border: var(--dim-1) solid var(--color-line); border-top: 0; background: var(--color-surface); }
+    .cmp-cell--head { margin-top: var(--space-4); border-top: var(--dim-3) solid var(--color-primary); border-radius: var(--radius) var(--radius) 0 0; background: var(--color-primary-soft); }
+    .cmp-cell--saving.cmp-cell--head { border-top-color: var(--color-good); background: var(--color-good-soft); }
+    .cmp-cell--last { border-radius: 0 0 var(--radius) var(--radius); }
+    .cmp-change { font-size: var(--fs-sm); font-weight: 700; }
+    .cmp-chart { margin-top: var(--space-3); }
+    .cmp-chart .spark { height: var(--dim-56); }
+    @media (min-width: 720px) {
+      .cmp-grid { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); grid-template-rows: repeat(8, auto); }
+      .cmp-cell { border-left: 0; }
+      .cmp-cell--first { border-left: var(--dim-1) solid var(--color-line); }
+      .cmp-cell--head { margin-top: 0; border-radius: 0; }
+      .cmp-cell--last { border-radius: 0; }
+    }
+    .cmp-label { display: block; margin-bottom: var(--space-1); font-size: var(--fs-xs); font-weight: 700; color: var(--color-text-sub); letter-spacing: 0.02em; }
+    .cmp-name { font-size: var(--fs-lg); font-weight: 800; line-height: 1.3; }
+    .cmp-cell .translated { font-size: var(--fs-md); }
+    .cmp-points { margin: 0; padding-left: var(--indent-list); font-size: var(--fs-sm); }
+    .cmp-points + .cmp-label { margin-top: var(--space-3); }
+  </style>
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="container section stack">
+    <div>
+      <div class="chapter"><span class="chapter-tag">COMPARE</span><span class="chapter-name">비교</span></div>
+      <h1 class="page-title">적금과 나란히 놓고 보기</h1>
+      <p class="lead">리츠와 리츠 ETF를 3개까지 골라 은행 적금과 같은 잣대로 비교해요. 맨 오른쪽은 늘 은행 적금이에요. 좋은 점과 조심할 점을 같은 크기로 적었어요.</p>
+    </div>
+
+    <section class="stack" aria-label="고르기">
+      <h2 class="sec-title"><span class="sec-no">01</span>비교할 상품 고르기</h2>
+      <div class="cmp-pick" id="cmp-pick"></div>
+      <div class="cmp-assume">
+        <label class="field">
+          <span class="field-label">매달 넣는 돈</span>
+          <select class="select" id="cmp-monthly">
+            <option value="30000">3만 원</option>
+            <option value="50000" selected>5만 원</option>
+            <option value="100000">10만 원</option>
+            <option value="300000">30만 원</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="field-label">커피 한 잔 값(원)</span>
+          <input class="input" id="cmp-coffee" type="number" min="500" max="20000" step="100" inputmode="numeric">
+        </label>
+      </div>
+      <p class="source-note" id="cmp-coffee-source"></p>
+      <p class="notice is-hidden" id="cmp-notice"></p>
+    </section>
+
+    <section class="stack" aria-label="비교표">
+      <h2 class="sec-title"><span class="sec-no">02</span>나란히 보기</h2>
+      <div class="cmp-grid" id="cmp-grid"></div>
+    </section>
+
+    <section class="stack" aria-label="계산 방법">
+      <h2 class="sec-title"><span class="sec-no">03</span>이렇게 계산했어요</h2>
+      <div class="table-wrap">
+        <table class="table">
+          <tbody>
+            <tr><th>1년 배당·이자</th><td>매달 넣는 돈 × 연 수익률(금리) × 6.5. 첫 달에 넣은 돈은 12개월, 마지막 달에 넣은 돈은 1개월 치만 받는다고 보는 적금 이자 계산법(단리)을 리츠에도 똑같이 적용했어요. 세금(15.4%)을 떼기 전 금액이에요.</td></tr>
+            <tr><th>주가 기준 배당수익률</th><td>최근 1년 주당배당금 ÷ 가격 × 100. 가격은 전일 종가를 쓰고, 발표자 노트북에서 실시간 서버가 켜져 있을 때만 현재가를 써요.</td></tr>
+            <tr><th>P/NAV</th><td>시가총액 ÷ NAV(자산의 최근 감정평가액 − 부채총계). 리츠정보시스템 원자료는 "결산월 말일 주가 ÷ NAV"라서 단위가 달라 그대로 쓰지 않고, 공식 숫자 두 개로 직접 계산했어요.</td></tr>
+            <tr><th>WALE</th><td>리츠정보시스템 값 그대로. 0으로 적힌 리츠는 값이 제공되지 않은 것으로 보고 "데이터 없음"으로 표시해요.</td></tr>
+            <tr><th>은행 적금</th><td id="cmp-saving-rule">데이터 없음</td></tr>
+            <tr><th>리츠에 없는 것</th><td>리츠는 1주 단위로만 살 수 있어서 매달 딱 맞는 금액을 넣기 어려워요. 사고팔 때 수수료가 들고, 주가와 배당은 계속 바뀌어요. 위 숫자는 지난 1년 실적을 그대로 옮긴 것이에요.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="ad-slot ad-slot--banner" data-ad="compare-bottom"></div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="js/common.js"></script>
+  <script src="js/compare.js"></script>
+</body>
+</html>

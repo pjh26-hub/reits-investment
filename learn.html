@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>용어 배우기 | 리츠 투자</title>
+  <meta name="description" content="리츠, 배당, P/NAV, WALE 같은 어려운 말을 쉬운 말로 배우는 곳">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* 용어 배우기 페이지 전용 스타일 (접두어 learn-) */
+    .learn-tools { display: grid; gap: var(--space-3); }
+    .learn-card { scroll-margin-top: var(--space-5); }
+    .learn-card:target { border-color: var(--color-accent); border-top-color: var(--color-accent); }
+    .learn-term { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); }
+    .learn-full { font-size: var(--fs-xs); color: var(--color-text-sub); }
+    .learn-easy { margin-top: var(--space-3); }
+    .learn-detail { margin-top: var(--space-3); font-size: var(--fs-sm); color: var(--color-text-sub); }
+    .learn-row { margin-top: var(--space-3); display: grid; grid-template-columns: var(--dim-68) 1fr; gap: var(--space-3); font-size: var(--fs-xs); }
+    .learn-row dt { padding: var(--dim-3) var(--space-2); border-radius: var(--dim-6); background: var(--color-surface-2); color: var(--color-text-sub); font-weight: 700; text-align: center; align-self: start; }
+    .learn-row dd { margin: 0; padding-top: var(--dim-3); color: var(--color-text-sub); }
+  </style>
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="container section stack">
+    <div>
+      <div class="chapter"><span class="chapter-tag">LEARN</span><span class="chapter-name">용어 배우기</span></div>
+      <h1 class="page-title">어려운 말, 쉬운 말로</h1>
+      <p class="lead">리츠 기사나 증권사 앱에 나오는 말을 하나씩 쉬운 말로 바꿨어요. 카드마다 쉬운 뜻, 계산식, 조심할 점이 같이 들어 있어요.</p>
+    </div>
+
+    <section class="stack" aria-label="용어 찾기">
+      <h2 class="sec-title"><span class="sec-no">01</span>용어 찾기</h2>
+      <div class="learn-tools">
+        <label class="field">
+          <span class="field-label">찾고 싶은 말을 적어 보세요</span>
+          <input class="input" id="learn-search" type="search" placeholder="예: 배당, WALE, 원금" autocomplete="off">
+        </label>
+        <div class="chip-row" id="learn-categories" role="group" aria-label="분류"></div>
+      </div>
+      <p class="source-note" id="learn-count"></p>
+      <div class="grid grid-2" id="learn-list"></div>
+      <p class="notice is-hidden" id="learn-empty">찾는 말이 없어요. 다른 말로 찾아보세요.</p>
+    </section>
+
+    <div class="ad-slot ad-slot--banner" data-ad="learn-bottom"></div>
+
+    <div class="note-box">
+      <div class="note-box-title">☑ 짚고 넘어갈 점</div>
+      용어 뜻은 이해를 돕기 위해 쉽게 풀어 쓴 것이에요. 계산식은 국토교통부 리츠정보시스템의 '성과지표 안내'를 따랐고, 카드에 붙은 실제 숫자 예시는 이 사이트가 받은 공식 데이터에서 가져와요.
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="js/common.js"></script>
+  <script src="js/learn.js"></script>
+</body>
+</html>

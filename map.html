@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>지도에서 찾기 | 리츠 투자</title>
+  <meta name="description" content="내가 자주 가는 곳 근처에 리츠가 가진 건물이 있는지 지도에서 찾기">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- 지도 라이브러리 Leaflet (OpenStreetMap 지도용, API 키 필요 없음) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    /* 지도 페이지 전용 스타일 (접두어 map-). 색·간격은 style.css 의 변수만 쓴다 */
+    .map-search { display: grid; gap: var(--space-3); grid-template-columns: 1fr; }
+    @media (min-width: 720px) { .map-search { grid-template-columns: 1fr var(--dim-160) auto auto; align-items: end; } }
+    .map-canvas { z-index: 0; border-radius: var(--radius); overflow: hidden; }
+    .map-canvas .leaflet-popup-content-wrapper, .map-canvas .leaflet-popup-tip { background: var(--color-surface-2); color: var(--color-text); }
+    .map-canvas .leaflet-popup-content { font-family: var(--font-base); font-size: var(--fs-sm); line-height: 1.5; }
+    .map-canvas .leaflet-container a.leaflet-popup-close-button { color: var(--color-text-sub); }
+    .map-canvas { width: 100%; height: var(--dim-360); border: var(--dim-1) solid var(--color-line); background: var(--color-label); }
+    @media (min-width: 720px) { .map-canvas { height: var(--dim-480); } }
+    .map-asset-meta { margin-top: var(--space-1); font-size: var(--fs-xs); color: var(--color-text-sub); }
+    .map-asset .translated { margin-top: var(--space-3); font-size: var(--fs-md); }
+    .map-asset-actions { margin-top: var(--space-3); }
+    /* 검색 후보는 선택하기 전까지만 화면에 잠시 표시한다. */
+    .map-search-choices { display: grid; gap: var(--space-2); padding: var(--space-3); border: var(--dim-1) solid var(--color-line); border-radius: var(--radius-sm); background: var(--color-surface); }
+    .map-search-choice { display: block; width: 100%; padding: var(--space-3); border: var(--dim-1) solid var(--color-line); border-radius: var(--radius-sm); background: var(--color-surface-2); text-align: left; font-size: var(--fs-sm); cursor: pointer; overflow-wrap: anywhere; }
+    .map-search-choice:hover, .map-search-choice:focus-visible { border-color: var(--color-primary); }
+    /* 자산 종류별 색상은 공통 디자인 변수를 사용한다. */
+    .map-legend { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); font-size: var(--fs-xs); color: var(--color-text-sub); }
+    .map-legend-item { display: inline-flex; align-items: center; gap: var(--space-2); }
+    .map-legend-dot { flex: none; width: var(--space-4); height: var(--space-4); border-radius: 50%; background: var(--color-text-sub); }
+    .map-legend-dot--office { background: var(--color-primary); }
+    .map-legend-dot--retail { background: var(--color-accent); }
+    .map-legend-dot--mixed { background: var(--color-gold); }
+    .map-legend-dot--global { background: var(--color-good); }
+    .map-legend-dot--other { background: var(--color-text-sub); }
+    /* 지도 마커 선택 시 해당 건물 카드를 강조한다. */
+    .map-asset { scroll-margin-top: var(--space-6); }
+    .map-asset.is-active { border-color: var(--color-primary); background: var(--color-primary-soft); }
+  </style>
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="container section stack">
+    <div>
+      <div class="chapter"><span class="chapter-tag">MAP</span><span class="chapter-name">장소에서 리츠로</span></div>
+      <h1 class="page-title">자주 가는 그곳, 누가 가지고 있을까</h1>
+      <p class="lead">학교, 회사, 자취방처럼 자주 가는 곳을 찾아보세요. 그 근처에 리츠가 가진 건물이 있으면 지도에 표시해요.</p>
+    </div>
+
+    <section class="stack" aria-label="장소 찾기">
+      <h2 class="sec-title"><span class="sec-no">01</span>장소 찾기</h2>
+      <!-- 국내 리츠 건물 / 해외 리츠 본사 전환 버튼 -->
+      <div class="chip-row" id="map-market" role="group" aria-label="국내 리츠 건물과 해외 리츠 본사 전환"></div>
+      <div class="map-search">
+        <label class="field">
+          <span class="field-label">자주 가는 장소</span>
+          <input class="input" id="map-keyword" type="search" placeholder="예: 강남역, ○○대학교" autocomplete="off">
+        </label>
+        <label class="field">
+          <span class="field-label">찾는 범위</span>
+          <select class="select" id="map-radius">
+            <option value="1">반경 1km</option>
+            <option value="3" selected>반경 3km</option>
+            <option value="5">반경 5km</option>
+            <option value="10">반경 10km</option>
+          </select>
+        </label>
+        <button class="btn btn-primary" id="map-search-btn" type="button">찾기</button>
+        <button class="btn btn-ghost" id="map-reset-btn" type="button">전체 보기</button>
+      </div>
+      <p class="notice is-hidden" id="map-notice" role="status"></p>
+      <!-- 장소 이름이 겹치면 사용자가 직접 고르는 목록 (검색 기록은 저장하지 않는다) -->
+      <div class="map-search-choices is-hidden" id="map-search-choices" role="group" aria-label="장소 검색 결과"></div>
+      <!-- 지도 색상 범례: 목록의 실제 자산 유형에 맞춰 표시한다 -->
+      <div class="map-legend" id="map-legend" aria-label="지도 마커 색상 설명"></div>
+      <!-- 지도가 그려지는 자리 -->
+      <div class="map-canvas" id="map-canvas" role="application" aria-label="지도"></div>
+      <p class="source-note">지도와 장소 검색: OpenStreetMap. 장소 검색 결과는 어디에도 저장하지 않아요. 국내 건물 위치: 국토교통부 리츠정보시스템. 해외 리츠는 본사가 있는 도시를 표시해요.</p>
+    </section>
+
+    <section class="stack" aria-label="근처 건물">
+      <h2 class="sec-title"><span class="sec-no">02</span><span id="map-result-title">리츠가 가진 건물</span></h2>
+      <p class="source-note" id="map-result-note"></p>
+      <!-- 건물 카드가 들어가는 자리: "이 건물, ○○리츠가 가지고 있어요" -->
+      <div class="grid grid-2" id="map-result"></div>
+    </section>
+
+    <div class="ad-slot ad-slot--banner" data-ad="map-bottom"></div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/map.js"></script>
+</body>
+</html>

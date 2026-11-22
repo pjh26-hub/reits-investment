@@ -1,0 +1,5 @@
+# Python packages for the data scripts in scripts/
+# Install:  pip install -r requirements.txt
+# NOTE: keep this file ASCII-only (no Korean). pip on Korean Windows fails to read it otherwise.
+requests>=2.31
+openpyxl>=3.1
