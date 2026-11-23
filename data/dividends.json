@@ -1224,6 +1224,255 @@
           "rcept_no": null
         }
       ]
+    },
+    {
+      "id": "329200",
+      "name": "TIGER 리츠부동산인프라",
+      "corp_code": null,
+      "dps_annual": 396.0,
+      "dps_basis": "최근 1년 분배금 12건 합계 (2025-11-27 33원, 2025-12-29 33원, 2026-01-29 33원, 2026-02-26 33원, 2026-03-30 33원, 2026-04-29 33원, 2026-05-28 33원, 2026-06-29 33원, 2026-07-30 33원, 2026-08-28 33원, 2026-09-29 33원, 2026-10-29 33원)",
+      "period_months": null,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-10-29",
+          "dps": 33.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-09-29",
+          "dps": 33.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-08-28",
+          "dps": 33.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-07-30",
+          "dps": 33.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-06-29",
+          "dps": 33.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-05-28",
+          "dps": 33.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-04-29",
+          "dps": 33.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-03-30",
+          "dps": 33.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-02-26",
+          "dps": 33.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-01-29",
+          "dps": 33.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-29",
+          "dps": 33.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-11-27",
+          "dps": 33.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "476800",
+      "name": "KODEX 한국부동산리츠인프라",
+      "corp_code": null,
+      "dps_annual": 443.0,
+      "dps_basis": "최근 1년 분배금 12건 합계 (2025-12-12 29원, 2026-01-14 29원, 2026-02-12 29원, 2026-03-12 29원, 2026-04-14 30원, 2026-05-14 30원, 2026-06-12 29원, 2026-07-14 29원, 2026-08-13 29원, 2026-09-14 60원, 2026-10-14 60원, 2026-11-12 60원)",
+      "period_months": null,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-11-12",
+          "dps": 60.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-10-14",
+          "dps": 60.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-09-14",
+          "dps": 60.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-08-13",
+          "dps": 29.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-07-14",
+          "dps": 29.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-06-12",
+          "dps": 29.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-05-14",
+          "dps": 30.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-04-14",
+          "dps": 30.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-03-12",
+          "dps": 29.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-02-12",
+          "dps": 29.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-01-14",
+          "dps": 29.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-12",
+          "dps": 29.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        }
+      ]
+    },
+    {
+      "id": "0086B0",
+      "name": "TIGER 리츠부동산인프라TOP10액티브",
+      "corp_code": null,
+      "dps_annual": 648.0,
+      "dps_basis": "최근 1년 분배금 12건 합계 (2025-12-12 54원, 2026-01-14 54원, 2026-02-12 54원, 2026-03-12 54원, 2026-04-14 54원, 2026-05-14 54원, 2026-06-12 54원, 2026-07-14 54원, 2026-08-13 54원, 2026-09-14 54원, 2026-10-14 54원, 2026-11-12 54원)",
+      "period_months": null,
+      "latest_period_end": null,
+      "periods": [
+        {
+          "period_end": "2026-11-12",
+          "dps": 54.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-10-14",
+          "dps": 54.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-09-14",
+          "dps": 54.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-08-13",
+          "dps": 54.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-07-14",
+          "dps": 54.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-06-12",
+          "dps": 54.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-05-14",
+          "dps": 54.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-04-14",
+          "dps": 54.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-03-12",
+          "dps": 54.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-02-12",
+          "dps": 54.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2026-01-14",
+          "dps": 54.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        },
+        {
+          "period_end": "2025-12-12",
+          "dps": 54.0,
+          "from": "분배락일 기준",
+          "rcept_no": null
+        }
+      ]
     }
   ]
 }

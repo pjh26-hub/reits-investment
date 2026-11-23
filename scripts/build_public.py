@@ -43,6 +43,12 @@ NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 FINLIFE_SOURCE = "금융감독원 금융상품한눈에 적금 비교 화면 (은행·12개월·정액적립식·가입제한 없음으로 검색한 표를 옮겨 적음)"
 FINLIFE_URL = "https://finlife.fss.or.kr/finlife/svings/fdrmEnty/list.do?menuNo=700003"
 
+# 위키백과 목록보다 새로운 공식 발표가 있는 본사: 종목기호 → (도시, 위도, 경도, 화면에 붙일 안내)
+# 좌표는 도시 단위(OpenStreetMap Nominatim). 다른 본사와 같은 방식.
+HQ_OVERRIDES = {
+    "PSA": ("Frisco, Texas", 33.1506, -96.8238, "2026년 2월 캘리포니아 Glendale에서 텍사스 Frisco로 본사 이전 발표"),
+}
+
 
 def get(url, params=None, label=""):
     """_util.http_get 에 브라우저 머리말만 더한 것"""
@@ -80,27 +86,30 @@ def fetch_kind():
     return table
 
 
-def fetch_yahoo(symbol):
-    """야후 차트에서 마지막 종가와 배당 내역을 받는다. 종목이 없으면 None"""
+def fetch_yahoo(symbol, until=None):
+    """야후 차트에서 마지막 종가와 배당 내역을 받는다. 종목이 없으면 None
+    until('YYYY-MM-DD')을 주면 그날까지의 값만 쓴다 (다른 종목과 기준일을 맞출 때)"""
     res = get(YAHOO_CHART + symbol, {"range": "2y", "interval": "1d", "events": "div"}, f"야후 차트({symbol})")
     try:
         result = res.json()["chart"]["result"][0]
     except (ValueError, KeyError, TypeError, IndexError):
         return None
     offset = result["meta"].get("gmtoffset", 32400)
-    stamps = result.get("timestamp") or []
-    closes = ((result.get("indicators") or {}).get("quote") or [{}])[0].get("close") or []
-    bars = [(t, c) for t, c in zip(stamps, closes) if c is not None]
-    if not bars:
-        return None
-    last_time, last_close = bars[-1]
 
     def day(ts):
         return dt.datetime.fromtimestamp(ts + offset, dt.timezone.utc).strftime("%Y-%m-%d")
 
+    stamps = result.get("timestamp") or []
+    closes = ((result.get("indicators") or {}).get("quote") or [{}])[0].get("close") or []
+    bars = [(t, c) for t, c in zip(stamps, closes) if c is not None and (until is None or day(t) <= until)]
+    if not bars:
+        return None
+    last_time, last_close = bars[-1]
+
     prev_close = bars[-2][1] if len(bars) > 1 else None
     events = sorted(({"date": day(v["date"]), "amount": v["amount"]}
-                     for v in ((result.get("events") or {}).get("dividends") or {}).values()), key=lambda e: e["date"])
+                     for v in ((result.get("events") or {}).get("dividends") or {}).values()
+                     if until is None or day(v["date"]) <= until), key=lambda e: e["date"])
     # 최근 1년 종가 기록(그래프용). 점이 너무 많으면 80개 안팎으로 솎아 낸다. 마지막 날은 꼭 넣는다
     is_won = result["meta"].get("currency") == "KRW"
     year = [[day(t), round(c) if is_won else round(c, 2)] for t, c in bars if t >= last_time - 365 * 86400]
@@ -109,6 +118,7 @@ def fetch_yahoo(symbol):
         history.append(year[-1])
     return {"close": last_close, "base_date": day(last_time), "prev_close": prev_close,
             "currency": result["meta"].get("currency"), "dividends": events, "history": history,
+            "first_date": day(bars[0][0]),            # 받은 기록 중 가장 이른 날 (상장 1년이 넘었는지 볼 때 씀)
             "name": result["meta"].get("shortName") or result["meta"].get("longName")}
 
 
@@ -163,9 +173,14 @@ def build_global(count=10):
         end = dt.date.fromisoformat(q["base_date"])
         recent = [e for e in q["dividends"] if dt.date.fromisoformat(e["date"]) > end - dt.timedelta(days=365)]
         dps_local = round(sum(e["amount"] for e in recent), 4) if recent else None
-        hq_lat, hq_lng = geocode_city(r["hq"]) if r["hq"] else (None, None)
+        if r["symbol"] in HQ_OVERRIDES:                                    # 목록보다 새 공식 발표가 있는 본사
+            hq, hq_lat, hq_lng, hq_note = HQ_OVERRIDES[r["symbol"]]
+        else:
+            hq, hq_note = r["hq"] or None, None
+            hq_lat, hq_lng = geocode_city(hq) if hq else (None, None)
         prices.append({
-            "hq": r["hq"] or None, "hq_lat": hq_lat, "hq_lng": hq_lng,      # 본사 도시와 그 도시의 좌표
+            "hq": hq, "hq_lat": hq_lat, "hq_lng": hq_lng,                   # 본사 도시와 그 도시의 좌표
+            **({"hq_note": hq_note} if hq_note else {}),
             "id": r["symbol"], "type": "global", "name": r["name"], "close": round(q["close"] * fx),
             "close_local": round(q["close"], 2), "currency": "USD", "fx_rate": round(fx, 2), "base_date": q["base_date"],
             "change": None, "change_pct": round((q["close"] - q["prev_close"]) / q["prev_close"] * 100, 2) if q["prev_close"] else None,
@@ -185,6 +200,105 @@ def build_global(count=10):
     histories = [{"id": r["symbol"], "currency": "USD", "points": r["quote"]["history"]} for r in rows[:count]]
     info = {"fx": fx, "fx_date": fx_quote["base_date"], "candidates": len(candidates), "priced": len(rows)}
     return prices, dividends, info, histories
+
+
+def load_etf_list():
+    """scripts/etf_confirmed.json 에서 사람이 확인한 리츠 ETF 목록 → [(종목코드, 이름)]"""
+    data = load_json_file(SCRIPTS_DIR / "etf_confirmed.json") or {}
+    codes = data.get("confirmed") or []
+    names = data.get("names") or {}
+    return [(code, names.get(code) or code) for code in codes]
+
+
+def load_json_file(path):
+    import json
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def build_etfs(until=None):
+    """국내 상장 리츠 ETF (etf_confirmed.json 에 적힌 것만) → (가격, 분배금, 1년 그래프)
+    분배금 합계는 상장한 지 1년이 넘어서 '최근 1년' 기록이 다 있을 때만 낸다. 아니면 null"""
+    prices, dividends, histories = [], [], []
+    for code, name in load_etf_list():
+        q = fetch_yahoo(code + ".KS", until)
+        if not q or q.get("currency") != "KRW":
+            prices.append({"id": code, "type": "etf", "name": name, "close": None, "base_date": None,
+                           "change": None, "change_pct": None, "volume": None, "market_cap": None,
+                           "listed_shares": None, "nav": None, "base_index": None})
+            dividends.append({"id": code, "name": name, "corp_code": None, "dps_annual": None,
+                              "dps_basis": "야후 파이낸스에 이 ETF가 없음", "period_months": None,
+                              "latest_period_end": None, "periods": []})
+            continue
+        end = dt.date.fromisoformat(q["base_date"])
+        start = end - dt.timedelta(days=365)
+        recent = [e for e in q["dividends"] if dt.date.fromisoformat(e["date"]) > start]
+        listing = ", ".join(f"{e['date']} {e['amount']:g}원" for e in recent) or "없음"
+        if dt.date.fromisoformat(q["first_date"]) <= start and recent:
+            total = round(sum(e["amount"] for e in recent), 2)
+            basis = f"최근 1년 분배금 {len(recent)}건 합계 ({listing})"
+        else:
+            total = None
+            basis = (f"상장한 지 1년이 안 돼서(기록 시작 {q['first_date']}) 최근 1년 분배금 합계를 내지 않음"
+                     if recent else "최근 1년 분배금 내역이 없음")
+        prev = q["prev_close"]
+        prices.append({
+            "id": code, "type": "etf", "name": name, "close": round(q["close"]), "base_date": q["base_date"],
+            "change": round(q["close"] - prev) if prev else None,
+            "change_pct": round((q["close"] - prev) / prev * 100, 2) if prev else None,
+            "volume": None, "market_cap": None, "listed_shares": None, "nav": None, "base_index": None,
+        })
+        dividends.append({
+            "id": code, "name": name, "corp_code": None, "dps_annual": total, "dps_basis": basis,
+            "period_months": None, "latest_period_end": None,
+            "periods": [{"period_end": e["date"], "dps": e["amount"], "from": "분배락일 기준", "rcept_no": None}
+                        for e in reversed(recent)],
+        })
+        histories.append({"id": code, "currency": "KRW", "points": q["history"]})
+    return prices, dividends, histories
+
+
+def merge_etfs_only():
+    """--etf-only: 다른 데이터는 그대로 두고, ETF 항목만 prices·prices_fallback·dividends·history 에 넣거나 바꾼다.
+    기준일은 지금 prices.json 의 기준일에 맞춘다 (다른 종목과 같은 날 종가)"""
+    current = load_json("prices") or {}
+    until = current.get("as_of")
+    print(f"[ETF] 리츠 ETF를 받는 중... (기준일 {until} 까지의 값)")
+    etf_prices, etf_dividends, etf_histories = build_etfs(until)
+    if not etf_prices:
+        raise Stop("scripts/etf_confirmed.json 의 confirmed 에 ETF 종목코드가 없어요.")
+    for name, new_items in (("prices", etf_prices), ("prices_fallback", etf_prices),
+                            ("dividends", etf_dividends), ("history", etf_histories)):
+        data = load_json(name)
+        if not data:
+            print(f"      data/{name}.json 이 없어서 건너뜀")
+            continue
+        ids = {i["id"] for i in new_items}
+        items = [i for i in data["items"] if i.get("id") not in ids] + new_items
+        extra = {k: v for k, v in data.items() if k not in ("as_of", "source", "items")}
+        if name in ("prices", "prices_fallback"):
+            extra["etf_confirmed"] = True
+        save_json(name, data.get("as_of"), data.get("source"), items, **extra)
+    # meta.json 의 출처 안내 문구도 ETF 가 들어갔다고 고친다 (기준일·건수는 그대로)
+    meta = load_json("meta") or {}
+    files = meta.get("files") or {}
+    etf_names = ", ".join(p["name"] for p in etf_prices)
+    if files.get("prices", {}).get("note"):
+        files["prices"]["note"] = files["prices"]["note"].replace(
+            "리츠 ETF는 아직 없음.", f"국내 리츠 ETF {len(etf_prices)}개({etf_names})는 팀이 고른 것.")
+    if files.get("dividends", {}).get("note") and "분배금" not in files["dividends"]["note"]:
+        files["dividends"]["note"] += " 리츠 ETF는 상장한 지 1년이 넘었을 때만 최근 1년 분배금을 더함."
+    if meta:
+        from _util import DATA_DIR
+        import json
+        (DATA_DIR / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print("\n[성공] 리츠 ETF를 넣었어요")
+    for p, d in zip(etf_prices, etf_dividends):
+        y = f"{d['dps_annual'] / p['close'] * 100:.2f}%" if d["dps_annual"] and p["close"] else "-"
+        print(f"    {p['id']} {p['name']}: 종가 {p['close']} ({p['base_date']}) / 1년 분배금 {d['dps_annual']} / 주가 기준 {y}")
+        print(f"        → {d['dps_basis']}")
 
 
 def build_savings():
@@ -359,15 +473,23 @@ def main():
                        f"원화 값은 달러 값 × 환율 {global_info['fx']:,.2f}원({global_info['fx_date']}, 야후 파이낸스). "
                        "해외 리츠의 위치는 건물이 아니라 본사가 있는 도시(위키백과 목록)이고, 좌표는 OpenStreetMap 기준.")
 
+    # ---------- 국내 리츠 ETF (scripts/etf_confirmed.json 에 적힌 것만) ----------
     as_of_price = max(base_dates) if base_dates else None
-    save_json("prices", as_of_price, YAHOO_SOURCE, prices, etf_confirmed=False)
+    etf_prices, etf_dividends, etf_histories = build_etfs(as_of_price)
+    prices.extend(etf_prices)
+    dividends.extend(etf_dividends)
+    histories.extend(etf_histories)
+
+    save_json("prices", as_of_price, YAHOO_SOURCE, prices, etf_confirmed=bool(etf_prices))
     save_json("dividends", today, YAHOO_SOURCE, dividends)
     save_json("history", as_of_price, YAHOO_SOURCE, histories)
     update_meta("history", YAHOO_SOURCE, YAHOO_URL, as_of_price, len(histories),
                 "최근 1년 종가 기록(그래프용). 며칠 간격으로 솎아 낸 값이고, 해외 리츠는 달러 기준.")
     update_meta("prices", YAHOO_SOURCE, YAHOO_URL, as_of_price, len(prices),
                 "공식 API 키가 없어 임시로 쓰는 출처. 종가는 마지막 거래일 값(실시간 아님). "
-                "시가총액 = 종가 × 발행 주식 수(재무자료 기준, 기준일은 listed_shares_date). 리츠 ETF는 아직 없음."
+                "시가총액 = 종가 × 발행 주식 수(재무자료 기준, 기준일은 listed_shares_date). "
+                + (f"국내 리츠 ETF {len(etf_prices)}개는 팀이 고른 것(scripts/etf_confirmed.json)."
+                   if etf_prices else "리츠 ETF는 아직 없음.")
                 + global_note)
 
     # ---------- 은행 적금 ----------
@@ -409,4 +531,5 @@ def main():
 
 
 if __name__ == "__main__":
-    run(main)
+    # --etf-only : 다른 데이터는 건드리지 않고 리츠 ETF 항목만 넣거나 바꾼다
+    run(merge_etfs_only if "--etf-only" in sys.argv else main)

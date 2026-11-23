@@ -470,7 +470,8 @@
       if (p.hqLat !== null && p.hqLng !== null) {
         state.globals.push({ asset_id: "hq-" + p.id, reit_id: p.id, reit_name: p.name, name: p.name, isHq: true,
           asset_type: "해외 리츠" + (p.country ? " · " + p.country : ""), address: p.hq, lat: p.hqLat, lng: p.hqLng,
-          propertyCount: props.length, note: notes[p.id] || "" });
+          propertyCount: props.length,
+          note: [notes[p.id], p.hqNote ? "(" + p.hqNote + ")" : ""].filter(Boolean).join(" ") });   // 본사 이전 안내도 같이
         count += 1;
       }
       props.forEach(function (a, i) {

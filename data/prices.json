@@ -1,7 +1,7 @@
 {
   "as_of": "2026-11-13",
   "source": "야후 파이낸스 (비공식 · 거래소 시세 지연 제공)",
-  "etf_confirmed": false,
+  "etf_confirmed": true,
   "items": [
     {
       "id": "365550",
@@ -429,9 +429,9 @@
       "sub_industry": "Data Center REITs"
     },
     {
-      "hq": "Glendale, California",
-      "hq_lat": 34.1469,
-      "hq_lng": -118.2478,
+      "hq": "Frisco, Texas",
+      "hq_lat": 33.1506,
+      "hq_lng": -96.8238,
       "id": "PSA",
       "type": "global",
       "name": "Public Storage",
@@ -447,7 +447,8 @@
       "listed_shares": 186843230,
       "listed_shares_date": "2026-09-30",
       "country": "미국",
-      "sub_industry": "Self-Storage REITs"
+      "sub_industry": "Self-Storage REITs",
+      "hq_note": "2026년 2월 캘리포니아 Glendale에서 텍사스 Frisco로 본사 이전 발표"
     },
     {
       "hq": "San Diego, California",
@@ -511,6 +512,48 @@
       "listed_shares_date": "2026-09-30",
       "country": "미국",
       "sub_industry": "Health Care REITs"
+    },
+    {
+      "id": "329200",
+      "type": "etf",
+      "name": "TIGER 리츠부동산인프라",
+      "close": 3690,
+      "base_date": "2026-11-13",
+      "change": 60,
+      "change_pct": 1.65,
+      "volume": null,
+      "market_cap": null,
+      "listed_shares": null,
+      "nav": null,
+      "base_index": null
+    },
+    {
+      "id": "476800",
+      "type": "etf",
+      "name": "KODEX 한국부동산리츠인프라",
+      "close": 3795,
+      "base_date": "2026-11-13",
+      "change": 35,
+      "change_pct": 0.93,
+      "volume": null,
+      "market_cap": null,
+      "listed_shares": null,
+      "nav": null,
+      "base_index": null
+    },
+    {
+      "id": "0086B0",
+      "type": "etf",
+      "name": "TIGER 리츠부동산인프라TOP10액티브",
+      "close": 8735,
+      "base_date": "2026-11-13",
+      "change": 115,
+      "change_pct": 1.33,
+      "volume": null,
+      "market_cap": null,
+      "listed_shares": null,
+      "nav": null,
+      "base_index": null
     }
   ]
 }

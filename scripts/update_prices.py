@@ -1,84 +1,81 @@
 # -*- coding: utf-8 -*-
 """
-scripts/update_prices.py — 리츠 시세 자동 갱신 → data/prices.json (+ data/meta.json 의 prices 항목)
+scripts/update_prices.py — 리츠 시세 자동 갱신(전일 종가) → data/prices.json, data/history.json (+ data/meta.json)
 
-GitHub Actions(.github/workflows/update-prices.yml)가 평일 장중 30분마다 실행한다.
+GitHub Actions(.github/workflows/update-prices.yml)가 평일 하루 두 번(한국 시간 14:30, 18:30) 실행한다.
 API 키는 GitHub Secrets 에만 있고, 브라우저(화면)는 이 스크립트가 만든 JSON 만 읽는다. → 키가 노출되지 않음
 
+공개 사이트 출처 원칙 (2026-11-23 팀 결정)
+  - 공개 링크에는 **전날 종가만** 보여준다.
+  - 한국투자증권(KIS) 시세는 공개 사이트에 다시 내보내면 안 될 수 있어서 쓰지 않는다.
+  - 금융위원회 시세는 공공데이터포털의 공공데이터(공공누리 제4유형: 출처표시·상업적 이용금지·변경금지)
+    → 비영리 수업 과제라 쓸 수 있고, 값은 바꾸지 않고 출처를 표시한다.
+
 하는 일
-  1) 국내 리츠 (prices.json 의 type "reit")  한국투자증권 Open API(KIS Developers)
-       - 현재가·전일 대비 등락률·상장주수      주식현재가 시세   FHKST01010100
-       - 1년 전 종가(1년 등락률 계산용)        기간별시세(일봉)  FHKST03010100
-  2) 미국 리츠 (type "global")               Finnhub
-       - 현재가·전일 대비 등락률               /quote
-       - 최근 52주 가격 등락률                 /stock/metric (52WeekPriceReturnDaily)
-  3) 원/달러 환율                            Frankfurter(키 없음) → 실패하면 open.er-api.com → 그래도 실패하면 직전 환율
-     미국 리츠의 원화 가격 = 달러 가격 × 환율
-  4) data/prices.json 을 지금과 같은 모양으로 덮어쓴다(화면 코드가 그대로 읽음). 새로 넣는 값:
-       종목별  price, dailyChangePct, yearlyChangePct, price_kind("현재가"|"종가"), price_time
-       전체    updatedAt
+  1) 국내 리츠·리츠 ETF (prices.json 의 type "reit"·"etf")  금융위원회 시세 (공공데이터포털)
+       - 국내 리츠   주식시세정보 getStockPriceInfo_V2      (공공데이터포털 15094808)
+       - 리츠 ETF    증권상품시세정보 getETFPriceInfo_V2    (공공데이터포털 15094806)
+       - 기준일의 다음 영업일 오후 1시 이후에 올라오는 "전일 종가"다. 실시간이 아니다.
+       - 1년 등락률 = 1년 전 같은 날(휴장이면 그 직전 거래일) 종가 대비
+  2) 미국 리츠 (type "global")  Finnhub /quote, /stock/metric — FINNHUB_API_KEY 가 있을 때만.
+     키가 없으면 미국 리츠는 직전 값을 그대로 둔다. (Finnhub 무료 키는 '개인 용도' 조건이라 팀이 정해서 넣는다)
+  3) 원/달러 환율 (미국 리츠를 받을 때만)  Frankfurter → 실패하면 open.er-api.com → 그래도 실패하면 직전 환율
+  4) data/prices.json 을 지금과 같은 모양으로 덮어쓴다. 종목별 price, dailyChangePct, yearlyChangePct,
+     price_kind("종가"), 전체 updatedAt
+  5) data/history.json(1년 그래프)에 종가를 한 점씩 붙이고 1년보다 오래된 점은 뺀다.
+     국내는 마지막 점 이후 빈 거래일을 같은 API(그날 전체 시세)로 채운다. 미국은 채우지 못한다.
 
 가짜 값 금지 (HANDOFF_PROMPT.md 2장)
   - 어떤 종목을 못 받으면 그 종목은 직전 값을 그대로 두고 "stale": true 로 표시한다. 값을 지어내지 않는다.
   - 한 종목도 못 받으면 파일을 건드리지 않고 실패로 끝낸다. (화면은 직전 파일을 계속 쓴다)
-  - 시세가 직전 파일과 같으면 저장하지 않는다. (쓸데없는 커밋 방지)
+  - 시세와 그래프가 직전 파일과 같으면 저장하지 않는다. (쓸데없는 커밋 방지)
 
 필요한 키 (GitHub Secrets 또는 프로젝트 폴더의 .env)
-  KIS_APP_KEY, KIS_APP_SECRET   한국투자증권 KIS Developers 앱키
-  FINNHUB_API_KEY               finnhub.io 무료 키
-  (선택) KIS_ENV=demo            모의투자 앱키를 쓸 때. 기본은 실전(real)
+  DATA_GO_KR_KEY    공공데이터포털 인증키 (주식시세정보·증권상품시세정보 두 API 모두 '활용신청' 필요)
+  (선택) FINNHUB_API_KEY   미국 리츠까지 갱신할 때만
 
 실행
   python scripts/update_prices.py            평소 실행
   python scripts/update_prices.py --peek     API 원본 1건씩 그대로 보여줌(구조 확인용)
   python scripts/update_prices.py --dry-run  받아만 보고 저장하지 않음
 
-공식 명세 확인 (2026-11-23)
-  KIS      github.com/koreainvestment/open-trading-api  examples_llm/domestic_stock/inquire_price,
-           inquire_daily_itemchartprice, examples_llm/kis_auth.py (토큰: POST /oauth2/tokenP, 유효 1일)
-  Finnhub  finnhub.io/docs/api  (/quote: c 현재가, d 전일대비, dp 등락률, pc 전일 종가, t 시각)
-  환율     api.frankfurter.dev/v2/rates?base=USD&quotes=KRW  → [{"date","base","quote","rate"}]
+공식 명세 확인
+  금융위원회 시세  공공데이터포털 15094808·15094806 오픈API 명세(swagger) — 2026-11-14 확인
+                   응답 body.items.item: srtnCd(단축코드), itmsNm, basDt(YYYYMMDD), clpr(종가), vs(전일 대비),
+                   fltRt(등락률), mrktTotAmt(시가총액), lstgStCnt(상장주식수, 주식) / stLstgCnt·nav·bssIdxIdxNm(ETF)
+  Finnhub          finnhub.io/docs/api  (/quote: c 현재가, d 전일대비, dp 등락률, pc 전일 종가, t 시각)
+  환율             api.frankfurter.dev/v2/rates?base=USD&quotes=KRW  → [{"date","base","quote","rate"}]
 """
 
 import argparse
-import base64
 import datetime as dt
-import hashlib
 import json
 import os
 import time
-from pathlib import Path
 
 from _util import (
-    CACHE_DIR, KST, Stop, _SECRETS, has_key, load_env, load_json, mask, now_kst, peek, run, save_json,
-    to_date, to_number, update_meta,
+    ETF_URL, KST, STOCK_URL, Stop, _SECRETS, data_go_kr_all, find_latest_base_date, get_data_go_kr_key,
+    has_key, load_env, load_json, norm_code, now_kst, peek, run, save_json, to_date, to_number, update_meta,
 )
 
 # ---------------------------------------------------------------------------
 # 주소와 출처 문구
 # ---------------------------------------------------------------------------
-KIS_BASE = {
-    "real": "https://openapi.koreainvestment.com:9443",      # 실전 도메인
-    "demo": "https://openapivts.koreainvestment.com:29443",  # 모의투자 도메인
-}
-KIS_TOKEN_PATH = "/oauth2/tokenP"
-KIS_PRICE_PATH = "/uapi/domestic-stock/v1/quotations/inquire-price"
-KIS_PRICE_TR = "FHKST01010100"
-KIS_DAILY_PATH = "/uapi/domestic-stock/v1/quotations/inquire-daily-itemchartprice"
-KIS_DAILY_TR = "FHKST03010100"
-KIS_MARKET = "J"                       # 조건 시장 분류 코드: J = KRX
-
 FINNHUB_BASE = "https://finnhub.io/api/v1"
 FX_FRANKFURTER = "https://api.frankfurter.dev/v2/rates"
 FX_ER_API = "https://open.er-api.com/v6/latest/USD"
 
-SOURCE = "한국투자증권 Open API(국내 리츠) · Finnhub(미국 리츠) · 환율 Frankfurter"
-SOURCE_URL = "https://apiportal.koreainvestment.com"
-KR_SOURCE = "한국투자증권 Open API (KIS Developers)"
+KR_SOURCE = "금융위원회 주식시세정보·증권상품시세정보 (공공데이터포털, 공공누리 제4유형)"
+KR_SOURCE_URL = "https://www.data.go.kr/data/15094808/openapi.do"
+KR_TYPES = ("reit", "etf")         # 금융위원회 시세로 받는 종류 (국내 리츠, 국내 리츠 ETF)
 US_SOURCE = "Finnhub (finnhub.io)"
 
-KR_OPEN, KR_CLOSE = dt.time(9, 0), dt.time(15, 30)        # 한국 정규장 (한국 시간)
 US_OPEN, US_CLOSE = dt.time(9, 30), dt.time(16, 0)        # 미국 정규장 (뉴욕 시간)
+
+# 1년 그래프(data/history.json): 종가를 하루 한 점씩 붙이고, 1년보다 오래된 점은 뺀다
+HISTORY_DAYS = 366
+HISTORY_GAP_LIMIT = 45             # 국내 빈 구간을 채우는 최대 일수 (이보다 길면 API 호출이 너무 많아 채우지 않음)
+HISTORY_SOURCE = "야후 파이낸스(2026-11-13까지, 비공식) + 그 뒤 종가: 금융위원회 시세(국내) · Finnhub(미국)"
 
 # 직전 파일과 비교할 때 보는 값 (시각만 바뀐 것은 "변동 없음")
 COMPARE_FIELDS = ("price", "dailyChangePct", "yearlyChangePct", "price_kind", "base_date", "close_local", "fx_rate", "stale")
@@ -116,8 +113,12 @@ def one_year_ago(day):
         return day.replace(year=day.year - 1, day=28)
 
 
+def ymd(day):
+    return day.strftime("%Y%m%d")
+
+
 # ---------------------------------------------------------------------------
-# HTTP (실패 이유를 한국어로, 메시지에 키가 보이지 않게)
+# HTTP (Finnhub·환율용. 실패 이유를 한국어로)
 # ---------------------------------------------------------------------------
 def request_json(method, url, label, tries=3, **kwargs):
     """JSON 응답을 받는다 → (상태코드, 본문 또는 None). 연결 자체가 안 되면 (None, None)"""
@@ -141,156 +142,89 @@ def request_json(method, url, label, tries=3, **kwargs):
 
 
 # ---------------------------------------------------------------------------
-# 한국투자증권 Open API
+# 금융위원회 시세 (공공데이터포털)
 # ---------------------------------------------------------------------------
-class Kis:
-    """KIS 접근토큰을 한 번 받아 두고 시세를 조회한다.
+class MarketDay:
+    """하루치 전체 시세(주식 + ETF)를 받아서 단축코드로 찾게 해 준다. 같은 날은 한 번만 받는다."""
 
-    접근토큰은 하루 동안 쓸 수 있고, 새로 발급할 때마다 카카오톡 알림이 간다(KIS 공식 예제 주석).
-    그래서 30분마다 새로 받지 않도록 토큰을 암호화해서 캐시 파일에 보관한다(GitHub Actions cache).
-    암호 키는 앱시크릿에서 만들기 때문에, 캐시 파일만 가져가서는 토큰을 꺼낼 수 없다.
-    """
+    def __init__(self, key, peek_first=False):
+        self.key = key
+        self.cache = {}
+        self.peek_first = peek_first
 
-    def __init__(self, app_key, app_secret, env="real", cache_path=None):
-        self.app_key = app_key
-        self.app_secret = app_secret
-        self.env = env if env in KIS_BASE else "real"
-        self.base = KIS_BASE[self.env]
-        self.cache_path = Path(cache_path) if cache_path else CACHE_DIR / "kis_token.enc"
-        self.token = None
-        self.token_refreshed = False
-        self.pause = 0.07 if self.env == "real" else 0.55      # 실전 초당 20건, 모의 초당 2건 제한보다 느리게
+    def rows(self, day_ymd):
+        """그날 시세 → {단축코드: 원본 행}. 휴장일·자료 없음이면 빈 dict"""
+        if day_ymd not in self.cache:
+            table = {}
+            for url, label in ((STOCK_URL, "주식시세"), (ETF_URL, "ETF시세")):
+                query = {"serviceKey": self.key, "resultType": "json", "basDt": day_ymd}
+                for row in data_go_kr_all(url, query, f"{label}({day_ymd})", page_size=1000):
+                    code = norm_code(row.get("srtnCd"))
+                    if code:
+                        table[code] = row
+                if self.peek_first:
+                    sample = next((r for r in table.values()), None)
+                    if sample:
+                        peek(f"{label} 원본 1건 ({day_ymd})", sample)
+            self.peek_first = False
+            self.cache[day_ymd] = table
+        return self.cache[day_ymd]
 
-    # ----- 토큰 캐시 (암호화) -----
-    def _fernet(self):
-        try:
-            from cryptography.fernet import Fernet
-        except ImportError:
-            return None
-        digest = hashlib.sha256(("kis-token-cache|" + self.app_secret).encode("utf-8")).digest()
-        return Fernet(base64.urlsafe_b64encode(digest))
-
-    def _key_id(self):
-        return hashlib.sha256(self.app_key.encode("utf-8")).hexdigest()[:16]
-
-    def _load_cached_token(self):
-        fernet = self._fernet()
-        if not fernet or not self.cache_path.exists():
-            return None
-        try:
-            data = json.loads(fernet.decrypt(self.cache_path.read_bytes()).decode("utf-8"))
-            expires = dt.datetime.fromisoformat(data["expires_at"])
-        except Exception:                       # 풀 수 없으면(키가 바뀜 등) 그냥 새로 받는다
-            return None
-        if data.get("env") != self.env or data.get("key_id") != self._key_id():
-            return None
-        if expires - now_kst() < dt.timedelta(minutes=30):
-            return None
-        return data.get("token")
-
-    def _save_cached_token(self, token, expires_at):
-        fernet = self._fernet()
-        if not fernet:
-            print("  [안내] cryptography 패키지가 없어 접근토큰을 저장하지 않아요. (실행할 때마다 새로 발급)")
-            return
-        payload = json.dumps({"token": token, "expires_at": iso_kst(expires_at), "env": self.env,
-                              "key_id": self._key_id()}).encode("utf-8")
-        self.cache_path.parent.mkdir(parents=True, exist_ok=True)
-        self.cache_path.write_bytes(fernet.encrypt(payload))
-
-    # ----- 토큰 발급 -----
-    def ensure_token(self, force=False):
-        if self.token and not force:
-            return self.token
-        cached = None if force else self._load_cached_token()
-        if cached:
-            self.token = cached
-            _SECRETS.add(cached)
-            print("  KIS 접근토큰: 저장해 둔 토큰을 다시 써요.")
-            return self.token
-        body = {"grant_type": "client_credentials", "appkey": self.app_key, "appsecret": self.app_secret}
-        status, data = request_json("POST", self.base + KIS_TOKEN_PATH, "KIS 접근토큰 발급",
-                                    json=body, headers={"content-type": "application/json; charset=utf-8"})
-        if status != 200 or not data or not data.get("access_token"):
-            message = (data or {}).get("error_description") or (data or {}).get("msg1") or ""
-            raise Stop(
-                f"KIS 접근토큰을 받지 못했어요 (HTTP {status}). {mask(message)}\n"
-                "  → KIS_APP_KEY / KIS_APP_SECRET 값이 맞는지, 실전·모의(KIS_ENV) 구분이 맞는지 확인해 주세요.\n"
-                "  → 토큰은 1분에 1번만 발급돼요. 방금 실행했다면 1분 뒤에 다시 해 주세요."
-            )
-        self.token = data["access_token"]
-        _SECRETS.add(self.token)
-        try:   # 만료 시각: "2026-11-24 12:00:00" (한국 시간)
-            expires = dt.datetime.strptime(data.get("access_token_token_expired", ""), "%Y-%m-%d %H:%M:%S").replace(tzinfo=KST)
-        except ValueError:
-            expires = now_kst() + dt.timedelta(seconds=int(data.get("expires_in") or 86400))
-        self._save_cached_token(self.token, expires)
-        self.token_refreshed = True
-        set_output("token_refreshed", "true")
-        print("  KIS 접근토큰: 새로 발급했어요.")
-        return self.token
-
-    # ----- 조회 공통 -----
-    def get(self, path, tr_id, params, label):
-        """KIS GET 조회. 성공하면 응답 본문(dict), 실패하면 None"""
-        for attempt in range(3):
-            headers = {
-                "content-type": "application/json; charset=utf-8",
-                "authorization": "Bearer " + self.ensure_token(),
-                "appkey": self.app_key,
-                "appsecret": self.app_secret,
-                "tr_id": tr_id,
-                "custtype": "P",                # 개인
-            }
-            time.sleep(self.pause)
-            status, body = request_json("GET", self.base + path, label, headers=headers, params=params)
-            if body and body.get("rt_cd") == "0":
-                return body
-            code = (body or {}).get("msg_cd", "")
-            if code == "EGW00201":                          # 초당 거래건수 초과 → 잠깐 쉬고 다시
-                time.sleep(1.0)
+    def on_or_before(self, day, max_back=10):
+        """그날(휴장이면 그 직전 거래일)의 (날짜 'YYYY-MM-DD', 시세표). 없으면 (None, {})"""
+        for back in range(max_back + 1):
+            d = day - dt.timedelta(days=back)
+            if d.weekday() >= 5:
                 continue
-            if code in ("EGW00121", "EGW00123") or status == 401:   # 토큰 만료·무효 → 한 번만 새로 발급
-                if attempt == 0:
-                    self.ensure_token(force=True)
-                    continue
-            print(f"  [실패] {label}: HTTP {status} {code} {mask((body or {}).get('msg1', ''))}")
-            return None
-        return None
+            table = self.rows(ymd(d))
+            if table:
+                return d.isoformat(), table
+        return None, {}
 
-    def quote(self, code):
-        """현재가 시세 → {price, change, change_pct, listed_shares} 또는 None"""
-        body = self.get(KIS_PRICE_PATH, KIS_PRICE_TR,
-                        {"FID_COND_MRKT_DIV_CODE": KIS_MARKET, "FID_INPUT_ISCD": code}, f"KIS 현재가({code})")
-        out = (body or {}).get("output") or {}
-        price = to_number(out.get("stck_prpr"))
-        if not price or price <= 0:                         # 0원은 거래정지 등 → 값 없음으로 본다
-            return None
-        return {
-            "raw": out,
-            "price": price,
-            "change": to_number(out.get("prdy_vrss")),
-            "change_pct": to_number(out.get("prdy_ctrt")),
-            "listed_shares": to_number(out.get("lstn_stcn")),
-        }
 
-    def daily_closes(self, code, start, end):
-        """기간별 일봉 종가 → [(날짜 'YYYY-MM-DD', 종가)], 날짜 오름차순 (수정주가 기준)"""
-        body = self.get(KIS_DAILY_PATH, KIS_DAILY_TR, {
-            "FID_COND_MRKT_DIV_CODE": KIS_MARKET, "FID_INPUT_ISCD": code,
-            "FID_INPUT_DATE_1": start.strftime("%Y%m%d"), "FID_INPUT_DATE_2": end.strftime("%Y%m%d"),
-            "FID_PERIOD_DIV_CODE": "D", "FID_ORG_ADJ_PRC": "0",
-        }, f"KIS 일봉({code})")
-        rows = []
-        for row in (body or {}).get("output2") or []:
-            day, close = to_date(row.get("stck_bsop_date")), to_number(row.get("stck_clpr"))
-            if day and close and close > 0:
-                rows.append((day, close))
-        return sorted(rows)
+def update_kr(items, market, latest_ymd):
+    """국내 리츠·리츠 ETF 의 전일 종가 → (받은 수, 못 받은 이름 목록)"""
+    latest = dt.datetime.strptime(latest_ymd, "%Y%m%d").date()
+    today_rows = market.rows(latest_ymd)
+    year_date, year_rows = market.on_or_before(one_year_ago(latest))
+    print(f"  최근 기준일 {latest.isoformat()} / 1년 전 비교일 {year_date}")
+    updated, missing = 0, []
+    for item in items:
+        if item.get("type") not in KR_TYPES:
+            continue
+        row = today_rows.get(item["id"])
+        price = to_number((row or {}).get("clpr"))
+        if not row or not price or price <= 0:              # 0원은 거래정지 등 → 값 없음으로 본다
+            item["stale"] = True
+            missing.append(item["name"])
+            continue
+        year_row = year_rows.get(item["id"])
+        year_close = to_number((year_row or {}).get("clpr"))
+        yearly = round((price - year_close) / year_close * 100, 2) if year_close else None
+        is_etf = item.get("type") == "etf"
+        shares = to_number(row.get("stLstgCnt" if is_etf else "lstgStCnt"))
+        item.update({
+            "close": price, "price": price,
+            "base_date": to_date(row.get("basDt")) or latest.isoformat(),
+            "price_kind": "종가", "price_time": None,
+            "change": to_number(row.get("vs")), "change_pct": to_number(row.get("fltRt")),
+            "dailyChangePct": to_number(row.get("fltRt")),
+            "yearlyChangePct": yearly,
+            "year_ago": {"date": year_date, "close": year_close} if year_close else None,
+            "market_cap": to_number(row.get("mrktTotAmt")),
+            "listed_shares": shares if shares else item.get("listed_shares"),
+            "listed_shares_date": to_date(row.get("basDt")) if shares else item.get("listed_shares_date"),
+            "price_source": KR_SOURCE, "stale": False,
+        })
+        if is_etf:
+            item["nav"] = to_number(row.get("nav"))
+            item["base_index"] = row.get("bssIdxIdxNm") or item.get("base_index")
+        updated += 1
+    return updated, missing
 
 
 # ---------------------------------------------------------------------------
-# Finnhub
+# Finnhub (미국 리츠, 선택)
 # ---------------------------------------------------------------------------
 def finnhub_get(path, params, key, label):
     status, body = request_json("GET", FINNHUB_BASE + path, label, params=dict(params, token=key))
@@ -320,9 +254,6 @@ def finnhub_year_change(symbol, key):
     return round(float(value), 2) if isinstance(value, (int, float)) else None
 
 
-# ---------------------------------------------------------------------------
-# 환율
-# ---------------------------------------------------------------------------
 def fetch_usd_krw(previous):
     """원/달러 환율 → {rate, date, source}. 둘 다 실패하면 직전 값(previous)"""
     status, body = request_json("GET", FX_FRANKFURTER, "환율(Frankfurter)", params={"base": "USD", "quotes": "KRW"})
@@ -341,65 +272,6 @@ def fetch_usd_krw(previous):
         print("  [안내] 환율을 새로 받지 못해서 직전 환율을 그대로 써요.")
         return dict(previous, stale=True)
     return None
-
-
-# ---------------------------------------------------------------------------
-# 종목별 갱신
-# ---------------------------------------------------------------------------
-def kr_market_date(kis, code, today):
-    """가장 최근 거래일 (최근 2주 일봉의 마지막 날짜). 휴장일 판단에 쓴다"""
-    rows = kis.daily_closes(code, today - dt.timedelta(days=14), today)
-    return rows[-1][0] if rows else None
-
-
-def kr_year_ago_close(kis, item, today):
-    """1년 전(그날이 휴장이면 그 직전 거래일) 종가. 같은 날 이미 구했으면 다시 부르지 않는다"""
-    target = one_year_ago(today).isoformat()
-    saved = item.get("year_ago") or {}
-    if saved.get("target") == target and saved.get("close"):
-        return saved
-    rows = kis.daily_closes(item["id"], one_year_ago(today) - dt.timedelta(days=14), one_year_ago(today))
-    if not rows:
-        return None
-    return {"target": target, "date": rows[-1][0], "close": rows[-1][1]}
-
-
-def update_kr(items, kis, now, args):
-    today = now.date()
-    codes = [i["id"] for i in items if i.get("type") == "reit"]
-    if not codes:
-        return 0, []
-    market_date = kr_market_date(kis, codes[0], today)
-    in_session = market_date == today.isoformat() and KR_OPEN <= now.time() < KR_CLOSE
-    print(f"  최근 거래일 {market_date} / {'장중' if in_session else '장 마감 후 또는 휴장'}")
-    updated, missing = 0, []
-    for item in items:
-        if item.get("type") != "reit":
-            continue
-        q = kis.quote(item["id"])
-        if args.peek and q and updated == 0:
-            peek(f"KIS 현재가 원본 ({item['name']})", q["raw"])
-        if not q:
-            item["stale"] = True
-            missing.append(item["name"])
-            continue
-        year = kr_year_ago_close(kis, item, today)
-        yearly = round((q["price"] - year["close"]) / year["close"] * 100, 2) if year else None
-        shares = q["listed_shares"] if q["listed_shares"] and q["listed_shares"] > 0 else item.get("listed_shares")
-        item.update({
-            "close": q["price"], "price": q["price"],
-            "base_date": (today.isoformat() if in_session else market_date) or item.get("base_date"),
-            "price_kind": "현재가" if in_session else "종가",
-            "price_time": iso_kst(now) if in_session else None,
-            "change": q["change"], "change_pct": q["change_pct"], "dailyChangePct": q["change_pct"],
-            "yearlyChangePct": yearly, "year_ago": year,
-            "market_cap": round(q["price"] * shares) if shares else None,
-            "listed_shares": shares,
-            "listed_shares_date": today.isoformat() if q["listed_shares"] else item.get("listed_shares_date"),
-            "price_source": KR_SOURCE, "stale": False,
-        })
-        updated += 1
-    return updated, missing
 
 
 def update_us(items, key, fx, now, args):
@@ -438,6 +310,58 @@ def update_us(items, key, fx, now, args):
 
 
 # ---------------------------------------------------------------------------
+# 1년 그래프 (data/history.json)
+# ---------------------------------------------------------------------------
+def update_history(items, market, history):
+    """종가를 1년 그래프에 붙인다 → 바뀐 종목 수. history 는 data/history.json 내용(직접 고친다)
+
+    - price_kind 가 "종가"이고 stale 이 아닌 종목만 붙인다 (장중 현재가는 넣지 않는다, 가짜 값 금지)
+    - 같은 날짜가 이미 있으면 그 점을 바꾼다
+    - 국내는 마지막 점과 오늘 사이 빈 거래일을 금융위원회 시세(그날 전체 시세)로 채운다 (예: 자동 갱신 첫 실행)
+      미국은 Finnhub 무료 키로 과거 일봉을 받을 수 없어서 빈 구간은 그대로 둔다(그래프는 그 사이를 직선으로 이음)
+    - 그래프는 국내가 원, 미국이 달러 기준 (history.json 의 currency)
+    """
+    if not history or not isinstance(history.get("items"), list):
+        return 0
+    by_id = {h.get("id"): h for h in history["items"]}
+    changed = 0
+    for item in items:
+        if item.get("stale") or item.get("price_kind") != "종가" or not item.get("base_date"):
+            continue
+        is_us = item.get("type") == "global"
+        value = item.get("close_local") if is_us else (item.get("price") or item.get("close"))
+        if not isinstance(value, (int, float)) or value <= 0:
+            continue
+        day = item["base_date"]
+        h = by_id.get(item["id"])
+        if h is None:                                       # 그래프가 없던 종목은 새로 만든다
+            h = {"id": item["id"], "currency": "USD" if is_us else "KRW", "points": []}
+            history["items"].append(h)
+            by_id[item["id"]] = h
+        points = {p[0]: p[1] for p in h.get("points") or [] if isinstance(p, list) and len(p) == 2}
+        before = dict(points)
+        # 국내: 마지막 점 다음 날부터 어제까지 비어 있는 거래일을 그날 전체 시세로 채운다
+        if market and not is_us and points:
+            gap_start = dt.date.fromisoformat(max(points)) + dt.timedelta(days=1)
+            gap_end = dt.date.fromisoformat(day) - dt.timedelta(days=1)
+            if gap_start <= gap_end and (gap_end - gap_start).days <= HISTORY_GAP_LIMIT:
+                d = gap_start
+                while d <= gap_end:
+                    if d.weekday() < 5:
+                        close = to_number((market.rows(ymd(d)).get(item["id"]) or {}).get("clpr"))
+                        if close and close > 0:
+                            points[d.isoformat()] = round(close)
+                    d += dt.timedelta(days=1)
+        points[day] = round(value, 2) if is_us else round(value)
+        start = (dt.date.fromisoformat(max(points)) - dt.timedelta(days=HISTORY_DAYS)).isoformat()
+        points = {d: v for d, v in points.items() if d >= start}
+        if points != before:
+            h["points"] = [[d, points[d]] for d in sorted(points)]
+            changed += 1
+    return changed
+
+
+# ---------------------------------------------------------------------------
 # 저장
 # ---------------------------------------------------------------------------
 def set_output(name, value):
@@ -453,11 +377,10 @@ def snapshot(items):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="KIS·Finnhub 시세 → data/prices.json")
+    parser = argparse.ArgumentParser(description="금융위원회 시세(전일 종가)·Finnhub → data/prices.json, history.json")
     parser.add_argument("--peek", action="store_true", help="API 원본 1건씩 그대로 출력")
     parser.add_argument("--dry-run", action="store_true", help="저장하지 않고 결과만 출력")
     args = parser.parse_args()
-    set_output("token_refreshed", "false")
 
     old = load_json("prices")
     if not old or not isinstance(old.get("items"), list) or not old["items"]:
@@ -467,40 +390,38 @@ def main():
     now = now_kst()
     load_env()
 
-    has_kis = has_key("KIS_APP_KEY") and has_key("KIS_APP_SECRET")
+    has_kr = has_key("DATA_GO_KR_KEY")
     has_finnhub = has_key("FINNHUB_API_KEY")
-    if not has_kis and not has_finnhub:
-        raise Stop("API 키가 하나도 없어요. KIS_APP_KEY·KIS_APP_SECRET·FINNHUB_API_KEY 를 "
-                   "GitHub Secrets(또는 .env)에 넣어 주세요.")
-    for name in ("KIS_APP_KEY", "KIS_APP_SECRET", "FINNHUB_API_KEY"):
-        if has_key(name):
-            _SECRETS.add(os.environ[name].strip())
+    if not has_kr and not has_finnhub:
+        raise Stop("API 키가 하나도 없어요. DATA_GO_KR_KEY(공공데이터포털)를 GitHub Secrets(또는 .env)에 넣어 주세요.")
+    if has_finnhub:
+        _SECRETS.add(os.environ["FINNHUB_API_KEY"].strip())
 
-    # ---------- 1) 국내 리츠 ----------
-    kr_count, kr_missing = 0, []
-    if has_kis:
-        print("[1/3] 국내 리츠 시세 (한국투자증권 Open API)")
-        kis = Kis(os.environ["KIS_APP_KEY"].strip(), os.environ["KIS_APP_SECRET"].strip(),
-                  os.environ.get("KIS_ENV", "real").strip().lower(), os.environ.get("KIS_TOKEN_CACHE"))
-        kr_count, kr_missing = update_kr(items, kis, now, args)
+    # ---------- 1) 국내 리츠·리츠 ETF (금융위원회 시세) ----------
+    kr_count, kr_missing, market = 0, [], None
+    if has_kr:
+        print("[1/3] 국내 리츠·리츠 ETF 전일 종가 (금융위원회 시세, 공공데이터포털)")
+        key = get_data_go_kr_key()
+        market = MarketDay(key, peek_first=args.peek)
+        latest_ymd = find_latest_base_date(key)
+        kr_count, kr_missing = update_kr(items, market, latest_ymd)
     else:
-        print("[1/3] KIS 키가 없어 국내 리츠는 직전 값을 그대로 둬요.")
+        print("[1/3] 공공데이터포털 키가 없어 국내 리츠는 직전 값을 그대로 둬요.")
 
-    # ---------- 2) 환율 ----------
-    print("[2/3] 원/달러 환율")
+    # ---------- 2) 환율 · 3) 미국 리츠 (Finnhub, 선택) ----------
     previous_fx = old.get("fx") or next(({"rate": i.get("fx_rate"), "date": i.get("fx_date")}
                                          for i in items if i.get("fx_rate")), None)
-    fx = fetch_usd_krw(previous_fx) if has_finnhub else previous_fx
-    if fx:
-        print(f"  1달러 = {fx['rate']:,.2f}원 ({fx.get('date')}, {fx.get('source', '직전 값')})")
-
-    # ---------- 3) 미국 리츠 ----------
+    fx = previous_fx
     us_count, us_missing = 0, []
     if has_finnhub:
+        print("[2/3] 원/달러 환율")
+        fx = fetch_usd_krw(previous_fx)
+        if fx:
+            print(f"  1달러 = {fx['rate']:,.2f}원 ({fx.get('date')}, {fx.get('source', '직전 값')})")
         print("[3/3] 미국 리츠 시세 (Finnhub)")
         us_count, us_missing = update_us(items, os.environ["FINNHUB_API_KEY"].strip(), fx, now, args)
     else:
-        print("[3/3] Finnhub 키가 없어 미국 리츠는 직전 값을 그대로 둬요.")
+        print("[2/3][3/3] Finnhub 키가 없어 미국 리츠·환율은 직전 값을 그대로 둬요.")
 
     total = kr_count + us_count
     print(f"\n  받은 종목: 국내 {kr_count} / 미국 {us_count}")
@@ -510,26 +431,44 @@ def main():
     if total == 0:
         raise Stop("한 종목도 시세를 받지 못해서 파일을 그대로 뒀어요. 위의 [실패] 이유를 확인해 주세요.")
 
-    if snapshot(items) == before and not args.dry_run:
+    # ---------- 4) 1년 그래프에 종가 붙이기 ----------
+    history = load_json("history")
+    history_changed = update_history(items, market, history)
+    if history_changed:
+        print(f"  1년 그래프: {history_changed}개 종목에 종가를 붙였어요.")
+
+    if snapshot(items) == before and not history_changed and not args.dry_run:
         print("\n[완료] 직전 파일과 시세가 같아서 저장하지 않았어요.")
         return
 
-    dates = sorted(i["base_date"] for i in items if i.get("type") == "reit" and i.get("base_date") and not i.get("stale"))
-    as_of = dates[-1] if dates else now.date().isoformat()
-    sources = {"kr": KR_SOURCE if has_kis else old.get("source"), "us": US_SOURCE if has_finnhub else old.get("source"),
-               "fx": (fx or {}).get("source")}
+    dates = sorted(i["base_date"] for i in items
+                   if i.get("type") in KR_TYPES and i.get("base_date") and not i.get("stale"))
+    as_of = dates[-1] if dates else old.get("as_of")
     if args.dry_run:
         print("\n[dry-run] 저장하지 않았어요. 첫 종목 결과:")
         print(json.dumps(items[0], ensure_ascii=False, indent=2))
         return
-    save_json("prices", as_of, SOURCE, items, updatedAt=iso_kst(now), etf_confirmed=old.get("etf_confirmed", False),
+    source = KR_SOURCE + (" · Finnhub(미국 리츠)" if has_finnhub else "")
+    sources = {"kr": KR_SOURCE if has_kr else old.get("source"),
+               "us": US_SOURCE if has_finnhub else (old.get("sources") or {}).get("us") or old.get("source"),
+               "fx": (fx or {}).get("source")}
+    save_json("prices", as_of, source, items, updatedAt=iso_kst(now), etf_confirmed=old.get("etf_confirmed", False),
               fx=fx, sources=sources)
-    note = ("장중에는 30분 간격으로 받은 현재가(price_kind \"현재가\"), 장 마감 뒤에는 종가. 실시간 아님. "
-            "1년 등락률: 국내는 1년 전 같은 날(휴장이면 직전 거래일) 종가 대비, 미국은 Finnhub 52주 가격 등락률. "
-            f"미국 리츠 원화 값 = 달러 값 × 환율({(fx or {}).get('source')}). "
-            "못 받은 종목은 직전 값을 그대로 두고 stale 로 표시. 시가총액 = 가격 × 상장주식 수.")
-    update_meta("prices", SOURCE, SOURCE_URL, as_of, len(items), note)
+    note = ("국내 리츠·리츠 ETF는 금융위원회 시세(공공데이터포털)의 전일 종가. 기준일의 다음 영업일 오후 1시 이후 갱신, 실시간 아님. "
+            "1년 등락률은 1년 전 같은 날(휴장이면 직전 거래일) 종가 대비. 공공누리 제4유형(출처표시·상업적 이용금지·변경금지). "
+            + ("미국 리츠는 Finnhub, 원화 값 = 달러 값 × 환율. " if has_finnhub
+               else "미국 리츠는 자동 갱신하지 않고 마지막으로 받은 값(기준일 표시)을 그대로 둠. ")
+            + "못 받은 종목은 직전 값을 그대로 두고 stale 로 표시.")
+    update_meta("prices", source, KR_SOURCE_URL, as_of, len(items), note)
     print(f"\n[성공] data/prices.json 저장 (기준일 {as_of}, {iso_kst(now)})")
+    if history_changed:
+        last_day = max((h["points"][-1][0] for h in history["items"] if h.get("points")), default=as_of)
+        extra = {k: v for k, v in history.items() if k not in ("as_of", "source", "items")}
+        save_json("history", last_day, HISTORY_SOURCE, history["items"], **extra)
+        update_meta("history", HISTORY_SOURCE, KR_SOURCE_URL, last_day, len(history["items"]),
+                    "최근 1년 종가 기록(그래프용). 2026-11-13까지는 야후 파이낸스에서 며칠 간격으로 솎아 낸 값, "
+                    "그 뒤는 자동 갱신이 종가를 하루 한 점씩 붙인 값. 해외 리츠는 달러 기준.")
+        print(f"[성공] data/history.json 저장 (마지막 날 {last_day})")
 
 
 if __name__ == "__main__":

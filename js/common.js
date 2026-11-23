@@ -175,7 +175,7 @@ var Common = (function () {
           key: key, id: id || null, type: type, name: name, assetType: null, amc: null, assetCount: null,
           price: null, priceDate: null, changePct: null, priceLocal: null, currency: "KRW", country: null,
           priceKind: null, priceTime: null, yearlyChangePct: null, dpsAnnualLocal: null,
-          hq: null, hqLat: null, hqLng: null,
+          hq: null, hqLat: null, hqLng: null, hqNote: null,
           properties: [],                // 해외 리츠의 대표 보유 자산 (data/global_properties.json)
           history: null,                 // 최근 1년 종가 기록 [["2026-01-02", 5600], ...] (그래프용)
           marketCap: null, dpsAnnual: null, dpsBasis: null, priceYield: null,
@@ -213,6 +213,7 @@ var Common = (function () {
         p.hq = row.hq || null;                                       // 본사가 있는 도시
         p.hqLat = isNum(row.hq_lat) ? row.hq_lat : null;
         p.hqLng = isNum(row.hq_lng) ? row.hq_lng : null;
+        p.hqNote = row.hq_note || null;                              // 본사 이전 같은 안내 (있을 때만)
       }
       p.marketCap = isNum(row.market_cap) ? row.market_cap : null;
       p.baseIndex = row.base_index || null;
@@ -301,8 +302,15 @@ var Common = (function () {
     var first = values[0];
     var last = values[values.length - 1];
     function y(value) { return (height - 3 - (value - min) / span * (height - 6)).toFixed(1); }
+    // 가로 위치는 날짜로 정한다. (옛 기록은 며칠 간격, 자동 갱신 뒤로는 매일이라 점 순서로 놓으면 최근이 늘어나 보임)
+    // 날짜를 못 읽으면 예전처럼 점 순서로 놓는다
+    var times = list.map(function (p) { return Date.parse(p[0]); });
+    var byDate = times.every(isFinite) && times[times.length - 1] > times[0];
+    var t0 = times[0];
+    var tSpan = times[times.length - 1] - t0;
     var line = values.map(function (value, i) {
-      return (i / (values.length - 1) * width).toFixed(1) + "," + y(value);
+      var ratio = byDate ? (times[i] - t0) / tSpan : i / (values.length - 1);
+      return (ratio * width).toFixed(1) + "," + y(value);
     }).join(" ");
     var changePct = first > 0 ? (last - first) / first * 100 : null;
     var cls = last > first ? "num-up" : (last < first ? "num-down" : "");

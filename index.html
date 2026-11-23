@@ -36,7 +36,6 @@
     .home-info-card { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; padding: var(--space-4) var(--space-5); border: var(--dim-1) solid var(--color-line); border-radius: var(--radius); background: linear-gradient(135deg, var(--color-surface), var(--color-surface-2)); color: var(--color-text); text-decoration: none; transition: border-color 0.15s, background-color 0.15s; }
     .home-info-card:hover, .home-info-card:focus-visible { border-color: var(--color-primary); }
     .home-info-tag { align-self: flex-start; padding: var(--dim-2) var(--space-2); border-radius: var(--dim-999); background: var(--color-primary-soft); color: var(--color-primary); font-size: var(--fs-xxs); font-weight: 700; letter-spacing: var(--tracking-label); }
-    .home-info-tag--event { background: var(--color-label); color: var(--color-gold); }
     .home-info-title { margin-top: var(--space-1); font-size: var(--fs-md); font-weight: 800; letter-spacing: var(--tracking-card); overflow-wrap: anywhere; }
     .home-info-sub { font-size: var(--fs-sm); color: var(--color-text-sub); overflow-wrap: anywhere; }
     .home-info-note { grid-column: 1 / -1; font-size: var(--fs-xxs); color: var(--color-text-sub); text-align: center; }
@@ -75,10 +74,11 @@
         <span class="home-info-title">국토교통부 리츠정보시스템</span>
         <span class="home-info-sub">국내 상장 리츠 공시·배당·투자보고서 확인 →</span>
       </a>
-      <a class="home-info-card" href="https://www.samsungpop.com/?MENU_CODE=M1231757773125" target="_blank" rel="noopener noreferrer">
-        <span class="home-info-tag home-info-tag--event">절세 · 이벤트</span>
-        <span class="home-info-title">삼성증권 중개형 ISA 평생혜택계좌</span>
-        <span class="home-info-sub">2026년 수수료 우대·절세 혜택 확인하기 →</span>
+      <!-- 특정 금융회사 상품은 넣지 않는다 (data/ads.json 규칙: 금융상품 광고 금지). 2026-11-23 삼성증권 ISA 배너 → 금융감독원으로 교체 -->
+      <a class="home-info-card" href="https://finlife.fss.or.kr/" target="_blank" rel="noopener noreferrer">
+        <span class="home-info-tag">공식 정보</span>
+        <span class="home-info-title">금융감독원 금융상품한눈에</span>
+        <span class="home-info-sub">은행 예금·적금 금리 비교하기 →</span>
       </a>
       <p class="home-info-note">눌러서 외부 사이트로 이동해요. 이 사이트는 링크로 대가를 받지 않아요.</p>
     </section>

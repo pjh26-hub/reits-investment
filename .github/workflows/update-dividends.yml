@@ -1,0 +1,67 @@
+# 국내 리츠 배당 자동 갱신 (일주일에 한 번)
+#   금융감독원 OpenDART "배당에 관한 사항"으로 국내 상장 리츠의 최근 1년 주당배당금을 받아
+#   data/dividends.json (+ data/meta.json 의 dividends 출처·기준일)을 고쳐서 자동으로 커밋·푸시한다.
+#   리츠 ETF·해외 리츠 배당은 DART 에 없어서 그대로 둔다. (한 달에 한 번 사람이 build_public.py --dividends-only 로 갱신)
+#
+#   필요한 Secret: DART_API_KEY  (opendart.fss.or.kr 에서 무료 발급)
+#   Secret 이 없으면 아무것도 하지 않고 성공으로 끝난다. (매주 빨간 실패 표시가 뜨지 않게)
+
+name: 국내 리츠 배당 자동 갱신
+
+on:
+  schedule:
+    # 매주 월요일 07:00 (한국 시간) = 일요일 22:00 (UTC)
+    - cron: "0 22 * * 0"
+  workflow_dispatch: {}          # Actions 탭에서 "Run workflow" 버튼으로 바로 실행
+
+permissions:
+  contents: write                # data/dividends.json 커밋·푸시에 필요
+
+concurrency:
+  group: update-prices           # 시세 자동 갱신과 같은 줄에 세워서 동시에 푸시하지 않게
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DART_API_KEY: ${{ secrets.DART_API_KEY }}
+    steps:
+      - name: DART 키가 없으면 건너뛰기
+        if: env.DART_API_KEY == ''
+        run: echo "DART_API_KEY Secret 이 없어서 배당 갱신을 건너뛰어요. (Settings > Secrets and variables > Actions)"
+
+      - name: 저장소 받기
+        if: env.DART_API_KEY != ''
+        uses: actions/checkout@v4
+
+      - name: 파이썬 준비
+        if: env.DART_API_KEY != ''
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 패키지 설치
+        if: env.DART_API_KEY != ''
+        run: pip install "requests>=2.31"
+
+      - name: 배당 받기 (OpenDART)
+        if: env.DART_API_KEY != ''
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python scripts/fetch_dividends.py
+
+      - name: 바뀐 배당 커밋·푸시
+        if: env.DART_API_KEY != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/dividends.json data/meta.json
+          if git diff --cached --quiet; then
+            echo "바뀐 배당이 없어서 커밋하지 않아요."
+            exit 0
+          fi
+          git commit -m "chore(data): 국내 리츠 배당 자동 갱신 $(TZ=Asia/Seoul date '+%Y-%m-%d') KST"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

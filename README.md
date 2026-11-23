@@ -38,9 +38,12 @@ python -m http.server 8000
 |---|---|
 | 국내 상장 리츠 목록 · 지표 · 건물 위치 | 국토교통부 리츠정보시스템 공개 화면 |
 | 종목코드 | 한국거래소 KIND 상장법인목록 |
-| 시세 (현재가·종가·등락률) | 한국투자증권 Open API(국내) · Finnhub(미국) · 환율 Frankfurter — GitHub Actions 가 평일 장중 30분마다 `data/prices.json` 자동 갱신 |
+| 국내 리츠·리츠 ETF 시세 (전일 종가) | 금융위원회 주식시세정보·증권상품시세정보 (공공데이터포털, 공공누리 제4유형) — GitHub Actions 가 평일 하루 두 번 자동 갱신 |
+| 미국 리츠 시세 | 2026-11-13 종가 저장본 (Finnhub 키를 넣으면 자동 갱신) · 환율 Frankfurter |
 | 시세 저장본 (자동 갱신 파일을 못 읽을 때) | `data/prices_fallback.json` (야후 파이낸스, 2026-11-13 종가) |
-| 배당 · 최근 1년 주가 그래프 · 해외 리츠 목록 | 야후 파이낸스 (비공식. 공식 API 키를 받으면 교체 예정) |
+| 최근 1년 주가 그래프 | 2026-11-13까지 야후 파이낸스(비공식), 그 뒤는 자동 갱신이 매일 종가를 붙임 |
+| 배당 | 국내 리츠: OpenDART (DART 키를 넣으면 매주 자동 갱신) · 리츠 ETF·해외 리츠: 야후 파이낸스 (비공식) |
+| 리츠 ETF 3개 | 팀이 고른 것 (`scripts/etf_confirmed.json`) |
 | 해외 리츠 대표 보유 자산 | `data/global_properties.json` — 각 리츠·운영사 공개 자료(항목별 출처), 좌표는 미국 인구조사국 지오코더·위키백과 |
 | 은행 적금 금리 | 금융감독원 금융상품한눈에 공개 화면 |
 | 지도 · 장소 검색 | OpenStreetMap |
@@ -57,14 +60,20 @@ python scripts/build_public.py
 
 ## 시세 자동 갱신 (GitHub Actions)
 
-`.github/workflows/update-prices.yml` 이 평일 한국 장중(09:00~15:30) 30분마다, 장 마감 뒤 15:45, 미국 장 마감 뒤(한국 시간 06:15)에
-`scripts/update_prices.py` 를 실행해 `data/prices.json` 과 `data/meta.json` 을 고치고 자동으로 커밋합니다.
-API 키는 저장소 **Settings > Secrets and variables > Actions** 에만 넣습니다(화면에는 키가 나가지 않음).
+공개 링크에는 **전날 종가만** 보여줍니다. 한국투자증권(KIS) 시세는 공개 사이트에 다시 내보내면 안 될 수 있어서 쓰지 않습니다(2026-11-23 팀 결정).
 
-| Secret 이름 | 발급처 |
-|---|---|
-| `KIS_APP_KEY`, `KIS_APP_SECRET` | 한국투자증권 KIS Developers (apiportal.koreainvestment.com) |
-| `FINNHUB_API_KEY` | finnhub.io (무료 가입) |
+- `.github/workflows/update-prices.yml` — 평일 14:30, 18:30(한국 시간)에 `scripts/update_prices.py` 를 실행해
+  `data/prices.json`, `data/history.json`(1년 그래프), `data/meta.json` 을 고치고 자동으로 커밋합니다.
+  전일 종가는 다음 영업일 오후 1시 이후에 올라오므로, 화면에는 보통 "어제 종가"가 보입니다.
+- `.github/workflows/update-dividends.yml` — 매주 월요일 07:00에 `scripts/fetch_dividends.py` 로 국내 리츠 배당(OpenDART)을 갱신합니다. DART 키가 없으면 건너뜁니다.
+
+API 키는 저장소 **Settings > Secrets and variables > Actions** 에만 넣습니다(화면에는 키가 나가지 않음). Secrets 는 레포 주인만 넣을 수 있습니다.
+
+| Secret 이름 | 쓰는 곳 | 발급처 |
+|---|---|---|
+| `DATA_GO_KR_KEY` | 국내 리츠·ETF 시세 (필수) | data.go.kr 가입 후 '금융위원회_주식시세정보', '금융위원회_증권상품시세정보' 활용신청 |
+| `DART_API_KEY` | 국내 리츠 배당 (선택) | opendart.fss.or.kr 인증키 신청 |
+| `FINNHUB_API_KEY` | 미국 리츠 시세 (선택, '개인 용도' 조건이라 팀이 정함) | finnhub.io 무료 가입 |
 
 Actions 탭 > "리츠 시세 자동 갱신" > **Run workflow** 로 바로 실행해 볼 수 있습니다.
 내 컴퓨터에서 실행하려면 `.env.example` 을 `.env` 로 복사해 키를 넣고 `python scripts/update_prices.py` (저장 없이 보기: `--dry-run`).

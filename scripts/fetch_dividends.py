@@ -11,6 +11,11 @@ scripts/fetch_dividends.py — OpenDART "배당에 관한 사항" → data/divid
          두 가지로 판단하고, 최근 1년에 해당하는 결산기 값이 다 있을 때만 합계를 낸다
        - 하나라도 없으면 지어내지 않고 null 로 두고 이유(dps_basis)를 적는다
 
+  4) 지금 data/dividends.json 에 합친다 (2026-11-23부터)
+       - DART 로 합계를 구한 국내 리츠만 DART 값으로 바꾸고 "source": "OpenDART" 를 붙인다
+       - DART 로 못 구한 국내 리츠, 리츠 ETF, 해외 리츠는 지금 값을 그대로 둔다
+     GitHub Actions(.github/workflows/update-dividends.yml)가 일주일에 한 번 실행한다. (Secret: DART_API_KEY)
+
   "주가 기준 배당수익률"은 여기서 저장하지 않는다.
   화면(common.js)에서  dps_annual ÷ 현재가(없으면 전일 종가)  로 계산한다.
 
@@ -34,6 +39,7 @@ ALOT_URL = "https://opendart.fss.or.kr/api/alotMatter.json"
 REPORT_ANNUAL = "11011"          # 사업보고서
 SOURCE = "금융감독원 전자공시시스템 OpenDART (배당에 관한 사항)"
 SOURCE_URL = "https://opendart.fss.or.kr/guide/detail.do?apiGrpCd=DS002&apiId=2019005"
+MIXED_SOURCE = "OpenDART(국내 리츠) · 야후 파이낸스(리츠 ETF·해외 리츠 등, 비공식)"
 
 
 def fetch_alot(key, corp_code, year, label):
@@ -158,6 +164,7 @@ def main():
     reits = load_json("reits")
     if not reits or not reits.get("items"):
         raise Stop("data/reits.json 이 없거나 비어 있어요. 먼저  python scripts/fetch_reits.py  를 실행해 주세요.")
+    reits["items"] = [r for r in reits["items"] if r.get("type", "reit") == "reit"]   # DART 에는 국내 리츠만 있다
     key = get_key("DART_API_KEY", "OpenDART opendart.fss.or.kr")
 
     print("[1/2] DART 고유번호 목록을 받는 중...")
@@ -192,10 +199,32 @@ def main():
         items.append(dict({"id": reit["id"], "name": reit["name"], "corp_code": corp["corp_code"]}, **summary))
 
     today = today_str()
-    save_json("dividends", today, SOURCE, items)
-    update_meta("dividends", SOURCE, SOURCE_URL, today, len(items),
-                "기준일은 조회한 날짜. dps_annual 은 최근 1년에 해당하는 결산기들의 주당 현금배당금(보통주) 합계. "
+    # 지금 dividends.json 에 합친다:
+    #   - DART 로 최근 1년 합계를 구한 국내 리츠만 DART 값으로 바꾼다
+    #   - DART 로 못 구한 국내 리츠는 지금 값(야후)을 그대로 둔다 (값을 지우거나 지어내지 않음)
+    #   - 리츠 ETF·해외 리츠는 DART 에 없으니 그대로 둔다
+    current = load_json("dividends") or {}
+    merged = {i.get("id"): i for i in current.get("items", [])}
+    order = [i.get("id") for i in current.get("items", [])]
+    replaced, kept = [], []
+    for item in items:
+        if item["dps_annual"] is not None:
+            merged[item["id"]] = dict(item, source="OpenDART")
+            replaced.append(item["name"])
+        elif item["id"] in merged:
+            kept.append(item["name"])
+        else:
+            merged[item["id"]] = item
+        if item["id"] not in order:
+            order.append(item["id"])
+    merged_items = [merged[i] for i in order if i in merged]
+    source = SOURCE if not merged_items or all(i.get("source") == "OpenDART" for i in merged_items) else MIXED_SOURCE
+    save_json("dividends", today, source, merged_items)
+    update_meta("dividends", source, SOURCE_URL, today, len(merged_items),
+                "기준일은 조회한 날짜. 국내 리츠는 OpenDART 사업보고서의 최근 1년 결산기 주당 현금배당금(보통주) 합계. "
+                "DART 로 못 구한 국내 리츠와 리츠 ETF·해외 리츠는 직전 값(야후 파이낸스, 비공식)을 그대로 둠. "
                 "과거 지급 실적이며 앞으로의 배당을 뜻하지 않음.")
+    print(f"\n  DART 값으로 바꾼 리츠 {len(replaced)}개 / DART 로 못 구해 직전 값을 둔 리츠 {len(kept)}개 {kept if kept else ''}")
 
     # ---------- 요약 ----------
     prices = {p["id"]: p for p in (load_json("prices") or {}).get("items", [])}
