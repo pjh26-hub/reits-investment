@@ -1,0 +1,84 @@
+# 리츠 시세 자동 갱신
+#   국내 리츠(한국투자증권 Open API) · 미국 리츠(Finnhub) · 원/달러 환율을 받아
+#   data/prices.json (+ data/meta.json 의 prices 출처·기준일)을 고쳐서 자동으로 커밋·푸시한다.
+#   API 키는 저장소 Settings > Secrets and variables > Actions 에만 둔다. 화면(브라우저)에는 키가 나가지 않는다.
+#
+#   필요한 Secrets: KIS_APP_KEY, KIS_APP_SECRET, FINNHUB_API_KEY
+#   (선택) Variables: KIS_ENV = demo  ← 모의투자 앱키를 쓸 때만
+#
+#   GitHub 의 예약 실행은 몇 분~수십 분 늦게 시작될 수 있다. (GitHub 서버 사정)
+
+name: 리츠 시세 자동 갱신
+
+on:
+  schedule:
+    # 한국 정규장 평일 09:00~15:30 (한국 시간) = UTC 00:00~06:30, 30분마다
+    - cron: "*/30 0-6 * * 1-5"
+    # 한국 장 마감 뒤 종가를 받기 위해: 평일 15:45 (한국 시간)
+    - cron: "45 6 * * 1-5"
+    # 미국 장 마감 뒤 종가용: 한국 시간 화~토 06:15 (= UTC 월~금 21:15, 서머타임과 관계없이 마감 이후)
+    - cron: "15 21 * * 1-5"
+  workflow_dispatch: {}          # Actions 탭에서 "Run workflow" 버튼으로 바로 실행
+
+permissions:
+  contents: write                # data/prices.json 커밋·푸시에 필요
+
+concurrency:
+  group: update-prices           # 한 번에 하나만 실행 (겹치면 기다림)
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: 저장소 받기
+        uses: actions/checkout@v4
+
+      - name: 파이썬 준비
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 패키지 설치
+        run: pip install "requests>=2.31" "cryptography>=42"
+
+      # KIS 접근토큰은 하루 동안 쓸 수 있고, 새로 받을 때마다 카카오톡 알림이 온다.
+      # 그래서 암호화한 토큰 파일을 캐시에 두고 다음 실행에서 다시 쓴다. (암호 키는 앱시크릿에서 만듦)
+      - name: KIS 접근토큰 캐시 불러오기
+        uses: actions/cache/restore@v4
+        with:
+          path: .kis-token-cache/kis_token.enc
+          key: kis-token-${{ github.run_id }}
+          restore-keys: kis-token-
+
+      - name: 시세 받기
+        id: update
+        env:
+          KIS_APP_KEY: ${{ secrets.KIS_APP_KEY }}
+          KIS_APP_SECRET: ${{ secrets.KIS_APP_SECRET }}
+          FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
+          KIS_ENV: ${{ vars.KIS_ENV || 'real' }}
+          KIS_TOKEN_CACHE: .kis-token-cache/kis_token.enc
+          PYTHONIOENCODING: utf-8
+        run: python scripts/update_prices.py
+
+      - name: KIS 접근토큰 캐시 저장 (새로 받았을 때만)
+        if: always() && steps.update.outputs.token_refreshed == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: .kis-token-cache/kis_token.enc
+          key: kis-token-${{ github.run_id }}
+
+      - name: 바뀐 시세 커밋·푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/prices.json data/meta.json
+          if git diff --cached --quiet; then
+            echo "바뀐 시세가 없어서 커밋하지 않아요."
+            exit 0
+          fi
+          git commit -m "chore(data): 리츠 시세 자동 갱신 $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M') KST"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

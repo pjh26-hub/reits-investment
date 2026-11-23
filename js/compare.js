@@ -123,7 +123,7 @@
         (live ? ' <span class="badge badge-live">실시간</span>' :
           (change.text ? ' <span class="cmp-change ' + change.cls + '">' + change.text + "</span>" : "")) + "</p>" +
         '<p class="raw-note">' + (live ? "현재가 (발표자 노트북의 실시간 서버)" :
-          (p.priceDate ? Common.formatDate(p.priceDate) + " 종가 (전일 종가, 실시간 아님)" : "")) +
+          (p.priceDate ? Common.formatPriceBasis(p) + " (실시간 아님)" : "")) +
         (isGlobal && p.priceLocal !== null ? " · " + Common.formatUsd(p.priceLocal) + "를 원으로 바꾼 값" : "") + "</p>" +
         (chart.svg ? '<div class="cmp-chart">' + chart.svg + '<p class="spark-caption">최근 1년 주가 흐름 <span class="' +
           (chart.changePct > 0 ? "num-up" : (chart.changePct < 0 ? "num-down" : "")) + '">' +

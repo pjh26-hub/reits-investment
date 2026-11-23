@@ -33,10 +33,18 @@
     .map-legend-dot--retail { background: var(--color-accent); }
     .map-legend-dot--mixed { background: var(--color-gold); }
     .map-legend-dot--global { background: var(--color-good); }
+    .map-legend-dot--global-asset { background: var(--color-gold); }
     .map-legend-dot--other { background: var(--color-text-sub); }
     /* 지도 마커 선택 시 해당 건물 카드를 강조한다. */
     .map-asset { scroll-margin-top: var(--space-6); }
     .map-asset.is-active { border-color: var(--color-primary); background: var(--color-primary-soft); }
+    /* 해외 리츠 본사 핀: 동그란 점(보유 자산)과 모양으로 구분되는 "본사" 글자 핀 */
+    .map-hq-icon { background: none; border: 0; }
+    .map-hq-pin { display: inline-block; padding: var(--dim-2) var(--space-2); border: var(--dim-2) solid var(--color-surface); border-radius: var(--dim-999); background: var(--color-good); color: var(--color-bg); font-family: var(--font-base); font-size: var(--fs-xxs); font-weight: 800; line-height: 1.3; white-space: nowrap; box-shadow: 0 var(--dim-1) var(--dim-3) var(--color-tooltip-shadow); }
+    .map-hq-icon .map-hq-pin { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); cursor: pointer; }
+    .map-hq-pin--legend { box-shadow: none; }
+    .map-asset-desc { margin-top: var(--space-3); font-size: var(--fs-sm); line-height: 1.6; }
+    .map-asset-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
   </style>
 </head>
 <body>
@@ -52,7 +60,9 @@
     <section class="stack" aria-label="장소 찾기">
       <h2 class="sec-title"><span class="sec-no">01</span>장소 찾기</h2>
       <!-- 국내 리츠 건물 / 해외 리츠 본사 전환 버튼 -->
-      <div class="chip-row" id="map-market" role="group" aria-label="국내 리츠 건물과 해외 리츠 본사 전환"></div>
+      <div class="chip-row" id="map-market" role="group" aria-label="국내 리츠 건물과 해외 리츠 본사·자산 전환"></div>
+      <!-- 해외 리츠 고르기: 누르면 그 리츠의 본사와 대표 자산이 한 화면에 다 보이게 지도를 맞춘다 (해외를 볼 때만 보임) -->
+      <div class="chip-row is-hidden" id="map-reits" role="group" aria-label="해외 리츠 고르기"></div>
       <div class="map-search">
         <label class="field">
           <span class="field-label">자주 가는 장소</span>
@@ -74,10 +84,10 @@
       <!-- 장소 이름이 겹치면 사용자가 직접 고르는 목록 (검색 기록은 저장하지 않는다) -->
       <div class="map-search-choices is-hidden" id="map-search-choices" role="group" aria-label="장소 검색 결과"></div>
       <!-- 지도 색상 범례: 목록의 실제 자산 유형에 맞춰 표시한다 -->
-      <div class="map-legend" id="map-legend" aria-label="지도 마커 색상 설명"></div>
+      <div class="map-legend" id="map-legend" role="group" aria-label="지도 마커 색상 설명"></div>
       <!-- 지도가 그려지는 자리 -->
       <div class="map-canvas" id="map-canvas" role="application" aria-label="지도"></div>
-      <p class="source-note">지도와 장소 검색: OpenStreetMap. 장소 검색 결과는 어디에도 저장하지 않아요. 국내 건물 위치: 국토교통부 리츠정보시스템. 해외 리츠는 본사가 있는 도시를 표시해요.</p>
+      <p class="source-note">지도와 장소 검색: OpenStreetMap. 장소 검색 결과는 어디에도 저장하지 않아요. 국내 건물 위치: 국토교통부 리츠정보시스템. 해외 리츠: 본사가 있는 도시(위키백과 S&amp;P 500 목록)와 대표 보유 자산 2~3곳(각 리츠·운영사 공개 자료, 좌표는 미국 인구조사국 지오코더·위키백과). 해외 자산은 전체가 아니라 대표적인 곳만 골랐어요.</p>
     </section>
 
     <section class="stack" aria-label="근처 건물">

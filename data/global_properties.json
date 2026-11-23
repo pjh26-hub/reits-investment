@@ -1,0 +1,322 @@
+{
+  "as_of": "2026-11-23",
+  "source": "해외 리츠 대표 보유 자산 (각 리츠·운영사 공개 자료와 보도, 항목별 source_url) · 좌표: 미국 인구조사국 지오코더 / 위키백과",
+  "_설명": "해외 리츠 10개마다 실제로 가진(또는 지분을 가진·운영하는) 대표 자산 2~3곳. 사람이 직접 확인해서 쓰는 파일이다. 항목: name(건물명), city(도시·주), address, type(자산 유형), ownership(보유 방식), lat·lng(좌표), desc(한 줄 설명), source_url(보유 사실을 확인한 곳), coord_source(좌표 출처). 확인하지 못한 값은 넣지 않는다. 보유 여부는 기준일 이후 바뀔 수 있다.",
+  "items": [
+    {
+      "id": "WELL",
+      "name": "Welltower",
+      "properties": [
+        {
+          "name": "The Newbury of Brookline",
+          "city": "Brookline, Massachusetts",
+          "address": "123 Fisher Ave, Brookline, MA 02445",
+          "type": "시니어 주거",
+          "ownership": "공동 소유 (운영사 Kisco와)",
+          "lat": 42.33092,
+          "lng": -71.14302,
+          "desc": "옛 뉴버리 칼리지 캠퍼스를 고쳐 지은 159세대 시니어 주거 단지예요(2024년 문 엶). Welltower가 2019년 부지를 샀어요.",
+          "source_url": "https://seniorhousingnews.com/2025/12/18/best-independent-living-of-2025-former-college-campus-revived-as-high-end-senior-living/",
+          "coord_source": "미국 인구조사국 지오코더(주소 기준)"
+        },
+        {
+          "name": "The Carnegie at Washingtonian Center",
+          "city": "Gaithersburg, Maryland",
+          "address": "10100 Washingtonian Blvd, Gaithersburg, MD 20878",
+          "type": "시니어 주거",
+          "ownership": "합작 투자 (운영사 Kisco와)",
+          "lat": 39.11809,
+          "lng": -77.2066,
+          "desc": "운영사 Kisco와 합작해 지은 7층·302세대 시니어 주거 단지예요.",
+          "source_url": "https://www.multihousingnews.com/post/welltower-jv-kicks-off-dc-area-senior-project/",
+          "coord_source": "미국 인구조사국 지오코더(주소 기준)"
+        }
+      ]
+    },
+    {
+      "id": "PLD",
+      "name": "Prologis",
+      "properties": [
+        {
+          "name": "Prologis Georgetown Crossroads",
+          "city": "Seattle, Washington",
+          "address": "6050 E Marginal Way S, Seattle, WA 98108",
+          "type": "물류센터",
+          "ownership": "직접 개발·보유",
+          "lat": 47.54788,
+          "lng": -122.33393,
+          "desc": "트럭이 2층까지 올라가는 미국 첫 다층 물류창고예요(3층, 약 59만 sq ft, 2018년 완공).",
+          "source_url": "https://www.prologis.com/insights-news/success-stories/prologis-georgetown-crossroads",
+          "coord_source": "미국 인구조사국 지오코더(주소 기준)"
+        },
+        {
+          "name": "Prologis 1055 Bronx River Avenue",
+          "city": "Bronx, New York",
+          "address": "1055 Bronx River Ave, Bronx, NY 10472",
+          "type": "물류센터",
+          "ownership": "보유",
+          "lat": 40.82442,
+          "lng": -73.88312,
+          "desc": "뉴욕시 브롱크스 강변의 도심 배송용 물류창고(약 20만 sq ft)예요. 2020년 아마존이 빌렸다고 보도됐어요.",
+          "source_url": "https://welcome2thebronx.com/2020/06/amazon-to-open-second-warehouse-in-the-bronx",
+          "coord_source": "미국 인구조사국 지오코더(주소 기준)"
+        }
+      ]
+    },
+    {
+      "id": "EQIX",
+      "name": "Equinix",
+      "properties": [
+        {
+          "name": "Equinix Ashburn 캠퍼스 (DC1~DC15 등)",
+          "city": "Ashburn, Virginia",
+          "address": "21715 Filigree Ct, Ashburn, VA 20147",
+          "type": "데이터센터",
+          "ownership": "운영 (건물별 소유 여부는 공개 자료로 확인하지 못함)",
+          "lat": 39.01436,
+          "lng": -77.45784,
+          "desc": "미국 버지니아 '데이터센터 앨리'의 중심 캠퍼스예요. 여러 건물이 한 캠퍼스처럼 연결돼 있어요.",
+          "source_url": "https://www.peeringdb.com/fac/1",
+          "coord_source": "미국 인구조사국 지오코더(주소 기준)"
+        },
+        {
+          "name": "Equinix NY5",
+          "city": "Secaucus, New Jersey",
+          "address": "800 Secaucus Rd, Secaucus, NJ 07094",
+          "type": "데이터센터",
+          "ownership": "직접 소유 (데이터센터 정보 사이트 datacenterHawk 기준)",
+          "lat": 40.77909,
+          "lng": -74.07063,
+          "desc": "뉴욕 금융권의 주문 체결 시스템이 많이 모인 시코커스 캠퍼스의 데이터센터예요(2012년 완공).",
+          "source_url": "https://datacenterhawk.com/marketplace/providers/equinix/800-secaucus-road/ny5",
+          "coord_source": "미국 인구조사국 지오코더(주소 기준)"
+        }
+      ]
+    },
+    {
+      "id": "AMT",
+      "name": "American Tower",
+      "note": "주력 자산은 전 세계 통신탑(기지국 철탑)이에요. 지도에는 위치가 공개된 자회사 CoreSite의 데이터센터를 표시해요.",
+      "properties": [
+        {
+          "name": "CoreSite LA2",
+          "city": "Los Angeles, California",
+          "address": "900 N Alameda St, Los Angeles, CA 90012",
+          "type": "데이터센터",
+          "ownership": "자회사 CoreSite 운영",
+          "lat": 34.05814,
+          "lng": -118.23699,
+          "desc": "1940년에 지은 옛 우편물 처리 건물을 고친 LA 도심 데이터센터예요.",
+          "source_url": "https://www.coresite.com/data-center/la2-los-angeles-ca",
+          "coord_source": "미국 인구조사국 지오코더(주소 기준)"
+        },
+        {
+          "name": "CoreSite 산타클라라 캠퍼스 (SV3 등)",
+          "city": "Santa Clara, California",
+          "address": "2901 Coronado Dr, Santa Clara, CA 95054",
+          "type": "데이터센터",
+          "ownership": "자회사 CoreSite 소유 (2007년 부지 매입 후 개발)",
+          "lat": 37.37752,
+          "lng": -121.97349,
+          "desc": "실리콘밸리 한가운데의 데이터센터 캠퍼스예요(SV3~SV9).",
+          "source_url": "https://en.wikipedia.org/wiki/CoreSite",
+          "coord_source": "미국 인구조사국 지오코더(주소 기준)"
+        }
+      ]
+    },
+    {
+      "id": "SPG",
+      "name": "Simon Property Group",
+      "properties": [
+        {
+          "name": "King of Prussia",
+          "city": "King of Prussia, Pennsylvania",
+          "address": "160 N Gulph Rd, King of Prussia, PA",
+          "type": "쇼핑몰",
+          "ownership": "소유·관리",
+          "lat": 40.08833,
+          "lng": -75.39028,
+          "desc": "미국에서 손꼽히게 큰 쇼핑몰이에요. Simon이 가지고 있고 관리도 해요.",
+          "source_url": "https://en.wikipedia.org/wiki/King_of_Prussia_(mall)",
+          "coord_source": "위키백과 좌표"
+        },
+        {
+          "name": "Sawgrass Mills",
+          "city": "Sunrise, Florida",
+          "address": "12801 W Sunrise Blvd, Sunrise, FL 33323",
+          "type": "아웃렛 몰",
+          "ownership": "공동 소유 (독일 투자사 KanAm과)",
+          "lat": 26.15135,
+          "lng": -80.32078,
+          "desc": "플로리다의 대형 아웃렛 몰이에요. Simon이 관리해요.",
+          "source_url": "https://en.wikipedia.org/wiki/Sawgrass_Mills",
+          "coord_source": "위키백과 좌표"
+        },
+        {
+          "name": "Woodbury Common Premium Outlets",
+          "city": "Central Valley, New York",
+          "address": "498 Red Apple Ct, Central Valley, NY 10917",
+          "type": "아웃렛 몰",
+          "ownership": "소유 (Premium Outlets 부문)",
+          "lat": 41.31655,
+          "lng": -74.1258,
+          "desc": "뉴욕시에서 차로 1시간 남짓 떨어진 대형 프리미엄 아웃렛이에요.",
+          "source_url": "https://en.wikipedia.org/wiki/Woodbury_Common_Premium_Outlets",
+          "coord_source": "미국 인구조사국 지오코더(주소 기준)"
+        }
+      ]
+    },
+    {
+      "id": "DLR",
+      "name": "Digital Realty",
+      "properties": [
+        {
+          "name": "350 East Cermak (Lakeside Technology Center)",
+          "city": "Chicago, Illinois",
+          "address": "350 E Cermak Rd, Chicago, IL 60616",
+          "type": "데이터센터",
+          "ownership": "직접 소유 (2005년 인수)",
+          "lat": 41.85361,
+          "lng": -87.61806,
+          "desc": "1912~1929년에 지은 옛 인쇄 공장을 고친 시카고의 대형 데이터센터 겸 통신 거점이에요.",
+          "source_url": "https://baxtel.com/data-center/350-e-cermak-digital-realty",
+          "coord_source": "위키백과 좌표"
+        },
+        {
+          "name": "2323 Bryan Street",
+          "city": "Dallas, Texas",
+          "address": "2323 Bryan St, Dallas, TX 75201",
+          "type": "데이터센터",
+          "ownership": "직접 소유",
+          "lat": 32.78693,
+          "lng": -96.79402,
+          "desc": "댈러스 도심의 통신 거점 빌딩(캐리어 호텔)이에요. Digital Realty의 텍사스 첫 데이터센터예요.",
+          "source_url": "https://baxtel.com/data-center/2323-bryan-digital-realty",
+          "coord_source": "미국 인구조사국 지오코더(주소 기준)"
+        }
+      ]
+    },
+    {
+      "id": "PSA",
+      "name": "Public Storage",
+      "note": "셀프 스토리지 지점이 3천 곳이 넘고 랜드마크 건물은 없어요. 지도에는 공식 홈페이지에 나온 지점 2곳을 표시해요.",
+      "properties": [
+        {
+          "name": "Public Storage 글렌데일 지점 (번호 70)",
+          "city": "Glendale, California",
+          "address": "4820 San Fernando Rd, Glendale, CA 91204",
+          "type": "셀프 스토리지",
+          "ownership": "운영 지점 (공식 홈페이지 기준)",
+          "lat": 34.13913,
+          "lng": -118.26777,
+          "desc": "글렌데일 시의 셀프 스토리지 지점이에요. 짐을 맡기는 작은 창고 칸을 달마다 빌려줘요.",
+          "source_url": "https://www.publicstorage.com/self-storage-ca-glendale",
+          "coord_source": "미국 인구조사국 지오코더(주소 기준)"
+        },
+        {
+          "name": "Public Storage 로스앤젤레스 지점 (번호 17)",
+          "city": "Los Angeles, California",
+          "address": "1712 Glendale Blvd, Los Angeles, CA 90026",
+          "type": "셀프 스토리지",
+          "ownership": "운영 지점 (공식 홈페이지 기준)",
+          "lat": 34.08661,
+          "lng": -118.25971,
+          "desc": "로스앤젤레스 글렌데일 대로에 있는 셀프 스토리지 지점이에요.",
+          "source_url": "https://www.publicstorage.com/self-storage-ca-glendale",
+          "coord_source": "미국 인구조사국 지오코더(주소 기준)"
+        }
+      ]
+    },
+    {
+      "id": "O",
+      "name": "Realty Income",
+      "properties": [
+        {
+          "name": "Encore Boston Harbor",
+          "city": "Everett, Massachusetts",
+          "address": "1 Broadway, Everett, MA 02149",
+          "type": "카지노 리조트",
+          "ownership": "직접 소유 (운영은 Wynn Resorts)",
+          "lat": 42.39446,
+          "lng": -71.0702,
+          "desc": "2022년 17억 달러에 땅과 건물을 사서 Wynn Resorts에 오래 빌려준 리조트·카지노예요.",
+          "source_url": "https://en.wikipedia.org/wiki/Encore_Boston_Harbor",
+          "coord_source": "위키백과 좌표"
+        },
+        {
+          "name": "Bellagio",
+          "city": "Paradise (Las Vegas), Nevada",
+          "address": "3600 S Las Vegas Blvd, Paradise, NV",
+          "type": "카지노 리조트",
+          "ownership": "지분 투자 (간접 약 21.9%)",
+          "lat": 36.11306,
+          "lng": -115.17639,
+          "desc": "라스베이거스 대표 리조트예요. 2023년 Blackstone 합작 회사의 지분을 샀어요(운영은 MGM).",
+          "source_url": "https://en.wikipedia.org/wiki/Bellagio_(resort)",
+          "coord_source": "위키백과 좌표"
+        }
+      ]
+    },
+    {
+      "id": "VMRK",
+      "name": "Vivmark Residential",
+      "note": "2026년 8월 Equity Residential과 AvalonBay가 합쳐진 회사예요. 두 회사가 가지고 있던 대표 단지를 표시해요.",
+      "properties": [
+        {
+          "name": "Avalon Willoughby Square / AVA DoBro",
+          "city": "Brooklyn, New York",
+          "address": "214 Duffield St, Brooklyn, NY 11201",
+          "type": "임대 아파트",
+          "ownership": "보유 (옛 AvalonBay 단지)",
+          "lat": 40.69182,
+          "lng": -73.98443,
+          "desc": "완공 당시 브루클린에서 가장 높았던 58층 임대 아파트예요.",
+          "source_url": "https://www.cityrealty.com/nyc/downtown-brooklyn/ava-dobro-100-willoughby-street/review/64392",
+          "coord_source": "미국 인구조사국 지오코더(주소 기준)"
+        },
+        {
+          "name": "Harbor Steps",
+          "city": "Seattle, Washington",
+          "address": "1221 First Ave, Seattle, WA 98101",
+          "type": "임대 아파트",
+          "ownership": "보유 (옛 Equity Residential 단지, 2005년 인수)",
+          "lat": 47.60626,
+          "lng": -122.33778,
+          "desc": "시애틀 도심 파이크 플레이스 마켓 근처의 4개 동 아파트 단지예요.",
+          "source_url": "https://globest.com/2005/09/28/globest-com-update-harbor-steps-deal-nears-200m",
+          "coord_source": "미국 인구조사국 지오코더(주소 기준)"
+        }
+      ]
+    },
+    {
+      "id": "VTR",
+      "name": "Ventas",
+      "properties": [
+        {
+          "name": "One uCity Square",
+          "city": "Philadelphia, Pennsylvania",
+          "address": "225 N 38th St, Philadelphia, PA 19104",
+          "type": "연구·실험실 빌딩",
+          "ownership": "개발·과반 지분 (싱가포르 GIC와 합작)",
+          "lat": 39.95973,
+          "lng": -75.19689,
+          "desc": "필라델피아 대학가의 13층·약 40만 sq ft 생명과학 연구 빌딩이에요.",
+          "source_url": "https://commercialsearch.com/news/ventas-wraps-up-300m-philly-life-science-project",
+          "coord_source": "미국 인구조사국 지오코더(주소 기준)"
+        },
+        {
+          "name": "Pitt 면역·이식 치료센터 (5000 Baum)",
+          "city": "Pittsburgh, Pennsylvania",
+          "address": "5000 Baum Blvd, Pittsburgh, PA 15213",
+          "type": "연구 시설",
+          "ownership": "과반 지분 (싱가포르 GIC와 합작)",
+          "lat": 40.45494,
+          "lng": -79.94512,
+          "desc": "옛 포드 자동차 조립 공장을 고쳐 만든 피츠버그대 면역·이식 연구센터예요.",
+          "source_url": "https://commercialsearch.com/news/ventas-wraps-up-300m-philly-life-science-project",
+          "coord_source": "미국 인구조사국 지오코더(주소 기준)"
+        }
+      ]
+    }
+  ]
+}

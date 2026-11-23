@@ -11,7 +11,7 @@
 |---|---|
 | `index.html` | 첫 화면. 타깃 선택 → 정렬 기준 공개 → 리츠 목록(국내/해외 전환, 최근 1년 주가 그래프) |
 | `compare.html` | 리츠·해외 리츠를 3개까지 골라 은행 적금과 나란히 비교 |
-| `map.html` | 자주 가는 곳 근처에 리츠가 가진 건물 찾기 (해외 리츠는 본사 위치) |
+| `map.html` | 자주 가는 곳 근처에 리츠가 가진 건물 찾기 (해외 리츠는 본사 + 대표 보유 자산 2~3곳) |
 | `learn.html` | 어려운 용어를 쉬운 말로 배우기 |
 | `card.html` | 타깃별 홍보 카드 만들기 (금지 표현 자동 차단) |
 
@@ -38,7 +38,10 @@ python -m http.server 8000
 |---|---|
 | 국내 상장 리츠 목록 · 지표 · 건물 위치 | 국토교통부 리츠정보시스템 공개 화면 |
 | 종목코드 | 한국거래소 KIND 상장법인목록 |
-| 종가 · 배당 · 최근 1년 주가 · 해외 리츠 | 야후 파이낸스 (비공식. 공식 API 키를 받으면 교체 예정) |
+| 시세 (현재가·종가·등락률) | 한국투자증권 Open API(국내) · Finnhub(미국) · 환율 Frankfurter — GitHub Actions 가 평일 장중 30분마다 `data/prices.json` 자동 갱신 |
+| 시세 저장본 (자동 갱신 파일을 못 읽을 때) | `data/prices_fallback.json` (야후 파이낸스, 2026-11-13 종가) |
+| 배당 · 최근 1년 주가 그래프 · 해외 리츠 목록 | 야후 파이낸스 (비공식. 공식 API 키를 받으면 교체 예정) |
+| 해외 리츠 대표 보유 자산 | `data/global_properties.json` — 각 리츠·운영사 공개 자료(항목별 출처), 좌표는 미국 인구조사국 지오코더·위키백과 |
 | 은행 적금 금리 | 금융감독원 금융상품한눈에 공개 화면 |
 | 지도 · 장소 검색 | OpenStreetMap |
 
@@ -51,6 +54,20 @@ pip install -r requirements.txt
 ```bash
 python scripts/build_public.py
 ```
+
+## 시세 자동 갱신 (GitHub Actions)
+
+`.github/workflows/update-prices.yml` 이 평일 한국 장중(09:00~15:30) 30분마다, 장 마감 뒤 15:45, 미국 장 마감 뒤(한국 시간 06:15)에
+`scripts/update_prices.py` 를 실행해 `data/prices.json` 과 `data/meta.json` 을 고치고 자동으로 커밋합니다.
+API 키는 저장소 **Settings > Secrets and variables > Actions** 에만 넣습니다(화면에는 키가 나가지 않음).
+
+| Secret 이름 | 발급처 |
+|---|---|
+| `KIS_APP_KEY`, `KIS_APP_SECRET` | 한국투자증권 KIS Developers (apiportal.koreainvestment.com) |
+| `FINNHUB_API_KEY` | finnhub.io (무료 가입) |
+
+Actions 탭 > "리츠 시세 자동 갱신" > **Run workflow** 로 바로 실행해 볼 수 있습니다.
+내 컴퓨터에서 실행하려면 `.env.example` 을 `.env` 로 복사해 키를 넣고 `python scripts/update_prices.py` (저장 없이 보기: `--dry-run`).
 
 ## 기술
 

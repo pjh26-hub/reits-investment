@@ -7,7 +7,8 @@
    [함수 목록]
    페이지 준비   initPage, renderHeader, renderFooter
    데이터        loadData, loadAll, findById, buildProducts
-   숫자 포맷     formatNumber, formatWon, formatPercent, formatDate
+   숫자 포맷     formatNumber, formatWon, formatPercent, formatDate, formatDateTime
+   시세 기준     formatPriceBasis("2026.11.23 14:30 현재가" / "2026.11.21 종가"), priceKindLabel, metaForPrices
    계산          calcPriceYield, calcPNav, calcInstallmentIncome, distanceKm
    생활 언어     translatePNav, translateWale, translateDividend
    적금          getBestSaving
@@ -64,7 +65,8 @@ var Common = (function () {
     reits: "국토교통부 리츠정보", assets: "국토교통부 리츠정보(보유 자산)", metrics: "리츠정보시스템 상장리츠현황",
     prices: "야후 파이낸스 (비공식)", dividends: "야후 파이낸스 (비공식)",
     history: "야후 파이낸스 (비공식)", savings: "금융감독원 금융상품한눈에",
-    assumptions: "커피 한 잔 가격 (과거 기준 가정)"
+    assumptions: "커피 한 잔 가격 (과거 기준 가정)",
+    global_properties: "해외 리츠 대표 자산 (각 리츠·운영사 공개 자료)"
   };
 
   var cache = {};              // 한 번 읽은 JSON 을 다시 받지 않게 보관
@@ -94,12 +96,30 @@ var Common = (function () {
   // ---------------------------------------------------------------------
   // 데이터 불러오기
   // ---------------------------------------------------------------------
-  /** data/이름.json 을 읽는다. 파일이 없거나 실패하면 null (화면은 "데이터 없음"으로 처리) */
-  function loadData(name) {
-    if (cache[name]) { return cache[name]; }
-    cache[name] = fetch("data/" + name + ".json", { cache: "no-cache" })
+  // 자동 갱신 파일을 못 읽었을 때 대신 읽을 저장본 (data/prices_fallback.json = 2026-11-13 종가)
+  var FALLBACK_FILES = { prices: "prices_fallback" };
+
+  function fetchJson(name) {
+    return fetch("data/" + name + ".json", { cache: "no-cache" })
       .then(function (res) { return res.ok ? res.json() : null; })
       .catch(function () { return null; });
+  }
+
+  /**
+   * data/이름.json 을 읽는다. 파일이 없거나 실패하면 null (화면은 "데이터 없음"으로 처리)
+   * prices 는 GitHub Actions 가 자동으로 고치는 파일이라, 못 읽거나 items 가 비어 있으면
+   * 저장본(prices_fallback)을 대신 읽고 isFallback: true 를 붙인다.
+   */
+  function loadData(name) {
+    if (cache[name]) { return cache[name]; }
+    cache[name] = fetchJson(name).then(function (data) {
+      var backup = FALLBACK_FILES[name];
+      if (!backup || (data && Array.isArray(data.items) && data.items.length)) { return data; }
+      return fetchJson(backup).then(function (saved) {
+        if (saved) { saved.isFallback = true; }
+        return saved || data;
+      });
+    });
     return cache[name];
   }
 
@@ -154,7 +174,9 @@ var Common = (function () {
         byKey[key] = {
           key: key, id: id || null, type: type, name: name, assetType: null, amc: null, assetCount: null,
           price: null, priceDate: null, changePct: null, priceLocal: null, currency: "KRW", country: null,
+          priceKind: null, priceTime: null, yearlyChangePct: null, dpsAnnualLocal: null,
           hq: null, hqLat: null, hqLng: null,
+          properties: [],                // 해외 리츠의 대표 보유 자산 (data/global_properties.json)
           history: null,                 // 최근 1년 종가 기록 [["2026-01-02", 5600], ...] (그래프용)
           marketCap: null, dpsAnnual: null, dpsBasis: null, priceYield: null,
           capitalYield: null, capitalYieldAnnualized: null, pNav: null, pNavReported: null,
@@ -176,10 +198,14 @@ var Common = (function () {
       if (!row.id) { return; }
       var kind = row.type === "etf" ? "etf" : (row.type === "global" ? "global" : "reit");
       var p = ensure(row.id, row.id, kind, row.name);
-      p.price = isNum(row.close) ? row.close : null;                 // 원화(해외 리츠는 환산한 값)
+      // 자동 갱신(scripts/update_prices.py)이 넣는 price·dailyChangePct 를 먼저 쓰고, 없으면 예전 이름(close·change_pct)
+      p.price = isNum(row.price) ? row.price : (isNum(row.close) ? row.close : null);   // 원화(해외 리츠는 환산한 값)
       p.priceDate = row.base_date || null;
-      p.changePct = isNum(row.change_pct) ? row.change_pct : null;
-      p.priceLocal = isNum(row.close_local) ? row.close_local : null;  // 해외 리츠의 현지 통화 가격
+      p.priceKind = row.price_kind === "현재가" ? "현재가" : "종가";                       // 예전 파일은 모두 종가
+      p.priceTime = row.price_kind === "현재가" && row.price_time ? row.price_time : null;
+      p.changePct = isNum(row.dailyChangePct) ? row.dailyChangePct : (isNum(row.change_pct) ? row.change_pct : null);
+      p.yearlyChangePct = isNum(row.yearlyChangePct) ? row.yearlyChangePct : null;
+      p.priceLocal = isNum(row.price_local) ? row.price_local : (isNum(row.close_local) ? row.close_local : null);  // 해외 리츠의 현지 통화 가격
       p.currency = row.currency || "KRW";
       p.country = row.country || null;
       if (kind === "global") {
@@ -207,6 +233,7 @@ var Common = (function () {
     itemsOf(data.dividends).forEach(function (d) {
       if (!d.id || !byKey[d.id]) { return; }
       byKey[d.id].dpsAnnual = isNum(d.dps_annual) ? d.dps_annual : null;
+      byKey[d.id].dpsAnnualLocal = isNum(d.dps_annual_local) ? d.dps_annual_local : null;   // 해외 리츠: 달러
       byKey[d.id].dpsBasis = d.dps_basis || null;
     });
 
@@ -214,8 +241,17 @@ var Common = (function () {
       if (h.id && byKey[h.id] && Array.isArray(h.points) && h.points.length > 1) { byKey[h.id].history = h.points; }
     });
 
+    // 해외 리츠의 대표 보유 자산: 좌표가 숫자인 것만 쓴다 (없으면 지도에 찍지 않는다)
+    itemsOf(data.global_properties).forEach(function (g) {
+      if (!g.id || !byKey[g.id] || !Array.isArray(g.properties)) { return; }
+      byKey[g.id].properties = g.properties.filter(function (a) { return a && a.name && isNum(a.lat) && isNum(a.lng); });
+    });
+
     products.forEach(function (p) {
-      p.priceYield = calcPriceYield(p.dpsAnnual, p.price);
+      // 해외 리츠는 달러 배당 ÷ 달러 가격으로 계산한다 (배당을 받은 날과 오늘의 환율이 달라서 생기는 오차를 없앤다)
+      p.priceYield = p.type === "global" && isNum(p.dpsAnnualLocal) && isNum(p.priceLocal)
+        ? calcPriceYield(p.dpsAnnualLocal, p.priceLocal)
+        : calcPriceYield(p.dpsAnnual, p.price);
       p.pNav = p.type === "reit" ? calcPNav(p.marketCap, p.navMillionWon) : null;
     });
     return products;
@@ -282,6 +318,27 @@ var Common = (function () {
   /** "2026-11-13" → "2026.11.13",  "2026-11" → "2026.11" */
   function formatDate(text) {
     return text ? String(text).replace(/-/g, ".") : NA;
+  }
+
+  /** "2026-11-23T14:30:05+09:00" → "2026.11.23 14:30" (한국 시간 그대로). 모양이 다르면 "" */
+  function formatDateTime(text) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(String(text || ""));
+    return m ? m[1] + "." + m[2] + "." + m[3] + " " + m[4] + ":" + m[5] : "";
+  }
+
+  /** 가격이 종가인지 장중 현재가인지 → "종가" | "현재가" */
+  function priceKindLabel(p) {
+    return p && p.priceKind === "현재가" ? "현재가" : "종가";
+  }
+
+  /**
+   * 가격 기준 문구. 장중: "2026.11.23 14:30 현재가", 장 마감 뒤·예전 파일: "2026.11.21 종가". 날짜가 없으면 ""
+   * 현재가는 30분 간격으로 받은 값이라 실시간이 아니다.
+   */
+  function formatPriceBasis(p) {
+    if (!p || !p.priceDate) { return ""; }
+    var time = p.priceKind === "현재가" ? formatDateTime(p.priceTime) : "";
+    return time ? time + " 현재가" : formatDate(p.priceDate) + " 종가";
   }
 
   // ---------------------------------------------------------------------
@@ -502,12 +559,27 @@ var Common = (function () {
         "</nav></div>";
   }
 
+  /**
+   * 시세 저장본(prices_fallback)을 쓰는 중이면, 꼬리말의 시세 출처·기준일도 저장본 것으로 바꾼 meta 를 돌려준다.
+   * (meta.json 은 자동 갱신으로 최신 날짜인데 화면 가격은 저장본이면 서로 안 맞기 때문)
+   */
+  function metaForPrices(meta, prices) {
+    if (!prices || !prices.isFallback) { return meta; }
+    var copy = { files: {} };
+    var files = (meta && meta.files) || {};
+    Object.keys(files).forEach(function (key) { copy.files[key] = files[key]; });
+    copy.files.prices = { source: (prices.source || SOURCE_LABELS.prices) + " · 저장본", as_of: prices.as_of || null };
+    return copy;
+  }
+
   /** 고지 문구 + 이 페이지가 쓴 데이터의 출처·기준일을 넣는다 */
   function renderFooter(sourceKeys) {
     var el = document.getElementById("site-footer");
     if (!el) { return Promise.resolve(); }
     el.className = "site-footer";
-    return loadData("meta").then(function (meta) {
+    var needPrices = (sourceKeys || []).indexOf("prices") !== -1;
+    return Promise.all([loadData("meta"), needPrices ? loadData("prices") : null]).then(function (loaded) {
+      var meta = metaForPrices(loaded[0], loaded[1]);
       el.innerHTML =
         '<div class="container">' +
           '<p class="footer-disclaimer">' + escapeHtml(DISCLAIMER) + "</p>" +
@@ -632,6 +704,8 @@ var Common = (function () {
     initPage: initPage, renderHeader: renderHeader, renderFooter: renderFooter,
     loadData: loadData, loadAll: loadAll, findById: findById, buildProducts: buildProducts,
     formatNumber: formatNumber, formatWon: formatWon, formatPercent: formatPercent, formatDate: formatDate,
+    formatDateTime: formatDateTime, formatPriceBasis: formatPriceBasis, priceKindLabel: priceKindLabel,
+    metaForPrices: metaForPrices,
     calcPriceYield: calcPriceYield, calcPNav: calcPNav, calcInstallmentIncome: calcInstallmentIncome,
     distanceKm: distanceKm,
     translatePNav: translatePNav, translateWale: translateWale, translateDividend: translateDividend,

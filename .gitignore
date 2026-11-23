@@ -1,0 +1,7 @@
+# API 키가 들어 있는 파일은 절대 올리지 않는다
+.env
+# 스크립트 임시 파일 · KIS 접근토큰 캐시(암호화돼 있어도 올리지 않음)
+scripts/.cache/
+.kis-token-cache/
+__pycache__/
+*.pyc

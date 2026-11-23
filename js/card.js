@@ -32,8 +32,9 @@
     student: [
       function (p) {
         if (!isNumber(p.price) || !p.priceDate) { return null; }
-        return option("관심 리츠, 최근 종가부터 읽기\n" + p.name +
-          "\n1주 종가 " + Common.formatWon(p.price) + "\n기준일 " + Common.formatDate(p.priceDate), ["reits", "prices"]);
+        // 장중에 받은 값이면 "현재가", 장 마감 뒤 값이면 "종가" (Common.priceKindLabel)
+        return option("관심 리츠, 최근 가격부터 읽기\n" + p.name +
+          "\n1주 " + Common.priceKindLabel(p) + " " + Common.formatWon(p.price) + "\n기준 " + Common.formatPriceBasis(p), ["reits", "prices"]);
       },
       function (p) {
         if (!p.assetType) { return null; }
@@ -44,7 +45,7 @@
         if (!isNumber(p.changePct) || !p.priceDate) { return null; }
         return option("직전 거래일과의 가격 변화\n" + p.name +
           "\n전일 대비 " + Common.formatChange(p.changePct).text +
-          "\n기준일 " + Common.formatDate(p.priceDate), ["reits", "prices"]);
+          "\n기준 " + Common.formatPriceBasis(p), ["reits", "prices"]);
       }
     ],
     rookie: [
@@ -64,7 +65,7 @@
         if (!p.assetType || !isNumber(p.price) || !p.priceDate) { return null; }
         return option("첫 월급으로 알아보는 리츠\n" + p.name +
           "\n주요 자산: " + p.assetType +
-          "\n1주 종가 " + Common.formatWon(p.price), ["reits", "prices"]);
+          "\n1주 " + Common.priceKindLabel(p) + " " + Common.formatWon(p.price), ["reits", "prices"]);
       }
     ],
     renter: [
@@ -427,7 +428,7 @@
     renderTargets();
     Common.loadAll(["reits", "metrics", "prices", "dividends", "meta"]).then(function (data) {
       state.products = Common.buildProducts(data);
-      state.meta = data.meta;
+      state.meta = Common.metaForPrices(data.meta, data.prices);   // 시세 저장본을 쓰는 중이면 출처·기준일도 저장본 것으로
       renderProducts();
       renderOptions();
       if (document.fonts && document.fonts.ready) {
