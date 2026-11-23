@@ -1,6 +1,47 @@
 {
-  "as_of": null,
+  "as_of": "2026-11-24",
   "source": "팀 직접 등록",
-  "_설명": "광고 칸에 넣을 광고 목록. 사람이 직접 쓰는 파일이다. 비어 있으면 화면에는 '광고 자리' 틀만 보인다. 광고를 넣으려면 items 에 { \"position\": \"광고 칸 이름(예: home-top) 또는 any\", \"image\": \"이미지 경로\", \"link\": \"눌렀을 때 갈 주소\", \"alt\": \"이미지 설명\", \"advertiser\": \"광고주\" } 모양으로 적는다. 금융상품(리츠·ETF·주식·코인 등) 광고는 넣지 않는다.",
-  "items": []
+  "_설명": "광고 칸에 넣을 광고 목록. 사람이 직접 쓰는 파일이다. 비어 있으면 화면에는 '광고 자리' 틀만 보인다. position 은 광고 칸 이름(home-bottom, learn-bottom, compare-bottom, map-bottom, card-bottom) 또는 any. 한 칸에는 그 칸 이름으로 등록한 광고들이 나란히(최대 4개) 들어가고, 없으면 any 광고들이 들어간다. ① 이미지 배너: { \"position\", \"image\": \"배너 이미지 주소(https)\", \"link\": \"눌렀을 때 갈 주소(https)\", \"alt\": \"이미지 설명\", \"advertiser\": \"광고주\", \"disclosure\": \"(선택) 대가성 문구\" } ② 쿠팡 파트너스 iframe 코드: 쿠팡이 준 <iframe src=\"…\" width=\"…\" height=\"…\"> 의 세 값을 { \"position\", \"iframe\": \"src 값\", \"width\": 숫자, \"height\": 숫자, \"alt\": \"광고 설명\", \"advertiser\": \"쿠팡\" } 로 옮겨 적는다. iframe 은 쿠팡 주소(coupang.com, coupa.ng)만 받는다. 쿠팡 광고에는 '이 광고는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.' 문구가 자동으로 붙는다. 금융상품(리츠·ETF·주식·코인·증권 계좌 등) 광고는 넣지 않는다(사이트 규칙: 투자 권유 금지).",
+  "items": [
+    {
+      "position": "home-bottom",
+      "iframe": "https://coupa.ng/crkrNr",
+      "width": 120,
+      "height": 240,
+      "alt": "쿠팡 파트너스 상품 광고",
+      "advertiser": "쿠팡"
+    },
+    {
+      "position": "learn-bottom",
+      "iframe": "https://coupa.ng/crkrtW",
+      "width": 120,
+      "height": 240,
+      "alt": "쿠팡 파트너스 상품 광고",
+      "advertiser": "쿠팡"
+    },
+    {
+      "position": "compare-bottom",
+      "iframe": "https://coupa.ng/crkrAy",
+      "width": 120,
+      "height": 240,
+      "alt": "쿠팡 파트너스 상품 광고",
+      "advertiser": "쿠팡"
+    },
+    {
+      "position": "map-bottom",
+      "iframe": "https://coupa.ng/crkrCB",
+      "width": 120,
+      "height": 240,
+      "alt": "쿠팡 파트너스 상품 광고",
+      "advertiser": "쿠팡"
+    },
+    {
+      "position": "card-bottom",
+      "iframe": "https://coupa.ng/crkrFs",
+      "width": 120,
+      "height": 240,
+      "alt": "쿠팡 파트너스 상품 광고",
+      "advertiser": "쿠팡"
+    }
+  ]
 }

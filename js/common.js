@@ -645,22 +645,68 @@ var Common = (function () {
   }
 
   // ---------------------------------------------------------------------
-  // 광고 칸: <div class="ad-slot ad-slot--banner" data-ad="home-top"></div>
+  // 광고 칸: <div class="ad-slot ad-slot--banner" data-ad="home-bottom"></div>
   // ---------------------------------------------------------------------
-  /** data/ads.json 에 등록된 광고가 있으면 넣고, 없으면 "광고 자리" 틀만 보여준다 */
+  // 쿠팡 파트너스 링크에는 이 문구를 광고 바로 위에 꼭 보여준다 (공정거래위원회 추천·보증 심사지침의 경제적 이해관계 표시)
+  var COUPANG_DISCLOSURE = "이 광고는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.";
+  var MAX_ADS_PER_SLOT = 4; // 120px 상품 박스 4개가 배너 칸(728px)에 한 줄로 들어가는 정도
+
+  function isCoupangLink(url) {
+    return /^https:\/\/([a-z0-9-]+\.)*(coupang\.com|coupa\.ng)(\/|$)/i.test(String(url || ""));
+  }
+
+  /** 광고 iframe 의 가로·세로(px). 숫자가 아니거나 범위를 벗어나면 기본값 */
+  function adSize(value, fallback, max) {
+    var n = Number(value);
+    return isFinite(n) && n >= 1 && n <= max ? Math.round(n) : fallback;
+  }
+
+  /** 광고 하나를 HTML 로. 쿠팡 iframe 이면 iframe, 아니면 이미지 배너 */
+  function adHtml(ad) {
+    var label = escapeHtml(ad.alt || ad.advertiser || "광고");
+    if (ad.iframe) {
+      return '<iframe class="ad-slot-frame" src="' + escapeHtml(ad.iframe) + '"' +
+        ' width="' + adSize(ad.width, 120, 728) + '" height="' + adSize(ad.height, 240, 600) + '"' +
+        ' title="' + label + '" frameborder="0" scrolling="no" loading="lazy" referrerpolicy="unsafe-url"></iframe>';
+    }
+    return '<a href="' + escapeHtml(ad.link) + '" target="_blank" rel="noopener sponsored nofollow">' +
+      '<img src="' + escapeHtml(ad.image) + '" alt="' + label + '" loading="lazy"></a>';
+  }
+
+  /**
+   * data/ads.json 에 등록된 광고가 있으면 넣고, 없으면 "광고 자리" 틀만 보여준다
+   * - 이미지 배너 = { position, image, link, alt, advertiser, disclosure }  (링크는 https 만)
+   * - 쿠팡 iframe = { position, iframe, width, height, alt, advertiser }   (쿠팡 주소만. 쿠팡이 준 코드의 src·width·height 를 옮겨 적는다)
+   * - 쿠팡 광고는 disclosure 를 안 적어도 쿠팡 파트너스 문구를 자동으로 붙인다
+   * - 한 칸에 그 칸 이름으로 등록한 광고를 나란히 (최대 MAX_ADS_PER_SLOT 개). 없으면 any 광고들
+   */
   function renderAds() {
     var slots = document.querySelectorAll(".ad-slot[data-ad]");
     if (!slots.length) { return Promise.resolve(); }
     return loadData("ads").then(function (ads) {
-      var list = itemsOf(ads);
+      var list = itemsOf(ads).filter(function (a) {
+        if (!a) { return false; }
+        if (a.iframe) { return isCoupangLink(a.iframe); }
+        return a.image && /^https:\/\//i.test(String(a.link || ""));
+      });
       Array.prototype.forEach.call(slots, function (slot) {
         var position = slot.getAttribute("data-ad");
-        var ad = list.filter(function (a) { return a.position === position || a.position === "any"; })[0];
-        if (ad && ad.image && ad.link) {
+        var picked = list.filter(function (a) { return a.position === position; });
+        if (!picked.length) { picked = list.filter(function (a) { return a.position === "any"; }); }
+        picked = picked.slice(0, MAX_ADS_PER_SLOT);
+        if (picked.length) {
+          // 대가성 문구는 같은 문구를 한 번만 (쿠팡 광고가 여러 개여도 한 줄)
+          var notes = [];
+          picked.forEach(function (ad) {
+            var note = ad.disclosure || (isCoupangLink(ad.iframe || ad.link) ? COUPANG_DISCLOSURE : "");
+            if (note && notes.indexOf(note) < 0) { notes.push(note); }
+          });
+          slot.classList.add("is-filled");
           slot.innerHTML =
-            '<a href="' + escapeHtml(ad.link) + '" target="_blank" rel="noopener sponsored nofollow">' +
-            '<img src="' + escapeHtml(ad.image) + '" alt="' + escapeHtml(ad.alt || ad.advertiser || "광고") + '" loading="lazy"></a>';
+            notes.map(function (note) { return '<p class="ad-slot-disclosure">' + escapeHtml(note) + "</p>"; }).join("") +
+            '<div class="ad-slot-items">' + picked.map(adHtml).join("") + "</div>";
         } else {
+          slot.classList.remove("is-filled");
           slot.innerHTML = '<div class="ad-slot-empty">광고 자리<br>이 칸에 배너 광고가 들어갑니다</div>';
         }
         slot.setAttribute("aria-label", "광고");

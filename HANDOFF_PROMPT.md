@@ -55,7 +55,7 @@
 | `dividends.json` | 최근 1년 주당배당금 | 국내 리츠: OpenDART 주 1회 자동(DART 키가 있을 때). ETF·미국: 야후(11/15, 비공식) |
 | `savings.json` | 은행 적금 17개 | 금융감독원 금융상품한눈에 공개 화면(11/15) |
 | `global_properties.json` | 해외 리츠 대표 보유 자산 21곳 | 각 리츠·운영사 공개 자료(항목별 출처 URL) |
-| `glossary.json` `ads.json` `assumptions.json` | 용어, 광고 목록(비어 있음), 커피값 가정(4,700원, 2025-01-24 기준) | 팀 작성 |
+| `glossary.json` `ads.json` `assumptions.json` | 용어, 광고 목록(쿠팡 파트너스 iframe 배너 5개(첫 화면 맨 아래 포함), 칸마다 다른 광고, 쿠팡 광고엔 대가성 문구 자동 표시), 커피값 가정(4,700원, 2025-01-24 기준) | 팀 작성 |
 | `meta.json` | 파일별 출처·기준일 (꼬리말에 표시) | 스크립트가 기록 |
 
 **GitHub Actions** (`.github/workflows/`)

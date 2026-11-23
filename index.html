@@ -62,11 +62,9 @@
     </section>
 
     <!-- ============================================================
-         [배너 자리: home-top]  01 나는 ○○예요 ↔ 02 리츠 둘러보기 사이
-         지금은 수익·대가가 없는 공식 정보 바로가기 2개만 둔다.
-         나중에 애드센스·제휴 배너로 바꿀 때: 아래 section 을 지우고
-         <div class="ad-slot ad-slot--banner" data-ad="home-top"></div> 를 넣은 뒤
-         data/ads.json 에 광고를 등록한다 (Common.renderAds 가 채운다).
+         [공식 정보 자리]  01 나는 ○○예요 ↔ 02 리츠 둘러보기 사이
+         수익·대가가 없는 공식 정보 바로가기 2개. 유료 광고는 여기 말고
+         맨 아래 광고 칸(home-bottom)에 넣는다 (2026-11-24 쿠팡 파트너스).
          ============================================================ -->
     <section class="home-info" aria-label="공식 정보 바로가기">
       <a class="home-info-card" href="https://reits.molit.go.kr/" target="_blank" rel="noopener noreferrer">
@@ -80,7 +78,7 @@
         <span class="home-info-title">금융감독원 금융상품한눈에</span>
         <span class="home-info-sub">은행 예금·적금 금리 비교하기 →</span>
       </a>
-      <p class="home-info-note">눌러서 외부 사이트로 이동해요. 이 사이트는 링크로 대가를 받지 않아요.</p>
+      <p class="home-info-note">눌러서 외부 사이트로 이동해요. 이 두 링크로는 대가를 받지 않아요.</p>
     </section>
     <!-- [배너 자리 끝: home-top] -->
 
@@ -125,6 +123,9 @@
         </a>
       </div>
     </section>
+
+    <!-- 광고 칸 (다른 화면처럼 맨 아래). data/ads.json 의 position "home-bottom" 광고가 들어간다 -->
+    <div class="ad-slot ad-slot--banner" data-ad="home-bottom"></div>
 
   </main>
 
