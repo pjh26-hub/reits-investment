@@ -10,6 +10,7 @@
      - 자주 가는 장소를 찾으면 그 주변(반경 조절 가능)만 보여줌. 주변에 없으면 가장 가까운 3곳
      - 카드 "이 건물, ○○리츠가 가지고 있어요" + 생활 언어 지표 + 비교 화면 버튼
      - 지도가 안 떠도(인터넷 불안정) 목록과 글자 검색은 동작
+     - 03 내 동선 건물주 카드: 3곳(집 근처·학교·회사·자주 가는 곳) → 곳마다 가장 가까운 리츠 건물 → 스토리 카드 PNG
 
    지도와 장소 검색 (2026-11-28 카카오맵 추가)
      - 국내: 카카오맵 지도 + 카카오 장소 검색 + 로드뷰(건물을 누르면 실제 거리 사진).
@@ -66,6 +67,9 @@
     useKakao: false,     // 카카오맵을 불러왔으면 true → 국내는 카카오맵
     kakao: { map: null, overlays: [], circle: null, places: null, roadview: null, rvClient: null, rvTarget: null, rvPending: false },
     rvToken: 0,          // 로드뷰를 연달아 누르면 마지막 것만 보여준다
+    route: [null, null, null],   // 동선 카드: 칸마다 { name, lat, lng, nearest: { asset, km } }  ← 저장하지 않는다
+    routeTokens: [0, 0, 0],      // 칸마다 마지막 검색만 반영
+    meta: null,                  // 카드 맨 아래 출처·기준일용 (data/meta.json)
     searchToken: 0,      // 이미 취소된 검색 응답은 화면에 반영하지 않는다
     lastSearchAt: 0      // Nominatim 요청 사이 간격 제한 (검색 기록 저장 아님)
   };
@@ -85,6 +89,14 @@
   function reitName(id) {
     var p = state.productById[id];
     return p ? p.name : id;
+  }
+
+  /** 받침에 맞는 조사: subject("롯데리츠") → "롯데리츠가", subject("이리츠코크렙") → "이리츠코크렙이" */
+  function subject(word) {
+    var text = String(word || "");
+    var code = text.charCodeAt(text.length - 1);
+    var hasFinal = code >= 0xAC00 && code <= 0xD7A3 && (code - 0xAC00) % 28 !== 0;
+    return text + (hasFinal ? "이" : "가");
   }
 
   /** 실제 JSON 자산 유형을 색상 구분용 키로 바꾼다. */
@@ -184,7 +196,8 @@
   // 카드: 리츠 이름, 자산 유형, 생활 언어 지표 2~3개, 비교 화면으로 가는 버튼
   // ---------------------------------------------------------------------
   function kmText(km) {
-    return typeof km === "number" ? " · 약 " + Common.formatNumber(km < 10 ? Math.round(km * 10) / 10 : km) + "km" : "";
+    // 10km 안은 소수 첫째 자리까지 (Common.formatNumber 는 정수로 반올림해서 직접 만든다)
+    return typeof km === "number" ? " · 약 " + (km < 10 ? (Math.round(km * 10) / 10).toFixed(1) : Common.formatNumber(km)) + "km" : "";
   }
 
   /** 해외 리츠 하나를 한 화면에 모아 보는 버튼 (이미 모아 보는 중이면 "전체로" 버튼) */
@@ -229,7 +242,7 @@
     }).join("") || '<p class="translated na">' + Common.NA + "</p>";
     var head = asset.isHq
       ? '<p class="card-sub">해외 리츠 · 본사가 있는 도시</p><h3 class="card-title">' + Common.escapeHtml(asset.reit_name) + "</h3>"
-      : '<p class="card-sub">이 건물, ' + Common.escapeHtml(asset.reit_name) + "가 가지고 있어요</p>" +
+      : '<p class="card-sub">이 건물, ' + Common.escapeHtml(subject(asset.reit_name)) + " 가지고 있어요</p>" +
         '<h3 class="card-title">' + Common.escapeHtml(asset.name || "이름 " + Common.NA) + "</h3>";
     var hqNote = "";
     if (asset.isHq) {
@@ -336,7 +349,7 @@
       return "<b>" + Common.escapeHtml(a.name || "") + "</b><br>" + Common.escapeHtml(a.reit_name) + " · " +
         Common.escapeHtml(a.ownership || "") + "<br>" + Common.escapeHtml((a.asset_type || "") + " · " + (a.city || "")) + compare;
     }
-    return "<b>" + Common.escapeHtml(a.name || "") + "</b><br>" + Common.escapeHtml(a.reit_name) + "가 가지고 있어요" + compare;
+    return "<b>" + Common.escapeHtml(a.name || "") + "</b><br>" + Common.escapeHtml(subject(a.reit_name)) + " 가지고 있어요" + compare;
   }
 
   /** 지금 쪽에 맞는 지도만 보이게 한다 (국내 카카오맵 / 해외·대체 Leaflet) */
@@ -513,23 +526,48 @@
     }
   }
 
-  /** 카카오 장소 검색 (강남역, ○○대학교, 가게 이름 등). 결과 모양을 Nominatim 과 같게 맞춘다 */
-  function kakaoSearch(keyword, token) {
-    var kakao = window.kakao;
-    state.kakao.places.keywordSearch(keyword, function (data, status) {
-      if (token !== state.searchToken) { return; }
-      var Status = kakao.maps.services.Status;
-      var list = null;                                         // null = 연결 실패
-      if (status === Status.OK) {
-        list = data.map(function (d) {
-          return { name: d.place_name, display_name: d.place_name + " · " + (d.road_address_name || d.address_name || ""),
-            lat: Number(d.y), lon: Number(d.x) };
-        });
-      } else if (status === Status.ZERO_RESULT) {
-        list = [];
-      }
-      handleSearchResults(list, keyword);
-    }, { size: 5 });
+  /**
+   * 장소 검색 (국내 + 카카오맵: 카카오 장소 검색 / 그 외: OpenStreetMap Nominatim). 결과 모양은 둘 다 같게 맞춘다.
+   * 결과: [{ name, display_name, lat, lon }] / [] 찾은 곳 없음 / null 연결 실패 / "wait" Nominatim 간격 제한
+   */
+  function fetchPlaces(keyword, market) {
+    if (market === "kr" && state.useKakao) {
+      return new Promise(function (resolve) {
+        var Status = window.kakao.maps.services.Status;
+        state.kakao.places.keywordSearch(keyword, function (data, status) {
+          if (status === Status.OK) {
+            resolve(data.map(function (d) {
+              return { name: d.place_name, display_name: d.place_name + " · " + (d.road_address_name || d.address_name || ""),
+                lat: Number(d.y), lon: Number(d.x) };
+            }));
+          } else {
+            resolve(status === Status.ZERO_RESULT ? [] : null);
+          }
+        }, { size: 5 });
+      });
+    }
+    // Nominatim 공용 서비스에 지나치게 자주 요청하지 않는다(1초에 1번 이하).
+    var now = Date.now();
+    if (now - state.lastSearchAt < 1100) { return Promise.resolve("wait"); }
+    state.lastSearchAt = now;
+    // 국내를 볼 때는 한국 안에서만, 해외를 볼 때는 전 세계에서 찾는다.
+    var url = SEARCH_URL + "?format=jsonv2&limit=5&accept-language=ko" + (market === "kr" ? "&countrycodes=kr" : "") +
+      "&q=" + encodeURIComponent(keyword);
+    return fetch(url, { headers: { "Accept": "application/json" } })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .catch(function () { return null; });
+  }
+
+  /** 좌표가 제대로 된 검색 결과만 */
+  function validPlaces(list) {
+    return Array.isArray(list) ? list.filter(function (hit) {
+      return hit && hit.lat !== null && hit.lon !== null && isFinite(Number(hit.lat)) && isFinite(Number(hit.lon));
+    }) : [];
+  }
+
+  /** 검색 결과의 짧은 이름 (Nominatim 은 "이름, 구, 시, ..." 라서 앞 두 덩어리만) */
+  function placeName(hit, fallback) {
+    return String(hit.name || hit.display_name || fallback || "").split(",").slice(0, 2).join(",").trim();
   }
 
   /** 로드뷰 사진이 건물 쪽을 보도록 방향(북쪽 0도, 시계 방향)을 구한다 */
@@ -561,7 +599,7 @@
     var k = state.kakao;
     var p = state.productById[asset.reit_id] || null;
     var basis = p ? Common.formatPriceBasis(p) : "";
-    document.getElementById("map-rv-owner").textContent = "이 건물, " + asset.reit_name + "가 가지고 있어요";
+    document.getElementById("map-rv-owner").textContent = "이 건물, " + subject(asset.reit_name) + " 가지고 있어요";
     document.getElementById("map-rv-name").textContent = asset.name || "이름 " + Common.NA;
     document.getElementById("map-rv-meta").textContent = [asset.asset_type, asset.address].filter(Boolean).join(" · ");
     document.getElementById("map-rv-price").textContent = p
@@ -633,45 +671,24 @@
   function searchPlace(keyword) {
     var token = ++state.searchToken;
     clearSearchChoices();
-    if (engine() === "kakao") {                              // 국내 + 카카오맵: 카카오 장소 검색
-      showNotice("찾는 중이에요...");
-      kakaoSearch(keyword, token);
-      return;
-    }
-    var now = Date.now();
-    // Nominatim 공용 서비스에 지나치게 자주 요청하지 않는다.
-    if (now - state.lastSearchAt < 1100) {
-      showNotice("장소 검색은 잠시 간격을 두고 다시 눌러 주세요.");
-      return;
-    }
-    state.lastSearchAt = now;
     showNotice("찾는 중이에요...");
-    // 국내를 볼 때는 한국 안에서만, 해외를 볼 때는 전 세계에서 찾는다.
-    var url = SEARCH_URL + "?format=jsonv2&limit=5&accept-language=ko" + (state.market === "kr" ? "&countrycodes=kr" : "") +
-      "&q=" + encodeURIComponent(keyword);
-    fetch(url, { headers: { "Accept": "application/json" } })
-      .then(function (res) { return res.ok ? res.json() : null; })
-      .catch(function () { return null; })
-      .then(function (list) {
-        if (token !== state.searchToken) { return; } // 전환·재검색·취소한 이전 결과는 무시한다.
-        handleSearchResults(list, keyword);
-      });
+    fetchPlaces(keyword, state.market).then(function (list) {
+      if (token !== state.searchToken) { return; }        // 전환·재검색·취소한 이전 결과는 무시한다.
+      if (list === "wait") { showNotice("장소 검색은 잠시 간격을 두고 다시 눌러 주세요."); return; }
+      handleSearchResults(list, keyword);
+    });
   }
 
   /** 장소 검색 결과 처리 (Nominatim·카카오 공통). list: [{ name, display_name, lat, lon }] / [] 없음 / null 연결 실패 */
   function handleSearchResults(list, keyword) {
-    var valid = Array.isArray(list) ? list.filter(function (hit) {
-      return hit && hit.lat !== null && hit.lon !== null &&
-        isFinite(Number(hit.lat)) && isFinite(Number(hit.lon));
-    }) : [];
+    var valid = validPlaces(list);
     if (valid.length > 1) {
       showSearchChoices(valid);
       return;
     }
     if (valid.length === 1) {
       var hit = valid[0];
-      state.center = { lat: Number(hit.lat), lng: Number(hit.lon),
-        name: String(hit.name || hit.display_name || keyword).split(",").slice(0, 2).join(",").trim() };
+      state.center = { lat: Number(hit.lat), lng: Number(hit.lon), name: placeName(hit, keyword) };
       showNotice("");
     } else {
       // 외부 지도 검색이 실패하면 실제 JSON의 자산 이름으로만 찾는다.
@@ -692,6 +709,356 @@
     var el = document.getElementById("map-notice");
     el.textContent = text || "";
     el.classList.toggle("is-hidden", !text);
+  }
+
+  // ---------------------------------------------------------------------
+  // 내 동선 건물주 카드: 집·학교(회사)·자주 가는 곳 → 곳마다 가장 가까운 리츠 건물 → 인스타 스토리 카드(1080×1920) PNG
+  //   - 장소는 어디에도 저장하지 않는다(state.route 에만 잠깐). "집 근처" 칸은 카드에 장소 이름을 쓰지 않는다
+  //   - 거리는 직선거리. 3km 안이 아니면 "근처"라고 쓰지 않는다
+  // ---------------------------------------------------------------------
+  var ROUTE_STOPS = [
+    { label: "집 근처", hideName: true, placeholder: "예: 죽전역, ○○동 주민센터" },
+    { label: "학교·회사", hideName: false, placeholder: "예: 단국대학교, 판교역" },
+    { label: "자주 가는 곳", hideName: false, placeholder: "예: 강남역, 스타필드 하남" }
+  ];
+  var ROUTE_NEAR_KM = 3;
+  var ROUTE_FILE = "reits-route-card.png";
+
+  /** 국내 리츠 건물 중 가장 가까운 곳 { asset, km } (없으면 null) */
+  function nearestAsset(lat, lng) {
+    var best = null;
+    state.assets.forEach(function (a) {
+      var km = Common.distanceKm(lat, lng, a.lat, a.lng);
+      if (best === null || km < best.km) { best = { asset: a, km: km }; }
+    });
+    return best;
+  }
+
+  function routeKmText(km) {
+    return "직선거리 약 " + (km < 10 ? (Math.round(km * 10) / 10).toFixed(1) : Common.formatNumber(km)) + "km";
+  }
+
+  function routeEl(attr, i) {
+    return document.querySelector("[" + attr + '="' + i + '"]');
+  }
+
+  function renderRouteStops() {
+    document.getElementById("map-route-stops").innerHTML = ROUTE_STOPS.map(function (stop, i) {
+      return '<div class="map-route-stop">' +
+        '<label class="field-label" for="map-route-input-' + i + '">' + Common.escapeHtml(stop.label) +
+          (stop.hideName ? ' <span class="map-route-tip">카드에는 장소 이름 없이 "집 근처"로만 나와요</span>' : "") + "</label>" +
+        '<div class="map-route-row">' +
+          '<input class="input" id="map-route-input-' + i + '" type="search" autocomplete="off" data-route-input="' + i +
+            '" placeholder="' + Common.escapeHtml(stop.placeholder) + '">' +
+          '<button type="button" class="btn btn-ghost" data-route-search="' + i + '">찾기</button>' +
+        "</div>" +
+        '<div class="map-search-choices is-hidden" data-route-choices="' + i + '" role="group" aria-label="' +
+          Common.escapeHtml(stop.label) + ' 검색 결과"></div>' +
+        '<div class="map-route-picked is-hidden" data-route-picked="' + i + '"></div>' +
+        "</div>";
+    }).join("");
+  }
+
+  function setRouteNotice(text) {
+    var el = document.getElementById("map-route-notice");
+    el.textContent = text || "";
+    el.classList.toggle("is-hidden", !text);
+  }
+
+  function setRouteChoices(i, list) {
+    var box = routeEl("data-route-choices", i);
+    if (!list || !list.length) { box.innerHTML = ""; box.classList.add("is-hidden"); return; }
+    box.innerHTML = '<p class="field-label">찾은 장소가 여러 곳이에요. 하나를 골라 주세요.</p>' + list.map(function (hit) {
+      return '<button type="button" class="map-search-choice" data-route-choice="' + i + '" data-place-lat="' + Number(hit.lat) +
+        '" data-place-lng="' + Number(hit.lon) + '" data-place-name="' + Common.escapeHtml(placeName(hit)) + '">' +
+        Common.escapeHtml(String(hit.display_name || hit.name || "")) + "</button>";
+    }).join("");
+    box.classList.remove("is-hidden");
+  }
+
+  function renderRoutePicked(i) {
+    var box = routeEl("data-route-picked", i);
+    var stop = state.route[i];
+    if (!stop) { box.innerHTML = ""; box.classList.add("is-hidden"); return; }
+    var near = stop.nearest;
+    box.innerHTML = "<p><b>" + Common.escapeHtml(stop.name) + "</b> → " + (near
+      ? "가장 가까운 리츠 건물 <b>" + Common.escapeHtml(near.asset.name || "이름 " + Common.NA) + "</b> (" +
+        Common.escapeHtml(near.asset.reit_name) + ", " + routeKmText(near.km) + ")"
+      : "위치 정보가 있는 리츠 건물이 없어요") + "</p>" +
+      '<button type="button" class="btn btn-ghost" data-route-clear="' + i + '">지우기</button>';
+    box.classList.remove("is-hidden");
+  }
+
+  function pickRouteStop(i, lat, lng, name) {
+    state.route[i] = { name: name, lat: lat, lng: lng, nearest: nearestAsset(lat, lng) };
+    setRouteChoices(i, null);
+    renderRoutePicked(i);
+    drawRouteCard();
+  }
+
+  function routeSearch(i) {
+    var keyword = routeEl("data-route-input", i).value.trim();
+    if (!keyword) { return; }
+    var token = ++state.routeTokens[i];
+    setRouteChoices(i, null);
+    setRouteNotice("찾는 중이에요...");
+    fetchPlaces(keyword, "kr").then(function (list) {
+      if (token !== state.routeTokens[i]) { return; }
+      if (list === "wait") { setRouteNotice("장소 검색은 잠시 간격을 두고 다시 눌러 주세요."); return; }
+      var valid = validPlaces(list);
+      if (!valid.length) {
+        setRouteNotice(list === null ? "장소 검색에 연결하지 못했어요. 잠시 뒤 다시 찾아 주세요." : "찾는 장소가 없어요. 다른 말로 찾아보세요.");
+        return;
+      }
+      setRouteNotice("");
+      if (valid.length === 1) {
+        pickRouteStop(i, Number(valid[0].lat), Number(valid[0].lon), placeName(valid[0], keyword));
+      } else {
+        setRouteChoices(i, valid);
+      }
+    });
+  }
+
+  // --- 캔버스 그리기 도구 (색·크기는 style.css 변수에서 읽는다) ---
+  function cssVar(name) { return window.getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function cssNum(name) { return parseFloat(cssVar(name)); }
+  function setFont(ctx, weight, size) { ctx.font = weight + " " + Math.round(size) + "px " + cssVar("--font-base"); }
+
+  function fillRound(ctx, x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  /** 띄어쓰기 단위로 줄을 나눈다. 한 단어가 한 줄보다 길 때만 글자 단위로 */
+  function wrapText(ctx, text, maxWidth) {
+    var lines = [];
+    String(text).split("\n").forEach(function (paragraph) {
+      var line = "";
+      paragraph.split(/(\s+)/).forEach(function (chunk) {
+        if (!chunk) { return; }
+        if (ctx.measureText(line + chunk).width <= maxWidth) { line += chunk; return; }
+        if (line.trim()) { lines.push(line.trim()); line = ""; }
+        Array.from(chunk.trim()).forEach(function (ch) {
+          if (line && ctx.measureText(line + ch).width > maxWidth) { lines.push(line); line = ""; }
+          line += ch;
+        });
+      });
+      if (line.trim()) { lines.push(line.trim()); }
+    });
+    return lines;
+  }
+
+  /** maxLines 줄 안에 들어갈 때까지 글자를 줄인다 */
+  function fitText(ctx, text, maxWidth, maxLines, maxSize, minSize, weight) {
+    for (var size = maxSize; size >= minSize; size -= 1) {
+      setFont(ctx, weight, size);
+      var lines = wrapText(ctx, text, maxWidth);
+      if (lines.length <= maxLines) { return { size: size, lines: lines, lineHeight: Math.ceil(size * 1.3), weight: weight }; }
+    }
+    setFont(ctx, weight, minSize);
+    return { size: minSize, lines: wrapText(ctx, text, maxWidth).slice(0, maxLines), lineHeight: Math.ceil(minSize * 1.3), weight: weight };
+  }
+
+  function paintText(ctx, fitted, x, y) {
+    setFont(ctx, fitted.weight, fitted.size);
+    fitted.lines.forEach(function (line, n) { ctx.fillText(line, x, y + n * fitted.lineHeight); });
+    return y + fitted.lines.length * fitted.lineHeight;
+  }
+
+  /** 카드에 들어가는 글자 전부 (금지어 검사용) */
+  function routeCardTexts(stops, hook) {
+    var texts = ["리츠 투자", "데이터로 읽는 부동산", "내 동선 속 리츠 건물", hook];
+    stops.forEach(function (row) {
+      texts.push(row.label, row.from, row.building, row.owner, row.meta);
+    });
+    return texts.join(" ");
+  }
+
+  /** 스토리 카드를 그린다. 저장할 수 있으면 true */
+  function drawRouteCard() {
+    var canvas = document.getElementById("map-route-canvas");
+    var ctx = canvas && canvas.getContext("2d");
+    var button = document.getElementById("map-route-download");
+    if (!ctx) { return false; }
+    var W = canvas.width;
+    var H = canvas.height;
+    var u = cssNum("--space-4");                 // 간격 기본 단위
+    var fsXl = cssNum("--fs-xl");
+    var fsLg = cssNum("--fs-lg");
+    var radius = cssNum("--radius");
+    var side = u * 5;
+    var inner = W - side * 2;
+
+    var stops = [];
+    state.route.forEach(function (stop, i) {
+      if (!stop || !stop.nearest) { return; }
+      var a = stop.nearest.asset;
+      var p = state.productById[a.reit_id] || null;
+      var basis = p ? Common.formatPriceBasis(p) : "";
+      stops.push({
+        label: ROUTE_STOPS[i].label,
+        from: ROUTE_STOPS[i].hideName ? "" : stop.name + "에서",
+        building: a.name || "이름 " + Common.NA,
+        owner: subject(a.reit_name) + " 가지고 있어요",
+        meta: routeKmText(stop.nearest.km) + (p && p.price ? " · 1주 " + Common.formatWon(p.price) + (basis ? " (" + basis + ")" : "") : ""),
+        km: stop.nearest.km
+      });
+    });
+    var allNear = stops.length > 0 && stops.every(function (row) { return row.km <= ROUTE_NEAR_KM; });
+    var hook = allNear ? "자주 가는 곳 근처에 리츠가 가진 건물이 있어요" : "자주 가는 곳에서 가장 가까운 리츠 건물을 찾아봤어요";
+
+    // 바탕
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = cssVar("--color-bg");
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = cssVar("--color-surface");
+    fillRound(ctx, u * 3, u * 3, W - u * 6, H - u * 6, radius * 2);
+    ctx.textBaseline = "top";
+
+    // 머리: 브랜드 + 제목 + 한 줄
+    ctx.fillStyle = cssVar("--color-primary");
+    fillRound(ctx, side, side, u * 8, u * 0.7, radius);
+    ctx.fillStyle = cssVar("--color-text");
+    setFont(ctx, 800, fsXl * 1.4);
+    ctx.fillText("리츠 투자", side, side + u * 2);
+    ctx.fillStyle = cssVar("--color-text-sub");
+    setFont(ctx, 600, fsLg * 1.05);
+    ctx.fillText("데이터로 읽는 부동산", side, side + u * 5.6);
+    ctx.fillStyle = cssVar("--color-text");
+    var y = paintText(ctx, fitText(ctx, "내 동선 속\n리츠 건물", inner, 2, fsXl * 3, fsXl * 2, 800), side, side + u * 10);
+    ctx.fillStyle = cssVar("--color-primary");
+    y = paintText(ctx, fitText(ctx, hook, inner, 2, fsLg * 1.7, fsLg * 1.2, 700), side, y + u * 1.5);
+
+    // 꼬리: 고지 + 출처·기준일 (지울 수 없게 자동으로)
+    var footerTop = H - u * 16;
+    var disclaimer = Common.getCardDisclaimer(state.meta, ["assets", "prices"]);
+    ctx.fillStyle = cssVar("--color-surface-2");
+    ctx.fillRect(u * 3, footerTop, W - u * 6, H - footerTop - u * 3);
+    ctx.fillStyle = cssVar("--color-text-sub");
+    paintText(ctx, fitText(ctx, disclaimer, inner, 5, fsLg * 1.3, cssNum("--fs-xs") * 1.4, 600), side, footerTop + u * 2);
+
+    // 가운데: 곳마다 한 칸
+    var top = y + u * 3;
+    var gap = u * 1.5;
+    var blockH = (footerTop - u * 3 - top - gap * 2) / 3;
+    if (!stops.length) {
+      ctx.fillStyle = cssVar("--color-text-sub");
+      paintText(ctx, fitText(ctx, "장소를 1곳 이상 넣으면\n카드가 만들어져요", inner, 3, fsLg * 1.6, fsLg, 700), side, top);
+    }
+    stops.forEach(function (row, n) {
+      var bx = side;
+      var by = top + n * (blockH + gap);
+      var pad = u * 2.2;
+      var tw = inner - pad * 2;
+      ctx.fillStyle = cssVar("--color-surface-2");
+      fillRound(ctx, bx, by, inner, blockH, radius * 1.5);
+      // 칸 이름 배지 + 어디에서
+      setFont(ctx, 800, fsLg * 1.15);
+      var chipW = ctx.measureText(row.label).width + u * 2.4;
+      var chipH = fsLg * 1.15 + u * 1.4;
+      ctx.fillStyle = cssVar("--color-primary-soft");
+      fillRound(ctx, bx + pad, by + pad, chipW, chipH, radius);
+      ctx.fillStyle = cssVar("--color-primary");
+      ctx.fillText(row.label, bx + pad + u * 1.2, by + pad + u * 0.7);
+      if (row.from) {
+        ctx.fillStyle = cssVar("--color-text-sub");
+        var fromFit = fitText(ctx, row.from, tw - chipW - u, 1, fsLg * 1.1, fsLg * 0.8, 600);
+        paintText(ctx, fromFit, bx + pad + chipW + u, by + pad + (chipH - fromFit.size) / 2);
+      }
+      // 건물 이름 · 주인 리츠 · 거리와 1주 가격
+      var ty = by + pad + chipH + u * 1.2;
+      ctx.fillStyle = cssVar("--color-text");
+      ty = paintText(ctx, fitText(ctx, row.building, tw, 2, fsXl * 1.6, fsLg * 1.2, 800), bx + pad, ty);
+      ctx.fillStyle = cssVar("--color-primary");
+      ty = paintText(ctx, fitText(ctx, row.owner, tw, 1, fsLg * 1.4, fsLg, 700), bx + pad, ty + u * 0.4);
+      ctx.fillStyle = cssVar("--color-text-sub");
+      paintText(ctx, fitText(ctx, row.meta, tw, 2, fsLg * 1.15, fsLg * 0.85, 600), bx + pad, ty + u * 0.4);
+    });
+
+    var ok = stops.length > 0 && Common.checkBannedWords(routeCardTexts(stops, hook) + " " + disclaimer).ok;
+    canvas.setAttribute("aria-label", stops.length
+      ? "내 동선 건물주 카드 미리 보기: " + stops.map(function (row) { return row.label + " " + row.building; }).join(", ")
+      : "내 동선 건물주 카드 미리 보기");
+    button.disabled = !ok;
+    document.getElementById("map-route-status").textContent = "";
+    return ok;
+  }
+
+  function saveRouteBlob(blob) {
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.download = ROUTE_FILE;
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(function () { URL.revokeObjectURL(url); }, 3000);
+    document.getElementById("map-route-status").textContent = "PNG 파일 저장을 요청했어요. 브라우저의 다운로드 목록을 확인해 주세요.";
+  }
+
+  /** 휴대폰은 공유 창(이미지 저장), 그 밖에는 PNG 바로 저장 — 홍보 카드와 같은 방식 */
+  function downloadRouteCard() {
+    if (!drawRouteCard()) { return; }
+    var status = document.getElementById("map-route-status");
+    try {
+      var dataUrl = document.getElementById("map-route-canvas").toDataURL("image/png");
+      var binary = window.atob(dataUrl.split(",")[1]);
+      var bytes = new Uint8Array(binary.length);
+      for (var i = 0; i < binary.length; i += 1) { bytes[i] = binary.charCodeAt(i); }
+      var blob = new Blob([bytes], { type: "image/png" });
+      var file = typeof File === "function" ? new File([blob], ROUTE_FILE, { type: "image/png" }) : null;
+      if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        status.textContent = "공유 메뉴에서 '이미지 저장'이나 '파일에 저장'을 선택해 주세요.";
+        navigator.share({ files: [file], title: "내 동선 건물주 카드" }).catch(function (error) {
+          if (error && error.name === "AbortError") { status.textContent = "공유가 취소됐어요."; } else { saveRouteBlob(blob); }
+        });
+      } else {
+        saveRouteBlob(blob);
+      }
+    } catch (error) {
+      status.textContent = "PNG 저장에 실패했어요. 다른 브라우저에서 다시 시도해 주세요.";
+    }
+  }
+
+  function initRouteCard() {
+    renderRouteStops();
+    var box = document.getElementById("map-route-stops");
+    box.addEventListener("click", function (event) {
+      var search = event.target.closest("[data-route-search]");
+      if (search) { routeSearch(Number(search.getAttribute("data-route-search"))); return; }
+      var choice = event.target.closest("[data-route-choice]");
+      if (choice) {
+        var lat = Number(choice.getAttribute("data-place-lat"));
+        var lng = Number(choice.getAttribute("data-place-lng"));
+        if (isFinite(lat) && isFinite(lng)) {
+          pickRouteStop(Number(choice.getAttribute("data-route-choice")), lat, lng, choice.getAttribute("data-place-name"));
+        }
+        return;
+      }
+      var clear = event.target.closest("[data-route-clear]");
+      if (clear) {
+        var i = Number(clear.getAttribute("data-route-clear"));
+        state.route[i] = null;
+        state.routeTokens[i]++;
+        routeEl("data-route-input", i).value = "";
+        renderRoutePicked(i);
+        drawRouteCard();
+      }
+    });
+    box.addEventListener("keydown", function (event) {
+      var input = event.target.closest("[data-route-input]");
+      if (input && event.key === "Enter") { routeSearch(Number(input.getAttribute("data-route-input"))); }
+    });
+    document.getElementById("map-route-download").addEventListener("click", downloadRouteCard);
+    // 웹폰트가 다 받아진 뒤에 그려야 카드 글꼴이 화면과 같다
+    if (document.fonts && document.fonts.ready) { document.fonts.ready.then(drawRouteCard); } else { drawRouteCard(); }
   }
 
   // ---------------------------------------------------------------------
@@ -728,7 +1095,7 @@
     Common.initPage({ active: "map", sources: ["assets", "prices", "global_properties", "dividends", "metrics", "assumptions"] });
 
     Promise.all([
-      Common.loadAll(["assets", "reits", "metrics", "prices", "dividends", "global_properties", "assumptions"]),
+      Common.loadAll(["assets", "reits", "metrics", "prices", "dividends", "global_properties", "assumptions", "meta"]),
       loadKakao()
     ]).then(function (loaded) {
       var data = loaded[0];
@@ -737,6 +1104,7 @@
         ? "지도·장소 검색·로드뷰: 국내는 카카오맵, 해외는 OpenStreetMap."
         : "지도와 장소 검색: OpenStreetMap.";
       Common.applyAssumptions(data.assumptions);           // 배당 번역 문구의 커피 잔수 계산용 (없으면 "데이터 없음")
+      state.meta = Common.metaForPrices(data.meta, data.prices);   // 동선 카드 출처·기준일 (저장본을 쓰면 저장본 것으로)
       var assets = (data.assets && data.assets.items) || [];
       state.assets = assets.filter(function (a) { return typeof a.lat === "number" && typeof a.lng === "number"; });
       state.noCoordCount = assets.length - state.assets.length;
@@ -750,6 +1118,7 @@
       renderReits();
       renderLegend();
       renderResult();
+      initRouteCard();
     });
 
     document.getElementById("map-market").addEventListener("click", function (event) {

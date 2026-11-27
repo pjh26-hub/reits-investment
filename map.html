@@ -63,6 +63,19 @@
     .map-rv-price { margin-top: var(--space-2); font-size: var(--fs-md); font-weight: 700; }
     .map-rv-view { width: 100%; height: var(--dim-250); border-radius: var(--radius-sm); overflow: hidden; background: var(--color-label); }
     @media (min-width: 720px) { .map-rv-view { height: var(--dim-360); } }
+    /* 내 동선 건물주 카드 */
+    .map-route-layout { display: grid; gap: var(--space-5); grid-template-columns: 1fr; }
+    @media (min-width: 860px) { .map-route-layout { grid-template-columns: 1fr var(--dim-360); align-items: start; } }
+    .map-route-stop { display: grid; gap: var(--space-2); padding: var(--space-4); border: var(--dim-1) solid var(--color-line); border-radius: var(--radius-sm); background: var(--color-surface); }
+    .map-route-row { display: flex; gap: var(--space-2); }
+    .map-route-row .input { flex: 1; min-width: 0; }
+    .map-route-row .btn { flex: none; white-space: nowrap; }
+    .map-route-tip { font-weight: 400; color: var(--color-text-sub); font-size: var(--fs-xxs); }
+    .map-route-picked { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); font-size: var(--fs-sm); line-height: 1.5; overflow-wrap: anywhere; }
+    .map-route-picked p { flex: 1; min-width: 0; }
+    .map-route-picked b { color: var(--color-primary); }
+    .map-route-canvas { display: block; width: 100%; max-width: var(--dim-360); height: auto; margin: 0 auto; border: var(--dim-1) solid var(--color-line); border-radius: var(--radius); }
+    .map-route-status { font-size: var(--fs-sm); color: var(--color-text-sub); }
   </style>
 </head>
 <body>
@@ -134,6 +147,25 @@
       <div class="grid grid-2" id="map-result"></div>
     </section>
 
+    <!-- 내 동선 건물주 카드: 3곳을 넣으면 곳마다 가장 가까운 리츠 건물을 찾아 인스타 스토리 카드로 (장소는 저장하지 않는다) -->
+    <section class="stack" aria-label="내 동선 건물주 카드">
+      <h2 class="sec-title"><span class="sec-no">03</span>내 동선 건물주 카드</h2>
+      <p class="source-note">집 근처, 학교·회사, 자주 가는 곳을 넣으면 곳마다 가장 가까운 리츠 건물을 찾아 인스타 스토리 크기(1080×1920) 카드로 만들어요. 1곳만 넣어도 돼요. 거리는 직선거리이고, 넣은 장소는 어디에도 저장하지 않아요.</p>
+      <div class="map-route-layout">
+        <div class="stack">
+          <div class="stack" id="map-route-stops"></div>
+          <p class="notice is-hidden" id="map-route-notice" role="status"></p>
+        </div>
+        <div class="stack">
+          <!-- 실제 크기는 1080×1920. 화면에는 폭에 맞게 줄여서 보여준다 -->
+          <canvas class="map-route-canvas" id="map-route-canvas" width="1080" height="1920"></canvas>
+          <button class="btn btn-primary" id="map-route-download" type="button" disabled>PNG로 받기</button>
+          <p class="map-route-status" id="map-route-status" aria-live="polite"></p>
+          <p class="source-note">카드 맨 아래에는 데이터 출처와 기준일, 투자 위험 고지 문구가 자동으로 들어가며 지울 수 없어요. 휴대폰은 공유 메뉴에서 이미지 저장을 선택할 수 있어요.</p>
+        </div>
+      </div>
+    </section>
+
     <div class="ad-slot ad-slot--banner" data-ad="map-bottom"></div>
   </main>
 
@@ -141,6 +173,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="js/common.js"></script>
-  <script src="js/map.js?v=20261128"></script>
+  <script src="js/map.js?v=20261128c"></script>
 </body>
 </html>
