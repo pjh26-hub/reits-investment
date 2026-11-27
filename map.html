@@ -6,7 +6,7 @@
   <title>지도에서 찾기 | 리츠 투자</title>
   <meta name="description" content="내가 자주 가는 곳 근처에 리츠가 가진 건물이 있는지 지도에서 찾기">
   <link rel="stylesheet" href="css/style.css">
-  <!-- 지도 라이브러리 Leaflet (OpenStreetMap 지도용, API 키 필요 없음) -->
+  <!-- 지도 라이브러리 Leaflet (해외 리츠 지도 + 카카오맵을 못 불러왔을 때, API 키 필요 없음). 카카오맵 SDK 는 js/map.js 가 불러온다 -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
     /* 지도 페이지 전용 스타일 (접두어 map-). 색·간격은 style.css 의 변수만 쓴다 */
@@ -44,7 +44,25 @@
     .map-hq-icon .map-hq-pin { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); cursor: pointer; }
     .map-hq-pin--legend { box-shadow: none; }
     .map-asset-desc { margin-top: var(--space-3); font-size: var(--fs-sm); line-height: 1.6; }
-    .map-asset-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .map-asset-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+    /* 공통 규칙 img·svg·canvas { max-width: 100% } 이 지도 안의 반경 원·로드뷰를 0 폭으로 줄이지 않게 */
+    .map-canvas img, .map-canvas svg, .map-canvas canvas, .map-rv-view img, .map-rv-view svg, .map-rv-view canvas { max-width: none; }
+    /* 카카오맵 건물 점 (색은 범례 클래스 map-legend-dot--* 를 같이 씀) */
+    .map-k-dot { display: block; width: var(--dim-20); height: var(--dim-20); padding: 0; border: var(--dim-3) solid var(--color-surface); border-radius: 50%; cursor: pointer; box-shadow: 0 var(--dim-1) var(--dim-3) var(--color-tooltip-shadow); }
+    .map-k-dot:hover, .map-k-dot:focus-visible { outline: var(--dim-2) solid var(--color-text); outline-offset: var(--dim-1); }
+    /* 카카오맵 찾은 장소 표시: 점 + 이름표 */
+    .map-k-center { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); transform: translateY(calc(var(--space-4) * -0.5)); }
+    .map-k-center-dot { width: var(--space-4); height: var(--space-4); border: var(--dim-3) solid var(--color-surface); border-radius: 50%; background: var(--color-accent); }
+    .map-k-center-label { padding: var(--dim-2) var(--space-2); border-radius: var(--dim-999); background: var(--color-accent); color: var(--color-on-primary); font-family: var(--font-base); font-size: var(--fs-xxs); font-weight: 800; white-space: nowrap; box-shadow: 0 var(--dim-1) var(--dim-3) var(--color-tooltip-shadow); }
+    /* "누가 가지고 있을까" 답 + 로드뷰 */
+    .map-rv { display: grid; gap: var(--space-3); border-color: var(--color-primary); }
+    .map-rv-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-3); }
+    .map-rv-head > div { min-width: 0; }
+    .map-rv-head .btn { flex: none; white-space: nowrap; }
+    .map-rv-owner { color: var(--color-primary); font-weight: 700; }
+    .map-rv-price { margin-top: var(--space-2); font-size: var(--fs-md); font-weight: 700; }
+    .map-rv-view { width: 100%; height: var(--dim-250); border-radius: var(--radius-sm); overflow: hidden; background: var(--color-label); }
+    @media (min-width: 720px) { .map-rv-view { height: var(--dim-360); } }
   </style>
 </head>
 <body>
@@ -85,9 +103,28 @@
       <div class="map-search-choices is-hidden" id="map-search-choices" role="group" aria-label="장소 검색 결과"></div>
       <!-- 지도 색상 범례: 목록의 실제 자산 유형에 맞춰 표시한다 -->
       <div class="map-legend" id="map-legend" role="group" aria-label="지도 마커 색상 설명"></div>
-      <!-- 지도가 그려지는 자리 -->
+      <!-- 지도가 그려지는 자리: 국내는 카카오맵(map-kakao), 해외와 카카오맵을 못 불러왔을 때는 Leaflet(map-canvas) -->
+      <div class="map-canvas is-hidden" id="map-kakao" role="application" aria-label="카카오 지도"></div>
       <div class="map-canvas" id="map-canvas" role="application" aria-label="지도"></div>
-      <p class="source-note">지도와 장소 검색: OpenStreetMap. 장소 검색 결과는 어디에도 저장하지 않아요. 국내 건물 위치: 국토교통부 리츠정보시스템. 해외 리츠: 본사가 있는 도시(위키백과 S&amp;P 500 목록)와 대표 보유 자산 2~3곳(각 리츠·운영사 공개 자료, 좌표는 미국 인구조사국 지오코더·위키백과). 해외 자산은 전체가 아니라 대표적인 곳만 골랐어요.</p>
+      <!-- 건물을 누르면: "이 건물, ○○리츠가 가지고 있어요" + 카카오 로드뷰 사진 (카카오맵일 때만) -->
+      <div class="card map-rv is-hidden" id="map-rv" role="region" aria-label="건물 모습">
+        <div class="map-rv-head">
+          <div>
+            <p class="card-sub map-rv-owner" id="map-rv-owner"></p>
+            <h3 class="card-title" id="map-rv-name"></h3>
+            <p class="map-asset-meta" id="map-rv-meta"></p>
+            <p class="map-rv-price" id="map-rv-price"></p>
+          </div>
+          <button class="btn btn-ghost" id="map-rv-close" type="button">닫기</button>
+        </div>
+        <div class="map-rv-view is-hidden" id="map-rv-view" aria-label="카카오맵 로드뷰"></div>
+        <p class="source-note" id="map-rv-note" role="status"></p>
+        <div class="map-asset-actions">
+          <a class="btn" id="map-rv-compare" href="compare.html">적금과 비교하기</a>
+          <span class="label-risk">원금 손실 가능</span>
+        </div>
+      </div>
+      <p class="source-note"><span id="map-provider-note">지도와 장소 검색: OpenStreetMap.</span> 장소 검색 결과는 어디에도 저장하지 않아요. 국내 건물 위치: 국토교통부 리츠정보시스템. 해외 리츠: 본사가 있는 도시(위키백과 S&amp;P 500 목록)와 대표 보유 자산 2~3곳(각 리츠·운영사 공개 자료, 좌표는 미국 인구조사국 지오코더·위키백과). 해외 자산은 전체가 아니라 대표적인 곳만 골랐어요.</p>
     </section>
 
     <section class="stack" aria-label="근처 건물">
@@ -104,6 +141,6 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="js/common.js"></script>
-  <script src="js/map.js"></script>
+  <script src="js/map.js?v=20261128"></script>
 </body>
 </html>

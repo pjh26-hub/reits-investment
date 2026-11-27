@@ -11,11 +11,14 @@
      - 카드 "이 건물, ○○리츠가 가지고 있어요" + 생활 언어 지표 + 비교 화면 버튼
      - 지도가 안 떠도(인터넷 불안정) 목록과 글자 검색은 동작
 
-   지도와 장소 검색
-     - 지도: Leaflet + OpenStreetMap (API 키가 필요 없음). 화면에 "© OpenStreetMap contributors" 표시 필수.
-     - 장소 검색: OpenStreetMap Nominatim. 버튼을 눌렀을 때 한 번만 부른다(자동완성 금지, 1초에 1번 이하).
+   지도와 장소 검색 (2026-11-28 카카오맵 추가)
+     - 국내: 카카오맵 지도 + 카카오 장소 검색 + 로드뷰(건물을 누르면 실제 거리 사진).
+         KAKAO_JS_KEY 가 비어 있거나 카카오 지도를 못 불러오면 자동으로 아래 Leaflet 지도로 돌아간다.
+     - 해외: Leaflet + OpenStreetMap (카카오맵에는 한국 밖이 거의 안 나와서). 화면에 "© OpenStreetMap contributors" 표시 필수.
+         장소 검색은 OpenStreetMap Nominatim. 버튼을 눌렀을 때 한 번만 부른다(자동완성 금지, 1초에 1번 이하).
      - 장소 검색 결과는 어디에도 저장하지 않는다(localStorage 포함). state.center 에만 잠깐 둔다.
-     - 카카오맵으로 바꾸고 싶으면 initMap / searchPlace / drawMarkers 세 함수만 바꾸면 된다.
+     - 카카오 JavaScript 키는 원래 웹페이지에 그대로 보이는 공개용 키다(.env 에 숨길 수 없음).
+         카카오 개발자 사이트에 등록한 도메인(https://pjh26-hub.github.io, http://localhost:8772)에서만 작동한다.
 
    꼭 지킬 것 (HANDOFF_PROMPT.md)
      - 좌표는 data/ 의 값만 쓴다(국내: assets.json 의 lat·lng, 해외 본사: prices.json 의 hq_lat·hq_lng,
@@ -25,6 +28,11 @@
 (function () {
   "use strict";
 
+  // 카카오맵 JavaScript 키 (카카오 개발자 > 내 애플리케이션 > 앱 키 > JavaScript 키). 비워 두면 국내도 Leaflet 지도
+  var KAKAO_JS_KEY = "27104759d7bebe7cf5c54ee8ce551e99";   // 앱 "리츠 투자"(ID 1669794), 등록 도메인: pjh26-hub.github.io, localhost:8772
+  var KAKAO_SDK_URL = "https://dapi.kakao.com/v2/maps/sdk.js";
+  var KAKAO_LOAD_TIMEOUT_MS = 8000;
+  var ROADVIEW_RADIUS_M = 80;   // 건물 좌표에서 이 거리 안의 로드뷰 사진을 찾는다
   var TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
   var TILE_CREDIT = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
   var SEARCH_URL = "https://nominatim.openstreetmap.org/search";
@@ -55,9 +63,17 @@
     map: null,           // Leaflet 지도
     layer: null,         // 마커 묶음
     centerLayer: null,   // 찾은 장소 표시 + 반경 원
+    useKakao: false,     // 카카오맵을 불러왔으면 true → 국내는 카카오맵
+    kakao: { map: null, overlays: [], circle: null, places: null, roadview: null, rvClient: null, rvTarget: null, rvPending: false },
+    rvToken: 0,          // 로드뷰를 연달아 누르면 마지막 것만 보여준다
     searchToken: 0,      // 이미 취소된 검색 응답은 화면에 반영하지 않는다
     lastSearchAt: 0      // Nominatim 요청 사이 간격 제한 (검색 기록 저장 아님)
   };
+
+  /** 지금 쪽(국내/해외)을 그리는 지도. 국내는 카카오맵을 불러왔을 때만 카카오 */
+  function engine() {
+    return state.market === "kr" && state.useKakao ? "kakao" : "leaflet";
+  }
 
   /** 지금 고른 쪽의 지점 목록. 해외에서 리츠를 골랐으면 그 리츠의 본사·자산만 */
   function places() {
@@ -132,13 +148,14 @@
     renderResult();
   }
 
-  /** 선택한 마커와 대응하는 카드를 연결한다. */
-  function focusAssetCard(assetId) {
+  /** 선택한 마커와 대응하는 카드를 연결한다. noScroll 이면 강조만 하고 화면은 움직이지 않는다 */
+  function focusAssetCard(assetId, noScroll) {
     var previous = document.querySelector("#map-result .map-asset.is-active");
     if (previous) { previous.classList.remove("is-active"); }
     var card = document.getElementById("asset-" + assetId);
     if (!card) { return; }
     card.classList.add("is-active");
+    if (noScroll) { return; }
     card.focus({ preventScroll: true });
     card.scrollIntoView({ behavior: "smooth", block: "center" });
   }
@@ -229,7 +246,10 @@
       linesHtml + hqNote +
       '<p class="raw-note"><span class="label-risk">원금 손실 가능</span></p>' +
       '<div class="map-asset-actions"><a class="btn" href="compare.html?ids=' + encodeURIComponent(asset.reit_id) + '">적금과 비교하기</a>' +
-        (asset.isHq && asset.propertyCount ? focusButtonHtml(asset.reit_id) : "") + "</div>" +
+        (asset.isHq && asset.propertyCount ? focusButtonHtml(asset.reit_id) : "") +
+        (!asset.isHq && state.useKakao
+          ? '<button type="button" class="btn btn-ghost" data-rv-asset="' + Common.escapeHtml(asset.asset_id) + '">건물 모습 보기</button>' : "") +
+        "</div>" +
       "</article>";
   }
 
@@ -319,8 +339,26 @@
     return "<b>" + Common.escapeHtml(a.name || "") + "</b><br>" + Common.escapeHtml(a.reit_name) + "가 가지고 있어요" + compare;
   }
 
+  /** 지금 쪽에 맞는 지도만 보이게 한다 (국내 카카오맵 / 해외·대체 Leaflet) */
+  function syncMapVisibility() {
+    var useKakao = engine() === "kakao";
+    var kakaoBox = document.getElementById("map-kakao");
+    var leafletBox = document.getElementById("map-canvas");
+    var leafletWasHidden = leafletBox.classList.contains("is-hidden");
+    kakaoBox.classList.toggle("is-hidden", !useKakao);
+    leafletBox.classList.toggle("is-hidden", useKakao);
+    if (useKakao && state.kakao.map) { state.kakao.map.relayout(); }
+    if (!useKakao && state.map && leafletWasHidden) { state.map.invalidateSize(); }
+    if (!useKakao) { hideRoadview(); }
+  }
+
   /** rows 의 지점에 마커를 찍고, 찾은 장소와 반경 원을 그린 뒤 지도를 그 범위에 맞춘다 */
   function drawMarkers(rows) {
+    syncMapVisibility();
+    if (engine() === "kakao") { drawKakao(rows); } else { drawLeaflet(rows); }
+  }
+
+  function drawLeaflet(rows) {
     if (!state.map) { return; }
     var L = window.L;
     var points = [];
@@ -378,6 +416,195 @@
   }
 
   // ---------------------------------------------------------------------
+  // 카카오맵 (국내): 지도 · 장소 검색 · 로드뷰
+  // ---------------------------------------------------------------------
+  /** 카카오맵 SDK 를 불러온다. 키가 없거나 실패·시간 초과면 false (→ Leaflet 지도) */
+  function loadKakao() {
+    return new Promise(function (resolve) {
+      if (!KAKAO_JS_KEY) { resolve(false); return; }
+      var done = false;
+      function finish(ok) { if (!done) { done = true; resolve(ok); } }
+      var timer = window.setTimeout(function () { finish(false); }, KAKAO_LOAD_TIMEOUT_MS);
+      var script = document.createElement("script");
+      script.src = KAKAO_SDK_URL + "?appkey=" + encodeURIComponent(KAKAO_JS_KEY) + "&libraries=services&autoload=false";
+      script.onload = function () {
+        if (!window.kakao || !window.kakao.maps || !window.kakao.maps.load) { window.clearTimeout(timer); finish(false); return; }
+        window.kakao.maps.load(function () { window.clearTimeout(timer); finish(true); });
+      };
+      script.onerror = function () { window.clearTimeout(timer); finish(false); };
+      document.head.appendChild(script);
+    });
+  }
+
+  function initKakao() {
+    var kakao = window.kakao;
+    try {
+      var box = document.getElementById("map-kakao");
+      box.classList.remove("is-hidden");                      // 크기가 있어야 지도가 제대로 그려진다
+      state.kakao.map = new kakao.maps.Map(box, { center: new kakao.maps.LatLng(36.4, 127.9), level: 13 });
+      state.kakao.map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
+      state.kakao.places = new kakao.maps.services.Places();
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function kakaoLatLng(lat, lng) { return new window.kakao.maps.LatLng(lat, lng); }
+
+  /** 건물 점 하나 (색은 범례와 같은 CSS 클래스). 누르면 카드 강조 + 로드뷰 */
+  function kakaoDot(asset) {
+    var el = document.createElement("button");
+    el.type = "button";
+    el.className = "map-k-dot map-legend-dot--" + assetKind(asset);
+    el.title = (asset.name || "") + " · " + asset.reit_name;
+    el.setAttribute("aria-label", el.title + " 건물 모습 보기");
+    el.addEventListener("click", function () {
+      focusAssetCard(asset.asset_id, true);
+      showRoadview(asset, true);
+    });
+    return new window.kakao.maps.CustomOverlay({
+      position: kakaoLatLng(asset.lat, asset.lng), content: el, xAnchor: 0.5, yAnchor: 0.5, clickable: true, zIndex: 2
+    });
+  }
+
+  function drawKakao(rows) {
+    var k = state.kakao;
+    if (!k.map) { return; }
+    var kakao = window.kakao;
+    k.overlays.forEach(function (o) { o.setMap(null); });
+    k.overlays = [];
+    if (k.circle) { k.circle.setMap(null); k.circle = null; }
+    var bounds = new kakao.maps.LatLngBounds();
+    var count = 0;
+    rows.forEach(function (row) {
+      var overlay = kakaoDot(row.asset);
+      overlay.setMap(k.map);
+      k.overlays.push(overlay);
+      bounds.extend(kakaoLatLng(row.asset.lat, row.asset.lng));
+      count += 1;
+    });
+    if (state.center) {
+      var c = state.center;
+      var accent = window.getComputedStyle(document.documentElement).getPropertyValue("--color-accent").trim();
+      k.circle = new kakao.maps.Circle({
+        center: kakaoLatLng(c.lat, c.lng), radius: state.radiusKm * 1000,
+        strokeWeight: 2, strokeColor: accent, strokeOpacity: 0.9, fillColor: accent, fillOpacity: 0.08
+      });
+      k.circle.setMap(k.map);
+      var pin = document.createElement("div");
+      pin.className = "map-k-center";
+      pin.innerHTML = '<span class="map-k-center-dot" aria-hidden="true"></span><span class="map-k-center-label">' + Common.escapeHtml(c.name) + "</span>";
+      var centerOverlay = new kakao.maps.CustomOverlay({ position: kakaoLatLng(c.lat, c.lng), content: pin, xAnchor: 0.5, yAnchor: 0.5, zIndex: 3 });
+      centerOverlay.setMap(k.map);
+      k.overlays.push(centerOverlay);
+      // 반경 원이 다 보이게 원의 위·아래·왼쪽·오른쪽 끝도 범위에 넣는다
+      var dLat = state.radiusKm / 111;
+      var dLng = state.radiusKm / (111 * Math.cos(c.lat * Math.PI / 180));
+      bounds.extend(kakaoLatLng(c.lat + dLat, c.lng + dLng));
+      bounds.extend(kakaoLatLng(c.lat - dLat, c.lng - dLng));
+      count += 2;
+    }
+    if (count === 1) {
+      k.map.setLevel(4);
+      k.map.setCenter(kakaoLatLng(rows[0].asset.lat, rows[0].asset.lng));
+    } else if (count > 1) {
+      k.map.setBounds(bounds, 40, 40, 40, 40);
+    }
+  }
+
+  /** 카카오 장소 검색 (강남역, ○○대학교, 가게 이름 등). 결과 모양을 Nominatim 과 같게 맞춘다 */
+  function kakaoSearch(keyword, token) {
+    var kakao = window.kakao;
+    state.kakao.places.keywordSearch(keyword, function (data, status) {
+      if (token !== state.searchToken) { return; }
+      var Status = kakao.maps.services.Status;
+      var list = null;                                         // null = 연결 실패
+      if (status === Status.OK) {
+        list = data.map(function (d) {
+          return { name: d.place_name, display_name: d.place_name + " · " + (d.road_address_name || d.address_name || ""),
+            lat: Number(d.y), lon: Number(d.x) };
+        });
+      } else if (status === Status.ZERO_RESULT) {
+        list = [];
+      }
+      handleSearchResults(list, keyword);
+    }, { size: 5 });
+  }
+
+  /** 로드뷰 사진이 건물 쪽을 보도록 방향(북쪽 0도, 시계 방향)을 구한다 */
+  function bearing(from, to) {
+    var rad = Math.PI / 180;
+    var y = Math.sin((to.lng - from.lng) * rad) * Math.cos(to.lat * rad);
+    var x = Math.cos(from.lat * rad) * Math.sin(to.lat * rad) -
+      Math.sin(from.lat * rad) * Math.cos(to.lat * rad) * Math.cos((to.lng - from.lng) * rad);
+    return (Math.atan2(y, x) / rad + 360) % 360;
+  }
+
+  function faceRoadviewTarget() {
+    var k = state.kakao;
+    if (!k.rvPending || !k.rvTarget || !k.roadview) { return; }
+    var at = k.roadview.getPosition();
+    if (!at) { return; }
+    k.rvPending = false;
+    k.roadview.setViewpoint(new window.kakao.maps.Viewpoint(bearing({ lat: at.getLat(), lng: at.getLng() }, k.rvTarget), 0, 0));
+  }
+
+  function setRoadviewNote(text) {
+    document.getElementById("map-rv-note").textContent = text;
+  }
+
+  /** "누가 가지고 있을까" 답: 건물 이름 · 주인 리츠 · 1주 가격 + 카카오 로드뷰 사진 */
+  function showRoadview(asset, scroll) {
+    if (!state.useKakao || asset.isHq || asset.isGlobalAsset) { return; }
+    var kakao = window.kakao;
+    var k = state.kakao;
+    var p = state.productById[asset.reit_id] || null;
+    var basis = p ? Common.formatPriceBasis(p) : "";
+    document.getElementById("map-rv-owner").textContent = "이 건물, " + asset.reit_name + "가 가지고 있어요";
+    document.getElementById("map-rv-name").textContent = asset.name || "이름 " + Common.NA;
+    document.getElementById("map-rv-meta").textContent = [asset.asset_type, asset.address].filter(Boolean).join(" · ");
+    document.getElementById("map-rv-price").textContent = p
+      ? "1주 가격 " + Common.formatWon(p.price) + (basis ? " (" + basis + ")" : "") : "";
+    document.getElementById("map-rv-compare").setAttribute("href", "compare.html?ids=" + encodeURIComponent(asset.reit_id));
+    var panel = document.getElementById("map-rv");
+    var view = document.getElementById("map-rv-view");
+    panel.classList.remove("is-hidden");
+    view.classList.add("is-hidden");
+    setRoadviewNote("거리 사진을 찾는 중이에요...");
+    if (scroll) { panel.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+
+    var token = ++state.rvToken;
+    var target = kakaoLatLng(asset.lat, asset.lng);
+    if (!k.rvClient) { k.rvClient = new kakao.maps.RoadviewClient(); }
+    k.rvClient.getNearestPanoId(target, ROADVIEW_RADIUS_M, function (panoId) {
+      if (token !== state.rvToken) { return; }
+      if (panoId === null) {
+        setRoadviewNote("이 건물 근처에는 카카오맵 로드뷰 사진이 없어요. 위치는 지도의 점으로 확인해 주세요.");
+        return;
+      }
+      view.classList.remove("is-hidden");
+      if (!k.roadview) {
+        k.roadview = new kakao.maps.Roadview(view);
+        ["init", "panoid_changed", "position_changed"].forEach(function (name) {
+          kakao.maps.event.addListener(k.roadview, name, faceRoadviewTarget);
+        });
+      }
+      k.rvTarget = { lat: asset.lat, lng: asset.lng };
+      k.rvPending = true;
+      k.roadview.setPanoId(panoId, target);
+      k.roadview.relayout();
+      setRoadviewNote("카카오맵 로드뷰 사진이에요. 찍은 때가 지금과 다를 수 있어요. 끌어서 둘러볼 수 있어요.");
+    });
+  }
+
+  function hideRoadview() {
+    state.rvToken++;
+    var panel = document.getElementById("map-rv");
+    if (panel) { panel.classList.add("is-hidden"); }
+  }
+
+  // ---------------------------------------------------------------------
   // 장소 찾기
   // ---------------------------------------------------------------------
   /** 이름·주소·리츠 이름에서 글자로 찾기 (지도 검색이 안 될 때 대신 쓴다) */
@@ -406,6 +633,11 @@
   function searchPlace(keyword) {
     var token = ++state.searchToken;
     clearSearchChoices();
+    if (engine() === "kakao") {                              // 국내 + 카카오맵: 카카오 장소 검색
+      showNotice("찾는 중이에요...");
+      kakaoSearch(keyword, token);
+      return;
+    }
     var now = Date.now();
     // Nominatim 공용 서비스에 지나치게 자주 요청하지 않는다.
     if (now - state.lastSearchAt < 1100) {
@@ -422,33 +654,38 @@
       .catch(function () { return null; })
       .then(function (list) {
         if (token !== state.searchToken) { return; } // 전환·재검색·취소한 이전 결과는 무시한다.
-        var valid = Array.isArray(list) ? list.filter(function (hit) {
-          return hit && hit.lat !== null && hit.lon !== null &&
-            isFinite(Number(hit.lat)) && isFinite(Number(hit.lon));
-        }) : [];
-        if (valid.length > 1) {
-          showSearchChoices(valid);
-          return;
-        }
-        if (valid.length === 1) {
-          var hit = valid[0];
-          state.center = { lat: Number(hit.lat), lng: Number(hit.lon),
-            name: String(hit.name || hit.display_name || keyword).split(",").slice(0, 2).join(",").trim() };
-          showNotice("");
-        } else {
-          // 외부 지도 검색이 실패하면 실제 JSON의 자산 이름으로만 찾는다.
-          var place = findInPlaces(keyword);
-          if (!place) {
-            showNotice(list === null
-              ? "장소 검색에 연결하지 못했어요. 목록에 있는 이름이나 지역 이름으로 다시 찾아보세요."
-              : "찾는 장소가 없어요. 다른 말로 찾아보세요.");
-            return;
-          }
-          state.center = { lat: place.lat, lng: place.lng, name: place.name || keyword };
-          showNotice("지도 검색 대신 목록에서 '" + (place.name || keyword) + "'을(를) 찾았어요.");
-        }
-        renderResult();
+        handleSearchResults(list, keyword);
       });
+  }
+
+  /** 장소 검색 결과 처리 (Nominatim·카카오 공통). list: [{ name, display_name, lat, lon }] / [] 없음 / null 연결 실패 */
+  function handleSearchResults(list, keyword) {
+    var valid = Array.isArray(list) ? list.filter(function (hit) {
+      return hit && hit.lat !== null && hit.lon !== null &&
+        isFinite(Number(hit.lat)) && isFinite(Number(hit.lon));
+    }) : [];
+    if (valid.length > 1) {
+      showSearchChoices(valid);
+      return;
+    }
+    if (valid.length === 1) {
+      var hit = valid[0];
+      state.center = { lat: Number(hit.lat), lng: Number(hit.lon),
+        name: String(hit.name || hit.display_name || keyword).split(",").slice(0, 2).join(",").trim() };
+      showNotice("");
+    } else {
+      // 외부 지도 검색이 실패하면 실제 JSON의 자산 이름으로만 찾는다.
+      var place = findInPlaces(keyword);
+      if (!place) {
+        showNotice(list === null
+          ? "장소 검색에 연결하지 못했어요. 목록에 있는 이름이나 지역 이름으로 다시 찾아보세요."
+          : "찾는 장소가 없어요. 다른 말로 찾아보세요.");
+        return;
+      }
+      state.center = { lat: place.lat, lng: place.lng, name: place.name || keyword };
+      showNotice("지도 검색 대신 목록에서 '" + (place.name || keyword) + "'을(를) 찾았어요.");
+    }
+    renderResult();
   }
 
   function showNotice(text) {
@@ -490,7 +727,15 @@
   function start() {
     Common.initPage({ active: "map", sources: ["assets", "prices", "global_properties", "dividends", "metrics", "assumptions"] });
 
-    Common.loadAll(["assets", "reits", "metrics", "prices", "dividends", "global_properties", "assumptions"]).then(function (data) {
+    Promise.all([
+      Common.loadAll(["assets", "reits", "metrics", "prices", "dividends", "global_properties", "assumptions"]),
+      loadKakao()
+    ]).then(function (loaded) {
+      var data = loaded[0];
+      state.useKakao = loaded[1] && initKakao();            // 카카오맵을 못 불러오면 국내도 Leaflet 지도
+      document.getElementById("map-provider-note").textContent = state.useKakao
+        ? "지도·장소 검색·로드뷰: 국내는 카카오맵, 해외는 OpenStreetMap."
+        : "지도와 장소 검색: OpenStreetMap.";
       Common.applyAssumptions(data.assumptions);           // 배당 번역 문구의 커피 잔수 계산용 (없으면 "데이터 없음")
       var assets = (data.assets && data.assets.items) || [];
       state.assets = assets.filter(function (a) { return typeof a.lat === "number" && typeof a.lng === "number"; });
@@ -498,7 +743,7 @@
       var products = Common.buildProducts(data);
       products.forEach(function (p) { if (p.id) { state.productById[p.id] = p; } });
       buildGlobals(products, data.global_properties);
-      if (!initMap()) {
+      if (!initMap() && !state.useKakao) {
         showNotice("지도를 불러오지 못했어요(인터넷 연결 확인). 아래 목록과 글자 검색은 쓸 수 있어요.");
       }
       renderMarket();
@@ -528,13 +773,21 @@
       var button = event.target.closest("[data-reit]");
       if (button) { selectReit(button.getAttribute("data-reit")); }
     });
-    // 카드의 "본사·대표 자산 한 화면에 보기" / "해외 리츠 전체 보기"
+    // 카드의 "본사·대표 자산 한 화면에 보기" / "해외 리츠 전체 보기" / "건물 모습 보기"(카카오 로드뷰)
     document.getElementById("map-result").addEventListener("click", function (event) {
+      var rvButton = event.target.closest("[data-rv-asset]");
+      if (rvButton) {
+        var id = rvButton.getAttribute("data-rv-asset");
+        var asset = state.assets.filter(function (a) { return a.asset_id === id; })[0];
+        if (asset) { focusAssetCard(id, true); showRoadview(asset, true); }
+        return;
+      }
       var button = event.target.closest("[data-focus-reit]");
       if (!button) { return; }
       selectReit(button.getAttribute("data-focus-reit"));
       document.getElementById("map-canvas").scrollIntoView({ behavior: "smooth", block: "center" });
     });
+    document.getElementById("map-rv-close").addEventListener("click", hideRoadview);
     document.getElementById("map-search-btn").addEventListener("click", function () {
       var keyword = document.getElementById("map-keyword").value.trim();
       if (keyword) { searchPlace(keyword); }
@@ -568,6 +821,7 @@
       state.center = null;
       state.focusReit = null;
       state.searchToken++;
+      hideRoadview();
       clearSearchChoices();
       document.getElementById("map-keyword").value = "";
       showNotice("");
