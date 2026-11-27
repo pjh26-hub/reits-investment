@@ -276,3 +276,17 @@ a.card:hover, .card:hover { border-color: var(--color-line); }
   .page-title { font-size: var(--fs-mobile-page); }
   .sec-title { font-size: var(--fs-lg); }
 }
+
+/* ---------------------------------------------------------------------------
+   발표 투어 모드 (js/tour.js, 주소에 ?tour=1). 강조 테두리 + 화면 아래 설명 상자
+   --------------------------------------------------------------------------- */
+.tour-spot { position: absolute; z-index: 60; border-radius: var(--radius); outline: var(--dim-3) solid var(--color-primary); box-shadow: 0 0 0 100vmax var(--color-tooltip-shadow); pointer-events: none; transition: top 0.25s, left 0.25s, width 0.25s, height 0.25s; }
+.tour-box { position: fixed; z-index: 61; left: var(--space-4); right: var(--space-4); bottom: var(--space-4); max-width: var(--dim-480); margin: 0 auto; padding: var(--space-4) var(--space-5); border: var(--dim-1) solid var(--color-primary); border-radius: var(--radius); background: var(--color-surface-2); box-shadow: 0 var(--dim-16) var(--dim-40) var(--color-tooltip-shadow); }
+.tour-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.tour-count { font-size: var(--fs-xs); font-weight: 700; color: var(--color-primary); letter-spacing: var(--tracking-label); }
+.tour-close { min-width: var(--dim-32); min-height: var(--dim-32); border: 0; background: transparent; color: var(--color-text-sub); font-size: var(--fs-lg); cursor: pointer; }
+.tour-title { margin-top: var(--space-2); font-size: var(--fs-lg); font-weight: 800; }
+.tour-text { margin-top: var(--space-2); font-size: var(--fs-sm); line-height: 1.6; color: var(--color-text); }
+.tour-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-3); }
+.tour-hint { margin-top: var(--space-2); font-size: var(--fs-xxs); color: var(--color-text-sub); }
+@media (hover: none) { .tour-hint { display: none; } }

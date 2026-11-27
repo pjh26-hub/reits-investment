@@ -746,7 +746,19 @@ var Common = (function () {
     var opts = options || {};
     renderHeader(opts.active);
     initTerms();
+    loadTour();
     return Promise.all([renderFooter(opts.sources || []), renderAds()]);
+  }
+
+  var TOUR_VERSION = "20261128";   // js/tour.js 를 고치면 바꾼다 (방문자 브라우저가 옛 파일을 쓰지 않게)
+
+  /** 발표 투어 모드: 주소에 ?tour=숫자 가 있을 때만 js/tour.js 를 불러온다 (평소에는 안 불러옴) */
+  function loadTour() {
+    if (!/[?&]tour=\d+/.test(window.location.search) || document.getElementById("tour-script")) { return; }
+    var script = document.createElement("script");
+    script.id = "tour-script";
+    script.src = "js/tour.js?v=" + TOUR_VERSION;
+    document.body.appendChild(script);
   }
 
   return {

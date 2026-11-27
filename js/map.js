@@ -944,10 +944,12 @@
     ctx.fillStyle = cssVar("--color-text-sub");
     paintText(ctx, fitText(ctx, disclaimer, inner, 5, fsLg * 1.3, cssNum("--fs-xs") * 1.4, 600), side, footerTop + u * 2);
 
-    // 가운데: 곳마다 한 칸
+    // 가운데: 곳마다 한 칸. 1~2곳이면 칸을 크게 나누고 글자도 키워서 카드가 비어 보이지 않게
     var top = y + u * 3;
     var gap = u * 1.5;
-    var blockH = (footerTop - u * 3 - top - gap * 2) / 3;
+    var count = Math.max(stops.length, 1);
+    var blockH = (footerTop - u * 3 - top - gap * (count - 1)) / count;
+    var zoom = count === 1 ? 2 : (count === 2 ? 1.4 : 1);
     if (!stops.length) {
       ctx.fillStyle = cssVar("--color-text-sub");
       paintText(ctx, fitText(ctx, "장소를 1곳 이상 넣으면\n카드가 만들어져요", inner, 3, fsLg * 1.6, fsLg, 700), side, top);
@@ -955,31 +957,43 @@
     stops.forEach(function (row, n) {
       var bx = side;
       var by = top + n * (blockH + gap);
-      var pad = u * 2.2;
+      var pad = u * 2.2 * zoom;
       var tw = inner - pad * 2;
       ctx.fillStyle = cssVar("--color-surface-2");
       fillRound(ctx, bx, by, inner, blockH, radius * 1.5);
+      // 먼저 글자 크기를 정해 높이를 잰 뒤, 칸 가운데(세로)에 놓는다
+      var chipSize = fsLg * 1.15 * zoom;
+      setFont(ctx, 800, chipSize);
+      var chipW = ctx.measureText(row.label).width + u * 2.4 * zoom;
+      var chipH = chipSize + u * 1.4 * zoom;
+      var fromFit = row.from ? fitText(ctx, row.from, tw - chipW - u, 1, fsLg * 1.1 * zoom, fsLg * 0.8, 600) : null;
+      var buildingFit = fitText(ctx, row.building, tw, 2, fsXl * 1.6 * zoom, fsLg * 1.2, 800);
+      var ownerFit = fitText(ctx, row.owner, tw, 1, fsLg * 1.4 * zoom, fsLg, 700);
+      var metaFit = fitText(ctx, row.meta, tw, 2, fsLg * 1.15 * zoom, fsLg * 0.85, 600);
+      var lineGap = u * 0.5 * zoom;
+      var contentH = chipH + u * 1.2 * zoom +
+        buildingFit.lines.length * buildingFit.lineHeight + lineGap +
+        ownerFit.lines.length * ownerFit.lineHeight + lineGap +
+        metaFit.lines.length * metaFit.lineHeight;
+      var cy = by + Math.max(pad, (blockH - contentH) / 2);
       // 칸 이름 배지 + 어디에서
-      setFont(ctx, 800, fsLg * 1.15);
-      var chipW = ctx.measureText(row.label).width + u * 2.4;
-      var chipH = fsLg * 1.15 + u * 1.4;
       ctx.fillStyle = cssVar("--color-primary-soft");
-      fillRound(ctx, bx + pad, by + pad, chipW, chipH, radius);
+      fillRound(ctx, bx + pad, cy, chipW, chipH, radius);
       ctx.fillStyle = cssVar("--color-primary");
-      ctx.fillText(row.label, bx + pad + u * 1.2, by + pad + u * 0.7);
-      if (row.from) {
+      setFont(ctx, 800, chipSize);
+      ctx.fillText(row.label, bx + pad + u * 1.2 * zoom, cy + (chipH - chipSize) / 2);
+      if (fromFit) {
         ctx.fillStyle = cssVar("--color-text-sub");
-        var fromFit = fitText(ctx, row.from, tw - chipW - u, 1, fsLg * 1.1, fsLg * 0.8, 600);
-        paintText(ctx, fromFit, bx + pad + chipW + u, by + pad + (chipH - fromFit.size) / 2);
+        paintText(ctx, fromFit, bx + pad + chipW + u, cy + (chipH - fromFit.size) / 2);
       }
       // 건물 이름 · 주인 리츠 · 거리와 1주 가격
-      var ty = by + pad + chipH + u * 1.2;
+      var ty = cy + chipH + u * 1.2 * zoom;
       ctx.fillStyle = cssVar("--color-text");
-      ty = paintText(ctx, fitText(ctx, row.building, tw, 2, fsXl * 1.6, fsLg * 1.2, 800), bx + pad, ty);
+      ty = paintText(ctx, buildingFit, bx + pad, ty);
       ctx.fillStyle = cssVar("--color-primary");
-      ty = paintText(ctx, fitText(ctx, row.owner, tw, 1, fsLg * 1.4, fsLg, 700), bx + pad, ty + u * 0.4);
+      ty = paintText(ctx, ownerFit, bx + pad, ty + lineGap);
       ctx.fillStyle = cssVar("--color-text-sub");
-      paintText(ctx, fitText(ctx, row.meta, tw, 2, fsLg * 1.15, fsLg * 0.85, 600), bx + pad, ty + u * 0.4);
+      paintText(ctx, metaFit, bx + pad, ty + lineGap);
     });
 
     var ok = stops.length > 0 && Common.checkBannedWords(routeCardTexts(stops, hook) + " " + disclaimer).ok;
