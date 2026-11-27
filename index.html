@@ -255,7 +255,7 @@
         if (prices && prices.isFallback) {
           text = "최신 시세 파일을 불러오지 못해서 " + Common.formatDate(prices.as_of) + " 종가 저장본으로 보여줘요.";
         } else if (prices && prices.updatedAt) {
-          text = "시세는 평일 장중 30분마다 자동으로 받아요(실시간 아님). 마지막 갱신 " + Common.formatDateTime(prices.updatedAt) + " (한국 시간)";
+          text = "시세는 평일 오후에 전 영업일 종가로 자동 갱신돼요(실시간 아님). 마지막 갱신 " + Common.formatDateTime(prices.updatedAt) + " (한국 시간)";
         }
         el.textContent = text;
         el.classList.toggle("is-hidden", !text);
