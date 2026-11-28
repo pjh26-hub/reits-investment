@@ -1,7 +1,345 @@
 {
-  "as_of": null,
-  "source": "네이버 뉴스 검색 API (제목·링크만, 본문은 각 언론사)",
-  "source_url": "https://developers.naver.com/docs/serviceapi/search/news/news.md",
-  "note": "GitHub Actions(부동산 뉴스 자동 수집)가 scripts/fetch_news.py 로 1시간마다 채운다. NAVER_CLIENT_ID / NAVER_CLIENT_SECRET Secret 이 들어가기 전에는 비어 있다. 사람이 직접 기사를 적어 넣지 않는다.",
-  "items": []
+  "as_of": "2026-11-28T21:19:17+09:00",
+  "source": "언론사 부동산 RSS (한국경제·헤럴드경제, 제목·링크만)",
+  "feeds": [
+    {
+      "name": "한국경제",
+      "url": "https://www.hankyung.com/feed/realestate"
+    },
+    {
+      "name": "헤럴드경제",
+      "url": "https://biz.heraldcorp.com/rss/google/realestate"
+    },
+    {
+      "name": "한국경제",
+      "url": "https://www.hankyung.com/feed/all-news"
+    },
+    {
+      "name": "헤럴드경제",
+      "url": "https://biz.heraldcorp.com/rss/google/newsAll"
+    }
+  ],
+  "note": "제목·언론사·시간·링크만 저장해요. 기사 본문과 의견은 각 언론사의 것이에요.",
+  "items": [
+    {
+      "id": "5dc5628492f0",
+      "category": "residential",
+      "title": "\"새 아파트에 4억까지 받는다고?\"…집주인들 조용히 웃는 동네 [이슬기의 새집다오]",
+      "link": "https://www.hankyung.com/article/2026112738476",
+      "source": "한국경제",
+      "published": "2026-11-28T10:30:01+09:00"
+    },
+    {
+      "id": "d7b9e72185b9",
+      "category": "residential",
+      "title": "‘고점일 때 팔아 아파트 사 놨다’…강남3구 매수자, 집 살 때 1인 평균 6.4억원어치 주식 매각 [부동산360]",
+      "link": "https://biz.heraldcorp.com/article/10952334",
+      "source": "헤럴드경제",
+      "published": "2026-11-28T07:00:00+09:00"
+    },
+    {
+      "id": "6ea51562c460",
+      "category": "residential",
+      "title": "‘가야역 롯데캐슬 스카이엘’ 내일(28일) 2차 선착순 전세 계약…보증료 75% 지원 적용",
+      "link": "https://biz.heraldcorp.com/article/10952238",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T18:30:21+09:00"
+    },
+    {
+      "id": "ee2c55ce47e3",
+      "category": "residential",
+      "title": "집 파는 모델하우스에서 '미래 주거' 체험 공간으로",
+      "link": "https://www.hankyung.com/article/2026112752501",
+      "source": "한국경제",
+      "published": "2026-11-27T17:11:28+09:00"
+    },
+    {
+      "id": "faf76c955454",
+      "category": "residential",
+      "title": "'더샵 일산센트로' 526가구 분양",
+      "link": "https://www.hankyung.com/article/2026112752541",
+      "source": "한국경제",
+      "published": "2026-11-27T17:11:09+09:00"
+    },
+    {
+      "id": "101d5be461f9",
+      "category": "residential",
+      "title": "행신동 첫 재건축 분양 '고양 한신더휴 퍼스트원'…27일 견본주택 개관",
+      "link": "https://www.hankyung.com/article/202611274667i",
+      "source": "한국경제",
+      "published": "2026-11-27T13:52:42+09:00"
+    },
+    {
+      "id": "7e84e271ac43",
+      "category": "residential",
+      "title": "LH, 영주귀국 사할린 동포 140가구에 임대주택 공급",
+      "link": "https://www.hankyung.com/article/202611274654i",
+      "source": "한국경제",
+      "published": "2026-11-27T13:49:57+09:00"
+    },
+    {
+      "id": "371a1d57245e",
+      "category": "residential",
+      "title": "구로 고척동 모아주택 3곳 함께 재개발…627가구 아파트 단지로",
+      "link": "https://www.hankyung.com/article/202611274213i",
+      "source": "한국경제",
+      "published": "2026-11-27T13:39:48+09:00"
+    },
+    {
+      "id": "9ab36c230403",
+      "category": "residential",
+      "title": "세종 국가시범도시 첫 대단지 견본주택…'엘 수자인' 2191가구",
+      "link": "https://www.hankyung.com/article/202611274321i",
+      "source": "한국경제",
+      "published": "2026-11-27T13:38:22+09:00"
+    },
+    {
+      "id": "ef304b3a4acf",
+      "category": "residential",
+      "title": "집 안 사고 버텼는데 어쩌나…전세족 '뜻밖의 복병' [분석+]",
+      "link": "https://www.hankyung.com/article/2026112620816",
+      "source": "한국경제",
+      "published": "2026-11-27T13:30:01+09:00"
+    },
+    {
+      "id": "edf8407363de",
+      "category": "residential",
+      "title": "집값 ‘천정부지’ 전세도 없어…내집 찾아 脫서울 4.3만명",
+      "link": "https://biz.heraldcorp.com/article/10951700",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T11:41:36+09:00"
+    },
+    {
+      "id": "57791e1f1d64",
+      "category": "residential",
+      "title": "무주택자 ‘생존매수’ 행렬…100명 중 29명 ‘내 집 소유’ 역대 최고",
+      "link": "https://biz.heraldcorp.com/article/10951699",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T11:40:48+09:00"
+    },
+    {
+      "id": "f4112a8bf761",
+      "category": "residential",
+      "title": "종부세 덮친 한강벨트…월세인상 부메랑 되나 [이슈&뷰]",
+      "link": "https://biz.heraldcorp.com/article/10951685",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T11:36:17+09:00"
+    },
+    {
+      "id": "a4307768bf33",
+      "category": "residential",
+      "title": "“소비자물가론 못맞춰” 정비사업 공사비 조정기준 필요",
+      "link": "https://biz.heraldcorp.com/article/10951679",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T11:34:01+09:00"
+    },
+    {
+      "id": "02c8fd6a911e",
+      "category": "residential",
+      "title": "포스코이앤씨 ‘더샵 퍼스트월드’ 분양",
+      "link": "https://biz.heraldcorp.com/article/10951677",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T11:33:46+09:00"
+    },
+    {
+      "id": "d0284d06b10d",
+      "category": "residential",
+      "title": "“금리 올라도 10억이하 아파트 더 오를 수도”",
+      "link": "https://biz.heraldcorp.com/article/10951676",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T11:33:36+09:00"
+    },
+    {
+      "id": "8f6909dbf643",
+      "category": "residential",
+      "title": "구로구 고척동 모아주택 3곳, 한 단지처럼…최고 25층·627가구 조성 [부동산360]",
+      "link": "https://biz.heraldcorp.com/article/10951094",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T11:15:00+09:00"
+    },
+    {
+      "id": "632d0a95a772",
+      "category": "residential",
+      "title": "HUG, 제11회 국제주택도시금융포럼 개최…주택도시금융 혁신 방안 논의",
+      "link": "https://biz.heraldcorp.com/article/10951531",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T11:11:11+09:00"
+    },
+    {
+      "id": "d5e2254f70bd",
+      "category": "residential",
+      "title": "LH, 영주귀국 사할린 동포에 임대주택 지원한다",
+      "link": "https://biz.heraldcorp.com/article/10951522",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T11:09:35+09:00"
+    },
+    {
+      "id": "c31ac6bd7e6e",
+      "category": "residential",
+      "title": "국가시범도시 선도지구 첫 분양…‘세종스마트시티 엘 수자인’ 27일 견본주택 개관",
+      "link": "https://biz.heraldcorp.com/article/10951479",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T10:54:49+09:00"
+    },
+    {
+      "id": "618787462b5a",
+      "category": "residential",
+      "title": "금리오르면 집값 하락? 10억 이하엔 ‘전세 대신 매수’ 몰릴 수 [부동산360]",
+      "link": "https://biz.heraldcorp.com/article/10951465",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T10:50:25+09:00"
+    },
+    {
+      "id": "168a65156c64",
+      "category": "residential",
+      "title": "세종 스마트시티 첫 분양…‘세종스마트시티 엘 수자인’ 견본주택 개관",
+      "link": "https://biz.heraldcorp.com/article/10951452",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T10:46:00+09:00"
+    },
+    {
+      "id": "e17c302f1a17",
+      "category": "residential",
+      "title": "서울 종부세 1년 새 2배…세입자 ‘월세 폭탄’으로 돌아오나 [부동산360]",
+      "link": "https://biz.heraldcorp.com/article/10951448",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T10:44:22+09:00"
+    },
+    {
+      "id": "e76e62aaa846",
+      "category": "residential",
+      "title": "“집 파는 곳에서 경험하는 곳으로”…GS건설 ‘자이’ 견본주택의 변신",
+      "link": "https://biz.heraldcorp.com/article/10951441",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T10:42:21+09:00"
+    },
+    {
+      "id": "1de05d29dc73",
+      "category": "residential",
+      "title": "바다 조망 품은 하이엔드 아파트 ‘일광 더 에스(THE S)’, 27일 갤러리 개관",
+      "link": "https://biz.heraldcorp.com/article/10951346",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T10:01:47+09:00"
+    },
+    {
+      "id": "16333136058d",
+      "category": "residential",
+      "title": "고양시 1호 미래타운 앞 첫 한신더휴…‘고양 한신더휴 퍼스트원’ 27일 견본주택 오픈",
+      "link": "https://biz.heraldcorp.com/article/10951316",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T09:48:36+09:00"
+    },
+    {
+      "id": "b9e30b0eab94",
+      "category": "residential",
+      "title": "두산에너빌리티, 경북 영주 '트리븐 가흥' 765가구 분양",
+      "link": "https://www.hankyung.com/article/202611274054i",
+      "source": "한국경제",
+      "published": "2026-11-27T09:39:12+09:00"
+    },
+    {
+      "id": "caece4244054",
+      "category": "residential",
+      "title": "분양 상담 넘어 미래 주거생활 체험까지…GS건설, 견본주택의 진화",
+      "link": "https://www.hankyung.com/article/202611274001i",
+      "source": "한국경제",
+      "published": "2026-11-27T09:29:10+09:00"
+    },
+    {
+      "id": "2bc95c542a10",
+      "category": "residential",
+      "title": "“집값도 비싼데 전세마저 없다” 서울→경기 순유출 4.3만명, 열 달 만에 작년 기록 깼다 [부동산360]",
+      "link": "https://biz.heraldcorp.com/article/10951211",
+      "source": "헤럴드경제",
+      "published": "2026-11-27T09:14:23+09:00"
+    },
+    {
+      "id": "29b05ba9a864",
+      "category": "residential",
+      "title": "'디에이치 반포124' 출격…12월 전국 2.4만 가구 일반분양",
+      "link": "https://www.hankyung.com/article/2026112738156",
+      "source": "한국경제",
+      "published": "2026-11-27T08:53:24+09:00"
+    },
+    {
+      "id": "bc0731d2fc83",
+      "category": "commercial",
+      "title": "李대통령 \"동해 AI 데이터센터, 글로벌 투자 마중물 될 것\"",
+      "link": "https://www.hankyung.com/article/2026112860947",
+      "source": "한국경제",
+      "published": "2026-11-28T15:26:02+09:00"
+    },
+    {
+      "id": "ed45aa1f1523",
+      "category": "commercial",
+      "title": "GS, '메가프로젝트' 동해 AI 데이터센터 착공…15조원 투자",
+      "link": "https://www.hankyung.com/article/202611285956i",
+      "source": "한국경제",
+      "published": "2026-11-28T13:34:46+09:00"
+    },
+    {
+      "id": "cb64b379b880",
+      "category": "commercial",
+      "title": "동해 GS AI데이터센터 착공..이재명 대통령 참석 메가프로젝트 ‘초고속’ 추진 치하",
+      "link": "https://biz.heraldcorp.com/article/10952438",
+      "source": "헤럴드경제",
+      "published": "2026-11-28T12:54:26+09:00"
+    },
+    {
+      "id": "f63883814d65",
+      "category": "commercial",
+      "title": "李대통령, 동해 GS AI데이터센터 착공식 참석…“선도 국가 도약에 모든 역량 동원”",
+      "link": "https://biz.heraldcorp.com/article/10952430",
+      "source": "헤럴드경제",
+      "published": "2026-11-28T12:27:07+09:00"
+    },
+    {
+      "id": "1423ff31b3fc",
+      "category": "commercial",
+      "title": "메가프로젝트 AI 데이터센터 첫 착공…허태수 GS 회장 “동해, AI 산업 명소될 것”",
+      "link": "https://biz.heraldcorp.com/article/10952425",
+      "source": "헤럴드경제",
+      "published": "2026-11-28T12:21:16+09:00"
+    },
+    {
+      "id": "11aaba95e344",
+      "category": "commercial",
+      "title": "GS, 1.2GW 동해 AI 데이터센터 첫 삽 떴다…2029년까지 순차적 준공",
+      "link": "https://biz.heraldcorp.com/article/10952106",
+      "source": "헤럴드경제",
+      "published": "2026-11-28T12:05:00+09:00"
+    },
+    {
+      "id": "32efe82f0d31",
+      "category": "commercial",
+      "title": "아시아 최대 규모 ‘동해 GS AI 데이터센터’ 첫 삽",
+      "link": "https://biz.heraldcorp.com/article/10952418",
+      "source": "헤럴드경제",
+      "published": "2026-11-28T12:03:20+09:00"
+    },
+    {
+      "id": "20f07e328205",
+      "category": "commercial",
+      "title": "주택 불황에…건설 수주, 반도체·데이터센터로 몰렸다",
+      "link": "https://www.hankyung.com/article/2026112631101",
+      "source": "한국경제",
+      "published": "2026-11-26T17:57:38+09:00"
+    },
+    {
+      "id": "f5a4d681de47",
+      "category": "commercial",
+      "title": "지하철역 직결 오피스, 공시지가 55% 높아…'직통 역세권' 몸값 뛴다",
+      "link": "https://www.hankyung.com/article/202611261631i",
+      "source": "한국경제",
+      "published": "2026-11-26T10:26:20+09:00"
+    },
+    {
+      "id": "65a0f1209380",
+      "category": "commercial",
+      "title": "SK에코플랜트, 데이터센터 냉각·희토류 회수 혁신기술 발굴",
+      "link": "https://www.hankyung.com/article/202611261311i",
+      "source": "한국경제",
+      "published": "2026-11-26T09:25:11+09:00"
+    }
+  ]
 }

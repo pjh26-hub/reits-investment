@@ -73,7 +73,7 @@ python scripts/build_public.py
   `data/prices.json`, `data/history.json`(1년 그래프), `data/meta.json` 을 고치고 자동으로 커밋합니다.
   전일 종가는 다음 영업일 오후 1시 이후에 올라오므로, 화면에는 보통 "어제 종가"가 보입니다.
 - `.github/workflows/update-dividends.yml` — 매주 월요일 07:00에 `scripts/fetch_dividends.py` 로 국내 리츠 배당(OpenDART)을 갱신합니다. DART 키가 없으면 건너뜁니다.
-- `.github/workflows/update-news.yml` — 매일 07:10~23:10 1시간마다 `scripts/fetch_news.py` 로 네이버 뉴스 검색 API 에서 부동산 뉴스 제목·링크를 받아 `data/news.json` 을 고칩니다(본문은 저장하지 않음). 네이버 키가 없으면 건너뜁니다.
+- `.github/workflows/update-news.yml` — 매일 07:10~23:10 1시간마다 `scripts/fetch_news.py` 로 한국경제·헤럴드경제 부동산 RSS 에서 뉴스 제목·링크를 받아 `data/news.json` 을 고칩니다(본문은 저장하지 않음, 키 필요 없음).
 
 API 키는 저장소 **Settings > Secrets and variables > Actions** 에만 넣습니다(화면에는 키가 나가지 않음). Secrets 는 레포 주인만 넣을 수 있습니다.
 
@@ -81,7 +81,6 @@ API 키는 저장소 **Settings > Secrets and variables > Actions** 에만 넣�
 |---|---|---|
 | `DATA_GO_KR_KEY` | 국내 리츠·ETF 시세 (필수) | data.go.kr 가입 후 '금융위원회_주식시세정보', '금융위원회_증권상품시세정보' 활용신청 |
 | `DART_API_KEY` | 국내 리츠 배당 (선택) | opendart.fss.or.kr 인증키 신청 |
-| `NAVER_CLIENT_ID`, `NAVER_CLIENT_SECRET` 또는 `NAVER_HUB_KEY_ID`, `NAVER_HUB_KEY` | 부동산 뉴스 탭 (둘 중 하나) | developers.naver.com 애플리케이션(사용 API: 검색) 또는 네이버 클라우드 NAVER API HUB |
 | `FINNHUB_API_KEY` | 미국 리츠 시세 (선택, '개인 용도' 조건이라 팀이 정함) | finnhub.io 무료 가입 |
 
 Actions 탭 > "리츠 시세 자동 갱신" > **Run workflow** 로 바로 실행해 볼 수 있습니다.
