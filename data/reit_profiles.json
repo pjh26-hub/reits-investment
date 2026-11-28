@@ -1,0 +1,658 @@
+{
+  "as_of": "2026-11-28",
+  "source": "리츠별 운용사·홈페이지·요약: 증권신고서·운용사 홈페이지·언론 보도 (항목별 sources)",
+  "_설명": "리츠 상세 화면(reit.html)이 읽는 파일. 사람이 직접 확인해서 쓴다. amc: 운용 주체(name, kind, url=운용사 홈페이지, source_url=확인한 곳). homepage: 리츠 자체 홈페이지. summary: 한 줄 소개(보도·공시 기준). holdings: 리츠정보시스템 지도(assets.json)에 건물이 없는 리츠만, 보도·공시로 확인한 대표 자산. status_note: 기업회생 등 꼭 알려야 하는 상태. 확인하지 못한 값은 null 로 둔다(화면에 '데이터 없음'). 포트폴리오 비율 그래프는 assets.json 의 연면적으로 계산하고, 이 파일에는 비율을 적지 않는다.",
+  "items": [
+    {
+      "id": "365550",
+      "name": "ESR켄달스퀘어리츠",
+      "amc": {
+        "name": "켄달스퀘어리츠운용",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": null,
+        "source_url": "https://dealsite.co.kr/articles/118575"
+      },
+      "homepage": null,
+      "summary": "수도권 물류센터를 모아 가진 물류 전문 리츠예요. 가장 큰 자산인 고양 물류센터는 쿠팡이 통째로 빌려 쓰고 있어요(보도 기준).",
+      "holdings_note": "리츠정보시스템 지도에는 자회사 리츠를 통해 가진 건물이 나오지 않아서, 보도에 나온 대표 자산만 적었어요.",
+      "holdings": [
+        {
+          "name": "고양 물류센터",
+          "place": "경기 고양",
+          "type": "물류",
+          "note": "가장 큰 자산, 쿠팡이 건물 전체를 임차 (보도 기준)"
+        }
+      ],
+      "holdings_count_note": "물류센터 18곳 운용 (2024년 보도 기준)",
+      "sources": [
+        "https://seoulpi.io/article/00379901108733083648",
+        "https://seoulpi.io/article/00228662695801208832"
+      ]
+    },
+    {
+      "id": "432320",
+      "name": "KB스타리츠",
+      "amc": {
+        "name": "KB자산운용",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": "https://www.kbam.co.kr/",
+        "source_url": "https://kbam.co.kr/about"
+      },
+      "homepage": null,
+      "summary": "벨기에·영국의 오피스에 투자하고, 국내 오피스에도 투자를 넓힌 리츠예요.",
+      "holdings": [
+        {
+          "name": "노스갤럭시타워",
+          "place": "벨기에 브뤼셀",
+          "type": "오피스",
+          "note": "벨기에 재무부가 임차, 임대료의 90% 이상이 이곳에서 나옴 (2023년 운용사 설명)"
+        },
+        {
+          "name": "삼성 유럽 본사(HQ)",
+          "place": "영국 런던",
+          "type": "오피스",
+          "note": "펀드를 통한 간접 투자 (상장 당시 기준)"
+        },
+        {
+          "name": "씨티뱅크센터",
+          "place": "서울",
+          "type": "오피스",
+          "note": "우선주 투자 (2024년 편입 진행 보도)"
+        }
+      ],
+      "sources": [
+        "https://www.hankyung.com/amp/2022051345811",
+        "https://dealsite.co.kr/articles/103247/068032",
+        "https://seoulpi.io/reitsfocus/article/00249085534068097024"
+      ]
+    },
+    {
+      "id": "400760",
+      "name": "NH올원리츠",
+      "amc": {
+        "name": "NH농협리츠운용",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": "https://www.nhreits.com/",
+        "source_url": "https://www.nhreits.com/"
+      },
+      "homepage": "http://nhallonereit.com/",
+      "summary": "오피스·리테일 등 여러 종류의 건물에 나눠 투자하는 멀티섹터 리츠예요(운용사 소개).",
+      "sources": [
+        "https://www.nhreits.com/"
+      ]
+    },
+    {
+      "id": "338100",
+      "name": "NH프라임리츠",
+      "amc": {
+        "name": "NH농협리츠운용",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": "https://www.nhreits.com/",
+        "source_url": "https://www.nhreits.com/"
+      },
+      "homepage": "http://nhprimereit.com/",
+      "summary": "서울의 대형 오피스에 지분·수익증권 형태로 나눠 투자하는 재간접 리츠예요(운용사 소개).",
+      "sources": [
+        "https://www.nhreits.com/",
+        "https://seoulpi.io/article/00267194383333646336"
+      ]
+    },
+    {
+      "id": "395400",
+      "name": "SK리츠",
+      "amc": {
+        "name": "SK리츠운용",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": null,
+        "source_url": "https://dealsite.co.kr/articles/75745"
+      },
+      "homepage": null,
+      "summary": "SK그룹 본사 SK서린빌딩, 종로타워, 전국 SK에너지 주유소, 분당 SK U타워 등 SK 계열사가 쓰는 부동산을 가진 리츠예요(보도 기준).",
+      "sources": [
+        "https://seoulpi.io/cityfolio/article/00379901228329467904"
+      ]
+    },
+    {
+      "id": "0030R0",
+      "name": "대신밸류리츠",
+      "amc": {
+        "name": "대신자산신탁",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": null,
+        "source_url": "https://biz.sbs.co.kr/amp/article/20000239985"
+      },
+      "homepage": null,
+      "summary": "대신파이낸셜그룹 본사 건물 '대신343'을 기초자산으로 2025년 7월 상장한 리츠예요.",
+      "holdings": [
+        {
+          "name": "대신343",
+          "place": "서울 중구 (을지로)",
+          "type": "오피스",
+          "note": "연면적 약 53,369㎡, 대신 계열사가 최대 10년 책임 임차 (상장 당시 기준)"
+        }
+      ],
+      "sources": [
+        "https://biz.sbs.co.kr/amp/article/20000239985",
+        "https://www.jll.com/ko-kr/newsroom/jll-korea-wins-asset-management-contract-for-daeshin-financial-groups",
+        "https://dealsite.co.kr/articles/143317"
+      ]
+    },
+    {
+      "id": "377190",
+      "name": "디앤디플랫폼리츠",
+      "amc": {
+        "name": "디앤디인베스트먼트",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": null,
+        "source_url": "https://news.tf.co.kr/read/ogmeta/1883976.htm"
+      },
+      "homepage": null,
+      "summary": "SK디앤디 계열 운용사가 맡은 리츠로, 오피스와 물류센터를 함께 가진 멀티섹터 리츠예요.",
+      "holdings": [
+        {
+          "name": "백암 물류센터 (1·2센터)",
+          "place": "경기 용인",
+          "type": "물류",
+          "note": "2022년 2센터 편입 (보도 기준)"
+        },
+        {
+          "name": "수송스퀘어",
+          "place": "서울 종로 (광화문권)",
+          "type": "오피스",
+          "note": "2025년 편입 추진 보도"
+        }
+      ],
+      "holdings_note": "2025년에 세미콜론 문래·일본 아마존 물류센터 매각을 검토한다는 보도가 있어서, 최신 보유 목록은 공시로 확인해 주세요.",
+      "sources": [
+        "https://economist.co.kr/article/view/ecn202206270057",
+        "https://dealsite.co.kr/articles/140304/068032"
+      ]
+    },
+    {
+      "id": "330590",
+      "name": "롯데리츠",
+      "amc": {
+        "name": "롯데AMC (롯데에이엠씨)",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": null,
+        "source_url": "https://kind.krx.co.kr/external/2025/04/09/000592/20250409001567/10002.htm"
+      },
+      "homepage": "http://www.lottereit.co.kr",
+      "summary": "롯데쇼핑의 백화점·마트·아울렛과 호텔 등을 가진 리츠예요. 롯데쇼핑이 최대주주이자 책임 임차인이에요(보도 기준).",
+      "sources": [
+        "https://kind.krx.co.kr/external/2025/04/09/000592/20250409001567/10002.htm"
+      ]
+    },
+    {
+      "id": "357430",
+      "name": "마스턴프리미어리츠",
+      "amc": {
+        "name": "마스턴투자운용",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": "https://www.mastern.co.kr/",
+        "source_url": "https://dealsite.co.kr/articles/76629"
+      },
+      "homepage": null,
+      "summary": null,
+      "sources": [
+        "https://dealsite.co.kr/articles/76629"
+      ]
+    },
+    {
+      "id": "396690",
+      "name": "미래에셋글로벌리츠",
+      "amc": {
+        "name": "미래에셋자산운용",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": "https://investments.miraeasset.com/",
+        "source_url": "https://investments.miraeasset.com/magi/use.do"
+      },
+      "homepage": null,
+      "summary": "미국 물류센터를 기초자산으로 상장한 리츠예요.",
+      "holdings": [
+        {
+          "name": "아마존·페덱스 물류센터",
+          "place": "미국 휴스턴·탬파·인디애나폴리스",
+          "type": "물류",
+          "note": "상장 당시(2021년) 기초자산"
+        },
+        {
+          "name": "아카데미스포츠 물류센터",
+          "place": "미국 텍사스 휴스턴",
+          "type": "물류",
+          "note": "2023년 편입 추진 보도"
+        }
+      ],
+      "sources": [
+        "https://news.bizwatch.co.kr/article/market/2021/11/16/0013",
+        "https://dealsite.co.kr/articles/106133"
+      ]
+    },
+    {
+      "id": "357250",
+      "name": "미래에셋맵스리츠",
+      "amc": {
+        "name": "미래에셋자산운용",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": "https://investments.miraeasset.com/",
+        "source_url": "https://investments.miraeasset.com/magi/use.do"
+      },
+      "homepage": null,
+      "summary": "미래에셋자산운용의 첫 상장 리츠로, 광교 상업시설 등에 투자해요(보도 기준).",
+      "sources": [
+        "https://news.mtn.co.kr/news-detail/2024011715572653627"
+      ]
+    },
+    {
+      "id": "448730",
+      "name": "삼성FN리츠",
+      "amc": {
+        "name": "삼성SRA자산운용",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": null,
+        "source_url": "https://dealsite.co.kr/articles/120323"
+      },
+      "homepage": null,
+      "summary": "삼성생명·삼성화재 등 삼성 금융 계열사가 쓰는 강남·잠실·여의도권 오피스를 가진 리츠예요(보도 기준).",
+      "sources": [
+        "https://dealsite.co.kr/articles/120323",
+        "https://www.fnnews.com/news/202605281917375285"
+      ]
+    },
+    {
+      "id": "481850",
+      "name": "신한글로벌액티브리츠",
+      "amc": {
+        "name": "신한리츠운용",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": null,
+        "source_url": "https://dealsite.co.kr/articles/136903"
+      },
+      "homepage": null,
+      "summary": "건물을 직접 갖지 않고 미국의 개방형 부동산 펀드에 투자하는 재간접 리츠예요. 2026년에는 국내 부동산 우선주 투자 계획도 밝혔어요(보도 기준).",
+      "holdings": [
+        {
+          "name": "미국 개방형 부동산 펀드 (USGB·PRISA·CBRE USCP)",
+          "place": "미국",
+          "type": "펀드",
+          "note": "상장 당시(2024년) 기초자산. 2025년 일부 환매 계획 발표"
+        }
+      ],
+      "sources": [
+        "https://economist.co.kr/article/view/ecn202407010001",
+        "https://dealsite.co.kr/articles/136903",
+        "https://dealsite.co.kr/articles/170071"
+      ]
+    },
+    {
+      "id": "404990",
+      "name": "신한서부티엔디리츠",
+      "amc": {
+        "name": "신한리츠운용",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": null,
+        "source_url": "https://news.bizwatch.co.kr/article/market/2021/11/09/0008"
+      },
+      "homepage": null,
+      "summary": "서부티엔디가 가진 복합쇼핑몰·호텔을 기초로 상장한 리츠예요(상장 당시 기준).",
+      "sources": [
+        "https://news.bizwatch.co.kr/article/market/2021/11/09/0008"
+      ]
+    },
+    {
+      "id": "293940",
+      "name": "신한알파리츠",
+      "amc": {
+        "name": "신한리츠운용",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": null,
+        "source_url": "https://seoulpi.io/article/00385644873183703040"
+      },
+      "homepage": "http://shalphareit.com/",
+      "summary": "판교 크래프톤타워, 용산 더프라임타워 등 수도권 오피스를 여러 채 가진 리츠예요(보도 기준).",
+      "sources": [
+        "https://seoulpi.io/article/00385644873183703040",
+        "https://dealsite.co.kr/articles/79277"
+      ]
+    },
+    {
+      "id": "088260",
+      "name": "이리츠코크렙",
+      "amc": {
+        "name": "코람코자산신탁",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": "https://www.koramco.com/ko/index",
+        "source_url": "https://www.koramco.com/ko/index"
+      },
+      "homepage": null,
+      "summary": "이랜드리테일이 운영하는 아울렛·쇼핑몰을 기초자산으로 하는 리츠예요(보도 기준).",
+      "sources": [
+        "https://seoulpi.io/article/00449833553145909248"
+      ]
+    },
+    {
+      "id": "350520",
+      "name": "이지스레지던스리츠",
+      "amc": {
+        "name": "이지스자산운용",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": "https://www.igisam.com/ko/product/reits",
+        "source_url": null
+      },
+      "homepage": null,
+      "summary": null,
+      "sources": [
+        "https://www.igisam.com/"
+      ]
+    },
+    {
+      "id": "334890",
+      "name": "이지스밸류플러스리츠",
+      "amc": {
+        "name": "이지스자산운용",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": "https://www.igisam.com/ko/product/reits",
+        "source_url": null
+      },
+      "homepage": null,
+      "summary": null,
+      "sources": [
+        "https://www.igisam.com/"
+      ]
+    },
+    {
+      "id": "348950",
+      "name": "제이알글로벌리츠",
+      "amc": {
+        "name": "제이알투자운용",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": null,
+        "source_url": "https://www.mt.co.kr/stock/2026/05/04/2026050322240573093"
+      },
+      "homepage": "http://www.jrglobalreit.com",
+      "status_note": {
+        "text": "2026년 5월 기업회생절차(법정관리)를 신청했다는 보도가 있어요. 거래와 배당이 평소와 다를 수 있으니 최신 공시를 꼭 확인하세요.",
+        "date": "2026-05-04",
+        "source": "머니투데이",
+        "source_url": "https://www.mt.co.kr/stock/2026/05/04/2026050322240573093"
+      },
+      "summary": "벨기에 브뤼셀 파이낸스타워와 미국 뉴욕 맨해튼 오피스에 투자한 해외 오피스 리츠예요.",
+      "holdings": [
+        {
+          "name": "파이낸스타워",
+          "place": "벨기에 브뤼셀",
+          "type": "오피스",
+          "note": "핵심 자산"
+        },
+        {
+          "name": "맨해튼 오피스",
+          "place": "미국 뉴욕",
+          "type": "오피스"
+        }
+      ],
+      "sources": [
+        "https://seoulpi.io/article/00261991616440754176",
+        "https://www.mt.co.kr/stock/2026/05/04/2026050322240573093"
+      ]
+    },
+    {
+      "id": "145270",
+      "name": "케이탑리츠",
+      "amc": {
+        "name": "해당 없음 (자기관리리츠)",
+        "kind": "자기관리리츠 (회사가 직원을 두고 직접 운용)",
+        "url": null,
+        "source_url": "https://dealsite.co.kr/articles/109131/068032"
+      },
+      "homepage": null,
+      "summary": "회사 안에 직원을 두고 직접 건물을 사고 관리하는 자기관리리츠예요.",
+      "sources": [
+        "https://dealsite.co.kr/articles/109131/068032"
+      ]
+    },
+    {
+      "id": "417310",
+      "name": "코람코더원리츠",
+      "amc": {
+        "name": "코람코자산신탁",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": "https://www.koramco.com/ko/index",
+        "source_url": "https://www.koramco.com/ko/index"
+      },
+      "homepage": null,
+      "summary": "여의도 하나증권 빌딩을 기초자산으로 상장한 리츠예요. 이 빌딩 매각을 마쳤다는 보도가 있어서 최신 보유 자산은 공시로 확인해 주세요.",
+      "sources": [
+        "https://seoulpi.io/article/00565702649745793024",
+        "https://seoulpi.io/article/00424400042771918848"
+      ]
+    },
+    {
+      "id": "357120",
+      "name": "코람코라이프인프라리츠",
+      "amc": {
+        "name": "코람코자산신탁",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": "https://www.koramco.com/ko/index",
+        "source_url": "https://www.koramco.com/ko/index"
+      },
+      "homepage": null,
+      "summary": "주유소 부지에서 출발해 물류센터·오피스·호텔로 자산을 넓히고 있는 리츠예요(2026년 11월 보도 기준).",
+      "sources": [
+        "https://www.fnnews.com/news/202310100850234589",
+        "https://www.koramco.com/ko/index"
+      ]
+    },
+    {
+      "id": "451800",
+      "name": "한화리츠",
+      "amc": {
+        "name": "한화자산운용",
+        "kind": "위탁관리리츠 (자산관리회사에 운용을 맡김)",
+        "url": "https://www.hanwhafund.co.kr/",
+        "source_url": "https://image.kebhana.com/cont/download/fundmall/mgtreport/237102190454_report.pdf"
+      },
+      "homepage": null,
+      "summary": "장교동 한화빌딩 등 한화 금융 계열사가 쓰는 오피스를 가진 리츠예요(보도 기준).",
+      "sources": [
+        "https://ceoscoredaily.com/page/view/2024072910001099848"
+      ]
+    },
+    {
+      "id": "329200",
+      "name": "TIGER 리츠부동산인프라",
+      "amc": {
+        "name": "미래에셋자산운용 (TIGER)",
+        "kind": "ETF 운용사",
+        "url": "https://investments.miraeasset.com/",
+        "source_url": "https://investments.miraeasset.com/magi/use.do"
+      },
+      "homepage": null,
+      "summary": "여러 상장 리츠·인프라 종목을 묶어 담은 ETF예요. 건물을 직접 갖지 않아요.",
+      "sources": []
+    },
+    {
+      "id": "476800",
+      "name": "KODEX 한국부동산리츠인프라",
+      "amc": {
+        "name": "삼성자산운용 (KODEX)",
+        "kind": "ETF 운용사",
+        "url": "https://www.samsungfund.com/etf/main.do",
+        "source_url": "https://www.samsungfund.com/llms.txt"
+      },
+      "homepage": null,
+      "summary": "여러 상장 리츠·인프라 종목을 묶어 담은 ETF예요. 건물을 직접 갖지 않아요.",
+      "sources": []
+    },
+    {
+      "id": "0086B0",
+      "name": "TIGER 리츠부동산인프라TOP10액티브",
+      "amc": {
+        "name": "미래에셋자산운용 (TIGER)",
+        "kind": "ETF 운용사",
+        "url": "https://investments.miraeasset.com/",
+        "source_url": "https://investments.miraeasset.com/magi/use.do"
+      },
+      "homepage": null,
+      "summary": "상장 리츠·인프라 종목 중 일부를 골라 운용사가 비중을 조절하는 액티브 ETF예요. 건물을 직접 갖지 않아요.",
+      "sources": []
+    },
+    {
+      "id": "WELL",
+      "name": "Welltower",
+      "amc": {
+        "name": "회사 자체",
+        "kind": "미국 상장 회사가 직접 운용 (외부 자산관리회사 없음)",
+        "url": null,
+        "source_url": null
+      },
+      "homepage": "https://welltower.com/",
+      "summary": "시니어 주거·의료 시설을 가진 헬스케어 리츠예요.",
+      "sec_ticker": "WELL",
+      "sources": [
+        "https://welltower.com/investors/press-release-details?id=152"
+      ]
+    },
+    {
+      "id": "PLD",
+      "name": "Prologis",
+      "amc": {
+        "name": "회사 자체",
+        "kind": "미국 상장 회사가 직접 운용 (외부 자산관리회사 없음)",
+        "url": null,
+        "source_url": null
+      },
+      "homepage": "https://www.prologis.com/",
+      "summary": "전 세계 물류창고를 가진 물류 리츠예요.",
+      "sec_ticker": "PLD",
+      "sources": [
+        "https://www.prologis.com/insights-news/success-stories/prologis-georgetown-crossroads"
+      ]
+    },
+    {
+      "id": "EQIX",
+      "name": "Equinix",
+      "amc": {
+        "name": "회사 자체",
+        "kind": "미국 상장 회사가 직접 운용 (외부 자산관리회사 없음)",
+        "url": null,
+        "source_url": null
+      },
+      "homepage": "https://www.equinix.com/",
+      "summary": "전 세계 데이터센터를 운영하는 데이터센터 리츠예요.",
+      "sec_ticker": "EQIX",
+      "sources": [
+        "https://www.equinix.com/data-centers/americas-colocation/united-states-colocation/new-york-data-centers/ny5"
+      ]
+    },
+    {
+      "id": "AMT",
+      "name": "American Tower",
+      "amc": {
+        "name": "회사 자체",
+        "kind": "미국 상장 회사가 직접 운용 (외부 자산관리회사 없음)",
+        "url": null,
+        "source_url": null
+      },
+      "homepage": "https://americantower.com/Investor-Relations",
+      "summary": "통신 기지국 철탑과 데이터센터(자회사 CoreSite)를 가진 리츠예요.",
+      "sec_ticker": "AMT",
+      "sources": [
+        "https://americantower.com/Investor-Relations"
+      ]
+    },
+    {
+      "id": "SPG",
+      "name": "Simon Property Group",
+      "amc": {
+        "name": "회사 자체",
+        "kind": "미국 상장 회사가 직접 운용 (외부 자산관리회사 없음)",
+        "url": null,
+        "source_url": null
+      },
+      "homepage": "https://investors.simon.com/",
+      "summary": "미국 대형 쇼핑몰·프리미엄 아웃렛을 가진 리츠예요.",
+      "sec_ticker": "SPG",
+      "sources": [
+        "https://investors.simon.com/"
+      ]
+    },
+    {
+      "id": "DLR",
+      "name": "Digital Realty",
+      "amc": {
+        "name": "회사 자체",
+        "kind": "미국 상장 회사가 직접 운용 (외부 자산관리회사 없음)",
+        "url": null,
+        "source_url": null
+      },
+      "homepage": "https://www.digitalrealty.com/",
+      "summary": "전 세계 데이터센터를 가진 리츠예요.",
+      "sec_ticker": "DLR",
+      "sources": [
+        "https://digitalrealtytrust.gcs-web.com/resources/investor-faqs"
+      ]
+    },
+    {
+      "id": "PSA",
+      "name": "Public Storage",
+      "amc": {
+        "name": "회사 자체",
+        "kind": "미국 상장 회사가 직접 운용 (외부 자산관리회사 없음)",
+        "url": null,
+        "source_url": null
+      },
+      "homepage": "https://www.publicstorage.com/",
+      "summary": "짐을 맡기는 셀프 스토리지 창고를 가진 리츠예요.",
+      "sec_ticker": "PSA",
+      "sources": [
+        "https://www.publicstorage.com/blog/public-storage/public-storages-history-two-friends-and-an-idea.html"
+      ]
+    },
+    {
+      "id": "O",
+      "name": "Realty Income",
+      "amc": {
+        "name": "회사 자체",
+        "kind": "미국 상장 회사가 직접 운용 (외부 자산관리회사 없음)",
+        "url": null,
+        "source_url": null
+      },
+      "homepage": "https://www.realtyincome.com/",
+      "summary": "상가·물류·카지노 등을 장기 임대하는 리츠예요. 배당을 매달 줘요.",
+      "sec_ticker": "O",
+      "sources": [
+        "https://www.realtyincome.com/investors/quarterly-and-annual-results"
+      ]
+    },
+    {
+      "id": "VMRK",
+      "name": "Vivmark Residential",
+      "amc": {
+        "name": "회사 자체",
+        "kind": "미국 상장 회사가 직접 운용 (외부 자산관리회사 없음)",
+        "url": null,
+        "source_url": null
+      },
+      "homepage": "https://vivmarkresidential.com/",
+      "summary": "2026년 8월 Equity Residential과 AvalonBay가 합쳐진 미국 최대 임대 아파트 리츠예요.",
+      "sec_ticker": "VMRK",
+      "sources": [
+        "https://247wallst.com/companies/VMRK/"
+      ]
+    },
+    {
+      "id": "VTR",
+      "name": "Ventas",
+      "amc": {
+        "name": "회사 자체",
+        "kind": "미국 상장 회사가 직접 운용 (외부 자산관리회사 없음)",
+        "url": null,
+        "source_url": null
+      },
+      "homepage": null,
+      "summary": "시니어 주거·의료·연구 시설을 가진 헬스케어 리츠예요.",
+      "sec_ticker": "VTR",
+      "sources": []
+    }
+  ]
+}

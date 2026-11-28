@@ -40,6 +40,7 @@
 | 파일 | 내용 |
 |---|---|
 | `index.html` | 타깃 3종 선택 → 정렬 기준 공개 → 리츠 목록. 국내(리츠 23 + 리츠 ETF 3) / 해외(미국 리츠 10) 전환, 가격·등락률, 최근 1년 주가 그래프, 생활 언어 문구, 배당수익률 15% 이상 주의 문구. 상단 배너 2개는 공식 정보(국토부 리츠정보시스템, 금융감독원 금융상품한눈에) |
+| `reit.html` + `js/reit.js` | **리츠 상세** (`reit.html?id=종목코드`, 첫 화면·비교·지도의 "자세히 보기"에서 들어옴). 01 운용사(이름·운용 방식·운용사/리츠 홈페이지, `data/reit_profiles.json`) · 02 가진 건물(국내는 `assets.json` 연면적으로 유형별/건물별 도넛 그래프 + 목록 + Leaflet 지도, 6칸 넘으면 기타로 묶음 / 해외는 `global_properties.json` 대표 자산 + 본사, 비율 없음 / 지도에 건물 없는 리츠는 `reit_profiles.json` 의 holdings) · 03 숫자 번역 · 04 자료(한경 컨센서스 최근 2년 리포트 목록, DART 종목코드 검색, 리츠정보시스템, 미국 SEC 10-K). 리포트 PDF는 저작권 때문에 링크로만. `status_note` 가 있으면 빨간 주의 상자(제이알글로벌리츠 기업회생) |
 | `compare.html` + `js/compare.js` | 최대 3개 + 맨 오른쪽 은행 적금. 배당·P/NAV·WALE 번역, 계산식, 좋은 점/조심할 점, 주가 그래프 |
 | `map.html` + `js/map.js` | 국내: 카카오맵(지도·장소 검색·건물 누르면 로드뷰 + "이 건물, ○○리츠가 가지고 있어요"·1주 가격). 해외: Leaflet + OpenStreetMap(장소 검색 Nominatim). 카카오 키가 없거나 못 불러오면 국내도 Leaflet. 반경 원, 가까운 순 카드. **03 내 동선 건물주 카드**: 집 근처·학교·회사·자주 가는 곳 3곳 → 곳마다 가장 가까운 리츠 건물 → 인스타 스토리(1080×1920) PNG (집 칸은 장소 이름 안 씀, 장소 저장 안 함) |
 | `learn.html` + `js/learn.js` | 용어 20개 (쉬운 뜻·계산식·조심할 점·실제 숫자 예시) |
@@ -82,6 +83,7 @@
 ```
 reits-investment/
 ├─ index.html      첫 화면 (스크립트는 파일 안에 있음)
+├─ reit.html       리츠 상세        → js/reit.js
 ├─ compare.html    비교            → js/compare.js
 ├─ map.html        지도            → js/map.js
 ├─ learn.html      용어 배우기      → js/learn.js
@@ -120,7 +122,8 @@ reits-investment/
 - 규정: `BANNED_WORDS`, `checkBannedWords(text)` → `{ok, found}`, `DISCLAIMER`, `getSourceText(meta, keys)`, `getCardDisclaimer(meta, keys)`
 - 화면: `initPage`, `termHtml(용어id, 글자)`, `initTerms`, `renderAds()`, `escapeHtml`, `getQueryIds()`
 - 상수: `NA`("데이터 없음"), `NA_ETF`, `NA_GLOBAL`, `COFFEE`·`applyAssumptions(data)`(커피값 가정은 `data/assumptions.json`), `MONTHLY_DEFAULT`, `YIELD_CAUTION_PCT`(15)
-- 페이지 연결: 비교 화면은 `compare.html?ids=종목코드,종목코드` (최대 3개)
+- 페이지 연결: 비교 화면은 `compare.html?ids=종목코드,종목코드` (최대 3개), 상세 화면은 `Common.detailHref(종목코드)` → `reit.html?id=종목코드` (읽을 때 `Common.getQueryId()`)
+- 차트 색: `--chart-1`~`--chart-6`, `--chart-other`(기타) — 어두운 배경에서 색약 구분·대비 검사 통과한 순서. 순서대로만 쓰기
 
 ## 6. 이어서 할 일 (위에서부터)
 

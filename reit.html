@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>리츠 자세히 보기 | 리츠 투자</title>
+  <meta name="description" content="리츠 한 종목의 운용사, 가진 건물과 비율, 숫자, 공시·리포트 자료를 한 화면에서">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- 가진 건물 지도: Leaflet + OpenStreetMap (API 키 필요 없음) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    /* 리츠 상세 화면 전용 스타일 (접두어 reit-). 색·크기·간격은 style.css 변수만 쓴다 */
+    .reit-back { display: inline-block; font-size: var(--fs-sm); color: var(--color-text-sub); text-decoration: none; }
+    .reit-back:hover { color: var(--color-text); }
+    .reit-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+    .reit-amc-line { margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--color-text-sub); }
+    .reit-price-box { display: grid; gap: var(--space-4); grid-template-columns: 1fr; align-items: end; }
+    @media (min-width: 720px) { .reit-price-box { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+    .reit-price { font-size: var(--fs-mobile-hero); font-weight: 800; letter-spacing: var(--tracking-hero); line-height: 1.1; }
+    @media (min-width: 720px) { .reit-price { font-size: var(--fs-hero); } }
+    .reit-change { font-size: var(--fs-md); font-weight: 700; }
+    .reit-price-sub { margin-top: var(--space-1); font-size: var(--fs-xs); color: var(--color-text-sub); }
+    .reit-chart .spark { height: var(--dim-68); }
+    .reit-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .reit-kv { display: grid; gap: var(--space-2) var(--space-4); grid-template-columns: auto 1fr; font-size: var(--fs-sm); }
+    .reit-kv dt { color: var(--color-text-sub); }
+    .reit-kv dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; }
+    .reit-links { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+    .reit-sources { margin-top: var(--space-3); font-size: var(--fs-xxs); color: var(--color-text-sub); overflow-wrap: anywhere; }
+    .reit-sources a { color: var(--color-text-sub); }
+
+    /* 원 그래프 + 비율 목록 */
+    .reit-pie-wrap { display: grid; gap: var(--space-5); grid-template-columns: 1fr; align-items: center; }
+    @media (min-width: 720px) { .reit-pie-wrap { grid-template-columns: var(--dim-250) minmax(0, 1fr); } }
+    .reit-pie { position: relative; width: var(--dim-180); max-width: 100%; margin: 0 auto; }
+    @media (min-width: 720px) { .reit-pie { width: var(--dim-250); } }
+    .reit-pie svg { display: block; width: 100%; height: auto; }
+    .reit-slice { fill: none; stroke-width: 18; cursor: pointer; transition: stroke-width 0.15s, opacity 0.15s; }
+    .reit-pie.is-hovering .reit-slice { opacity: 0.35; }
+    .reit-pie.is-hovering .reit-slice.is-on { opacity: 1; stroke-width: 21; }
+    .reit-pie-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none; }
+    .reit-pie-total { font-size: var(--fs-md); font-weight: 800; }
+    .reit-pie-label { font-size: var(--fs-xxs); color: var(--color-text-sub); }
+    .reit-tip { position: absolute; z-index: 2; min-width: var(--dim-160); padding: var(--space-2) var(--space-3); border: var(--dim-1) solid var(--color-line); border-radius: var(--radius-sm); background: var(--color-surface-2); font-size: var(--fs-xs); line-height: 1.5; pointer-events: none; box-shadow: 0 var(--dim-2) var(--dim-8) var(--color-tooltip-shadow); }
+    .reit-legend { display: grid; gap: var(--space-1); margin: 0; padding: 0; list-style: none; }
+    .reit-legend-row { display: grid; grid-template-columns: var(--space-3) minmax(0, 1fr) auto; gap: var(--space-2) var(--space-3); align-items: center; width: 100%; padding: var(--space-2); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--color-text); font-size: var(--fs-sm); text-align: left; cursor: pointer; }
+    .reit-legend-row:hover, .reit-legend-row:focus-visible, .reit-legend-row.is-on { background: var(--color-surface-2); }
+    .reit-swatch { width: var(--space-3); height: var(--space-3); border-radius: var(--dim-3); }
+    .reit-legend-name { overflow-wrap: anywhere; }
+    .reit-legend-pct { font-weight: 800; text-align: right; }
+    .reit-legend-val { grid-column: 2 / 4; font-size: var(--fs-xxs); color: var(--color-text-sub); }
+
+    /* 가진 건물 목록 + 작은 지도 */
+    .reit-map { width: 100%; height: var(--dim-300); border: var(--dim-1) solid var(--color-line); border-radius: var(--radius); background: var(--color-label); z-index: 0; overflow: hidden; }
+    .reit-map .leaflet-popup-content-wrapper, .reit-map .leaflet-popup-tip { background: var(--color-surface-2); color: var(--color-text); }
+    .reit-map .leaflet-popup-content { font-family: var(--font-base); font-size: var(--fs-sm); line-height: 1.5; }
+    .reit-asset-meta { margin-top: var(--space-1); font-size: var(--fs-xs); color: var(--color-text-sub); }
+    .reit-asset-note { margin-top: var(--space-2); font-size: var(--fs-sm); line-height: 1.6; }
+    .reit-hq-pin { display: inline-block; padding: var(--dim-2) var(--space-2); border: var(--dim-2) solid var(--color-surface); border-radius: var(--dim-999); background: var(--color-good); color: var(--color-bg); font-family: var(--font-base); font-size: var(--fs-xxs); font-weight: 800; white-space: nowrap; transform: translate(-50%, -50%); }
+    .reit-hq-icon { background: none; border: 0; }
+
+    /* 자료 링크 카드 */
+    .reit-doc { display: flex; flex-direction: column; gap: var(--space-2); }
+    .reit-doc .btn { align-self: flex-start; }
+  </style>
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="container section stack" id="reit-main">
+    <div>
+      <a class="reit-back" href="index.html">← 리츠 목록으로</a>
+    </div>
+    <p class="notice" id="reit-loading" role="status">리츠 정보를 불러오는 중이에요...</p>
+    <!-- 아래 내용은 js/reit.js 가 data/*.json 을 읽어서 채운다 -->
+    <div class="stack is-hidden" id="reit-body">
+      <div>
+        <div class="chapter"><span class="chapter-tag">DETAIL</span><span class="chapter-name">리츠 자세히 보기</span></div>
+        <div class="reit-head"><h1 class="page-title" id="reit-name">리츠 자세히 보기</h1><span class="badge" id="reit-badge"></span></div>
+        <p class="reit-amc-line" id="reit-amc-line"></p>
+        <p class="lead" id="reit-summary"></p>
+      </div>
+      <div class="warn-box is-hidden" id="reit-status" role="alert"></div>
+
+      <section class="card reit-price-box" aria-label="가격">
+        <div>
+          <p class="reit-price" id="reit-price"></p>
+          <p class="reit-price-sub" id="reit-price-sub"></p>
+          <p class="reit-price-sub"><span class="label-risk">원금 손실 가능</span></p>
+        </div>
+        <div class="reit-chart" id="reit-chart"></div>
+      </section>
+      <div class="reit-actions" id="reit-actions"></div>
+
+      <section class="stack" aria-label="운용사">
+        <h2 class="sec-title"><span class="sec-no">01</span>누가 운용하나요</h2>
+        <div class="card" id="reit-amc"></div>
+      </section>
+
+      <section class="stack" aria-label="가진 부동산">
+        <h2 class="sec-title"><span class="sec-no">02</span>무엇을 가지고 있나요</h2>
+        <div class="card is-hidden" id="reit-mix">
+          <div class="chip-row is-hidden" id="reit-mix-tabs" role="group" aria-label="비율 기준 고르기"></div>
+          <div class="reit-pie-wrap" id="reit-pie-wrap"></div>
+          <p class="source-note" id="reit-mix-note"></p>
+        </div>
+        <p class="notice is-hidden" id="reit-mix-empty"></p>
+        <div class="reit-map is-hidden" id="reit-map" role="application" aria-label="가진 건물 지도"></div>
+        <p class="source-note is-hidden" id="reit-map-note"></p>
+        <div class="grid grid-2" id="reit-assets"></div>
+        <p class="source-note" id="reit-assets-note"></p>
+      </section>
+
+      <section class="stack is-hidden" id="reit-numbers-sec" aria-label="숫자로 보기">
+        <h2 class="sec-title"><span class="sec-no">03</span>숫자를 생활 언어로</h2>
+        <div class="grid grid-3" id="reit-numbers"></div>
+      </section>
+
+      <section class="stack" aria-label="더 알아보기">
+        <h2 class="sec-title"><span class="sec-no" id="reit-docs-no">04</span>자료 더 보기</h2>
+        <div class="grid grid-2" id="reit-docs"></div>
+        <p class="source-note" id="reit-docs-note">증권사 리포트는 한경 컨센서스에서 PDF로 받을 수 있어요. 리포트는 저작권이 있어서 이 사이트에 파일을 올리지 않고 링크로만 안내해요. 리포트의 투자의견·목표주가는 작성한 증권사의 의견이고, 이 사이트의 의견이 아니에요.</p>
+      </section>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/reit.js"></script>
+</body>
+</html>

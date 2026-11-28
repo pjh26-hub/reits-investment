@@ -110,7 +110,8 @@
     var chart = Common.sparkline(p.history, { width: 240, height: 56 });       // 최근 1년 주가 그래프
 
     return [
-      cell(kindLabel, '<p class="cmp-name">' + Common.escapeHtml(p.name) + "</p>", "cmp-cell--head " + cls),
+      cell(kindLabel, '<p class="cmp-name">' + Common.escapeHtml(p.name) + "</p>" +
+        '<a class="raw-note" href="' + Common.detailHref(p.key) + '">운용사·가진 건물 자세히 보기 →</a>', "cmp-cell--head " + cls),
       cell("원금",
         '<span class="label-risk">원금 손실 가능</span><p class="raw-note">주가가 내리면 넣은 돈보다 적게 돌려받아요. 예금자보호 대상이 아니에요.' +
         (isGlobal ? " 환율이 내려도 원화 가치가 줄어요." : "") + "</p>", cls),

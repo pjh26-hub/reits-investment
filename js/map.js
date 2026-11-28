@@ -223,6 +223,7 @@
       '<p class="raw-note">' + Common.escapeHtml(asset.address || "") + sourceLinkHtml(asset.source_url) + "</p>" +
       '<p class="raw-note"><span class="label-risk">원금 손실 가능</span></p>' +
       '<div class="map-asset-actions"><a class="btn" href="compare.html?ids=' + encodeURIComponent(asset.reit_id) + '">적금과 비교하기</a>' +
+        '<a class="btn btn-ghost" href="' + Common.detailHref(asset.reit_id) + '">리츠 자세히 보기</a>' +
         focusButtonHtml(asset.reit_id) + "</div>" +
       "</article>";
   }
@@ -259,6 +260,7 @@
       linesHtml + hqNote +
       '<p class="raw-note"><span class="label-risk">원금 손실 가능</span></p>' +
       '<div class="map-asset-actions"><a class="btn" href="compare.html?ids=' + encodeURIComponent(asset.reit_id) + '">적금과 비교하기</a>' +
+        '<a class="btn btn-ghost" href="' + Common.detailHref(asset.reit_id) + '">리츠 자세히 보기</a>' +
         (asset.isHq && asset.propertyCount ? focusButtonHtml(asset.reit_id) : "") +
         (!asset.isHq && state.useKakao
           ? '<button type="button" class="btn btn-ghost" data-rv-asset="' + Common.escapeHtml(asset.asset_id) + '">건물 모습 보기</button>' : "") +
@@ -340,7 +342,8 @@
   }
 
   function popupHtml(a) {
-    var compare = '<br><a href="compare.html?ids=' + encodeURIComponent(a.reit_id) + '">적금과 비교하기</a>';
+    var compare = '<br><a href="compare.html?ids=' + encodeURIComponent(a.reit_id) + '">적금과 비교하기</a>' +
+      ' · <a href="' + Common.detailHref(a.reit_id) + '">리츠 자세히 보기</a>';
     if (a.isHq) {
       return "<b>" + Common.escapeHtml(a.name || "") + "</b><br>해외 리츠 본사 · " + Common.escapeHtml(a.address || "") +
         (a.propertyCount ? "<br>대표 자산 " + a.propertyCount + "곳을 함께 보여줘요" : "") + compare;
@@ -605,6 +608,7 @@
     document.getElementById("map-rv-price").textContent = p
       ? "1주 가격 " + Common.formatWon(p.price) + (basis ? " (" + basis + ")" : "") : "";
     document.getElementById("map-rv-compare").setAttribute("href", "compare.html?ids=" + encodeURIComponent(asset.reit_id));
+    document.getElementById("map-rv-detail").setAttribute("href", Common.detailHref(asset.reit_id));
     var panel = document.getElementById("map-rv");
     var view = document.getElementById("map-rv-view");
     panel.classList.remove("is-hidden");

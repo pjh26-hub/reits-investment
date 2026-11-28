@@ -25,7 +25,7 @@
     .home-headline { margin-top: var(--space-2); font-size: var(--fs-lg); font-weight: 700; color: var(--color-gold); letter-spacing: var(--tracking-card); }
     .home-item-sub { margin-top: var(--dim-2); font-size: var(--fs-xs); color: var(--color-text-sub); }
     .home-item .translated { margin-top: var(--space-3); font-size: var(--fs-md); }
-    .home-item-actions { margin-top: var(--space-3); }
+    .home-item-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
     .home-links .card { display: block; text-decoration: none; color: inherit; }
     .home-links .card:hover { background: var(--color-primary-soft); }
     .home-link-step { font-size: var(--fs-xs); font-weight: 700; letter-spacing: var(--tracking-step); color: var(--color-accent); }
@@ -204,7 +204,8 @@
         var chart = Common.sparkline(p.history, { width: 120, height: 44 });       // 최근 1년 주가 그래프
         // 1년 등락률: 자동 갱신 값(1년 전 종가 대비)이 있으면 그것을, 없으면 그래프 기록의 처음·끝으로 계산한 값
         var yearPct = typeof p.yearlyChangePct === "number" ? p.yearlyChangePct : chart.changePct;
-        var compare ='<a class="btn" href="compare.html?ids=' + encodeURIComponent(p.key) + '">적금과 비교하기</a>';
+        var compare ='<a class="btn" href="compare.html?ids=' + encodeURIComponent(p.key) + '">적금과 비교하기</a>' +
+          '<a class="btn btn-ghost" href="' + Common.detailHref(p.key) + '">자세히 보기</a>';   // 운용사·가진 건물·자료 (reit.html)
         return '<article class="card home-item">' +
           '<div class="home-item-head"><h3 class="card-title">' + Common.escapeHtml(p.name) + "</h3>" +
           '<span class="badge">' + (p.type === "etf" ? "리츠 ETF" : (p.type === "global"

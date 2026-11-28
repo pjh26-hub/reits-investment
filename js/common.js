@@ -16,7 +16,7 @@
    규정          BANNED_WORDS, checkBannedWords, DISCLAIMER, getSourceText, getCardDisclaimer
    용어 풀이     termHtml, initTerms
    광고 칸       renderAds
-   기타          escapeHtml, getQueryIds, isLiveMode, getLivePrice
+   기타          escapeHtml, getQueryIds, getQueryId, detailHref(상세 화면 주소), isLiveMode, getLivePrice
    상수          NA, NA_ETF, COFFEE, MONTHLY_DEFAULT
 
    규칙: 값이 없으면(null) 지어내지 않고 "데이터 없음"을 돌려준다.
@@ -66,7 +66,8 @@ var Common = (function () {
     prices: "야후 파이낸스 (비공식)", dividends: "야후 파이낸스 (비공식)",
     history: "야후 파이낸스 (비공식)", savings: "금융감독원 금융상품한눈에",
     assumptions: "커피 한 잔 가격 (과거 기준 가정)",
-    global_properties: "해외 리츠 대표 자산 (각 리츠·운영사 공개 자료)"
+    global_properties: "해외 리츠 대표 자산 (각 리츠·운영사 공개 자료)",
+    reit_profiles: "리츠 운용사·소개 (증권신고서·운용사 홈페이지·보도)"
   };
 
   var cache = {};              // 한 번 읽은 JSON 을 다시 받지 않게 보관
@@ -83,6 +84,17 @@ var Common = (function () {
     return String(value === null || value === undefined ? "" : value)
       .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  /** 리츠 상세 화면 주소.  detailHref("330590") → "reit.html?id=330590" */
+  function detailHref(key) {
+    return "reit.html?id=" + encodeURIComponent(key);
+  }
+
+  /** 상세 화면 주소의 ?id=330590 → "330590". 없으면 null */
+  function getQueryId() {
+    var match = /[?&]id=([^&#]*)/.exec(window.location.search);
+    return match ? decodeURIComponent(match[1]).trim() || null : null;
   }
 
   /** 주소의 ?ids=293940,330590 를 ["293940", "330590"] 로 (최대 3개) */
@@ -779,6 +791,6 @@ var Common = (function () {
     getTarget: getTarget, setTarget: setTarget, sortByTarget: sortByTarget,
     checkBannedWords: checkBannedWords, getSourceText: getSourceText, getCardDisclaimer: getCardDisclaimer,
     termHtml: termHtml, initTerms: initTerms, renderAds: renderAds,
-    escapeHtml: escapeHtml, getQueryIds: getQueryIds, isLiveMode: isLiveMode, getLivePrice: getLivePrice
+    escapeHtml: escapeHtml, getQueryIds: getQueryIds, getQueryId: getQueryId, detailHref: detailHref, isLiveMode: isLiveMode, getLivePrice: getLivePrice
   };
 })();
