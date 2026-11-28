@@ -6,7 +6,7 @@
   <title>리츠 자세히 보기 | 리츠 투자</title>
   <meta name="description" content="리츠 한 종목의 운용사, 가진 건물과 비율, 숫자, 공시·리포트 자료를 한 화면에서">
   <link rel="stylesheet" href="css/style.css?v=20261128c">
-  <!-- 가진 건물 지도: Leaflet + OpenStreetMap (API 키 필요 없음) -->
+  <!-- 가진 건물 지도: 국내 리츠는 카카오맵(js/common.js 가 불러옴), 해외 리츠는 Leaflet + OpenStreetMap -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
     /* 리츠 상세 화면 전용 스타일 (접두어 reit-). 색·크기·간격은 style.css 변수만 쓴다 */
@@ -85,6 +85,12 @@
     .reit-map { width: 100%; height: var(--dim-300); border: var(--dim-1) solid var(--color-line); border-radius: var(--radius); background: var(--color-label); z-index: 0; overflow: hidden; }
     .reit-map .leaflet-popup-content-wrapper, .reit-map .leaflet-popup-tip { background: var(--color-surface-2); color: var(--color-text); }
     .reit-map .leaflet-popup-content { font-family: var(--font-base); font-size: var(--fs-sm); line-height: 1.5; }
+    /* 카카오맵(국내 리츠): 공통 규칙 img·svg·canvas { max-width: 100% } 이 지도 조각을 줄이지 않게 + 건물 점·이름표 */
+    .reit-map img, .reit-map svg, .reit-map canvas { max-width: none; }
+    .reit-k-dot { display: block; width: var(--dim-20); height: var(--dim-20); padding: 0; border: var(--dim-3) solid var(--color-surface); border-radius: 50%; background: var(--color-primary); cursor: pointer; box-shadow: 0 var(--dim-1) var(--dim-3) var(--color-tooltip-shadow); }
+    .reit-k-dot:hover, .reit-k-dot:focus-visible { outline: var(--dim-2) solid var(--color-text); outline-offset: var(--dim-1); }
+    .reit-k-label { display: flex; flex-direction: column; gap: var(--dim-2); padding: var(--space-2) var(--space-3); border: var(--dim-1) solid var(--color-line); border-radius: var(--radius-sm); background: var(--color-surface-2); color: var(--color-text); font-family: var(--font-base); font-size: var(--fs-xs); line-height: 1.4; white-space: nowrap; box-shadow: 0 var(--dim-2) var(--dim-8) var(--color-tooltip-shadow); }
+    .reit-k-label span { color: var(--color-text-sub); font-size: var(--fs-xxs); }
     .reit-asset-meta { margin-top: var(--space-1); font-size: var(--fs-xs); color: var(--color-text-sub); }
     .reit-asset-note { margin-top: var(--space-2); font-size: var(--fs-sm); line-height: 1.6; }
     .reit-hq-pin { display: inline-block; padding: var(--dim-2) var(--space-2); border: var(--dim-2) solid var(--color-surface); border-radius: var(--dim-999); background: var(--color-good); color: var(--color-bg); font-family: var(--font-base); font-size: var(--fs-xxs); font-weight: 800; white-space: nowrap; transform: translate(-50%, -50%); }
@@ -172,7 +178,7 @@
   <footer id="site-footer"></footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="js/common.js?v=20261128c"></script>
-  <script src="js/reit.js?v=20261128b"></script>
+  <script src="js/common.js?v=20261128d"></script>
+  <script src="js/reit.js?v=20261128c"></script>
 </body>
 </html>

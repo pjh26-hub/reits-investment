@@ -17,6 +17,7 @@
    용어 풀이     termHtml, initTerms
    광고 칸       renderAds
    관심 리츠     getFavorites, isFavorite, toggleFavorite, favButtonHtml (이 기기에만 저장)
+   카카오맵      loadKakaoMaps (키는 여기 KAKAO_JS_KEY 한 곳에만)
    기타          escapeHtml, getQueryIds, getQueryId, detailHref(상세 화면 주소), isLiveMode, getLivePrice
    상수          NA, NA_ETF, COFFEE, MONTHLY_DEFAULT
 
@@ -823,6 +824,37 @@ var Common = (function () {
     return Promise.all([renderFooter(opts.sources || []), renderAds()]);
   }
 
+  // ---------------------------------------------------------------------
+  // 카카오맵 (지도 화면·리츠 상세 화면 같이 씀)
+  //   JavaScript 키는 원래 웹페이지에 보이는 공개용 키다. 카카오 개발자 사이트에 등록한 도메인
+  //   (https://pjh26-hub.github.io, http://localhost:8772)에서만 작동한다. 앱 "리츠 투자"(ID 1669794)
+  // ---------------------------------------------------------------------
+  var KAKAO_JS_KEY = "27104759d7bebe7cf5c54ee8ce551e99";
+  var KAKAO_SDK_URL = "https://dapi.kakao.com/v2/maps/sdk.js";
+  var KAKAO_LOAD_TIMEOUT_MS = 8000;
+  var kakaoPromise = null;
+
+  /** 카카오맵 SDK(장소 검색 포함)를 한 번만 불러온다. 키가 없거나 실패·시간 초과면 false → 페이지는 Leaflet 지도로 */
+  function loadKakaoMaps() {
+    if (kakaoPromise) { return kakaoPromise; }
+    kakaoPromise = new Promise(function (resolve) {
+      if (!KAKAO_JS_KEY) { resolve(false); return; }
+      if (window.kakao && window.kakao.maps && window.kakao.maps.Map) { resolve(true); return; }
+      var done = false;
+      function finish(ok) { if (!done) { done = true; resolve(ok); } }
+      var timer = window.setTimeout(function () { finish(false); }, KAKAO_LOAD_TIMEOUT_MS);
+      var script = document.createElement("script");
+      script.src = KAKAO_SDK_URL + "?appkey=" + encodeURIComponent(KAKAO_JS_KEY) + "&libraries=services&autoload=false";
+      script.onload = function () {
+        if (!window.kakao || !window.kakao.maps || !window.kakao.maps.load) { window.clearTimeout(timer); finish(false); return; }
+        window.kakao.maps.load(function () { window.clearTimeout(timer); finish(true); });
+      };
+      script.onerror = function () { window.clearTimeout(timer); finish(false); };
+      document.head.appendChild(script);
+    });
+    return kakaoPromise;
+  }
+
   var TOUR_VERSION = "20261128b";   // js/tour.js 를 고치면 바꾼다 (방문자 브라우저가 옛 파일을 쓰지 않게)
 
   /** 발표 투어 모드: 주소에 ?tour=숫자 가 있을 때만 js/tour.js 를 불러온다 (평소에는 안 불러옴) */
@@ -851,6 +883,7 @@ var Common = (function () {
     getBestSaving: getBestSaving,
     getTarget: getTarget, setTarget: setTarget, sortByTarget: sortByTarget,
     getFavorites: getFavorites, isFavorite: isFavorite, toggleFavorite: toggleFavorite, favButtonHtml: favButtonHtml,
+    loadKakaoMaps: loadKakaoMaps,
     checkBannedWords: checkBannedWords, getSourceText: getSourceText, getCardDisclaimer: getCardDisclaimer,
     termHtml: termHtml, initTerms: initTerms, renderAds: renderAds,
     escapeHtml: escapeHtml, getQueryIds: getQueryIds, getQueryId: getQueryId, detailHref: detailHref, isLiveMode: isLiveMode, getLivePrice: getLivePrice

@@ -14,7 +14,7 @@
 
    지도와 장소 검색 (2026-11-28 카카오맵 추가)
      - 국내: 카카오맵 지도 + 카카오 장소 검색 + 로드뷰(건물을 누르면 실제 거리 사진).
-         KAKAO_JS_KEY 가 비어 있거나 카카오 지도를 못 불러오면 자동으로 아래 Leaflet 지도로 돌아간다.
+         카카오 지도를 못 불러오면(키는 js/common.js 의 KAKAO_JS_KEY) 자동으로 아래 Leaflet 지도로 돌아간다.
      - 해외: Leaflet + OpenStreetMap (카카오맵에는 한국 밖이 거의 안 나와서). 화면에 "© OpenStreetMap contributors" 표시 필수.
          장소 검색은 OpenStreetMap Nominatim. 버튼을 눌렀을 때 한 번만 부른다(자동완성 금지, 1초에 1번 이하).
      - 장소 검색 결과는 어디에도 저장하지 않는다(localStorage 포함). state.center 에만 잠깐 둔다.
@@ -29,10 +29,7 @@
 (function () {
   "use strict";
 
-  // 카카오맵 JavaScript 키 (카카오 개발자 > 내 애플리케이션 > 앱 키 > JavaScript 키). 비워 두면 국내도 Leaflet 지도
-  var KAKAO_JS_KEY = "27104759d7bebe7cf5c54ee8ce551e99";   // 앱 "리츠 투자"(ID 1669794), 등록 도메인: pjh26-hub.github.io, localhost:8772
-  var KAKAO_SDK_URL = "https://dapi.kakao.com/v2/maps/sdk.js";
-  var KAKAO_LOAD_TIMEOUT_MS = 8000;
+  // 카카오맵 키와 불러오기는 js/common.js (Common.loadKakaoMaps) 한 곳에 있다
   var ROADVIEW_RADIUS_M = 80;   // 건물 좌표에서 이 거리 안의 로드뷰 사진을 찾는다
   var TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
   var TILE_CREDIT = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
@@ -434,22 +431,9 @@
   // ---------------------------------------------------------------------
   // 카카오맵 (국내): 지도 · 장소 검색 · 로드뷰
   // ---------------------------------------------------------------------
-  /** 카카오맵 SDK 를 불러온다. 키가 없거나 실패·시간 초과면 false (→ Leaflet 지도) */
+  /** 카카오맵 SDK 를 불러온다 (Common 공통 함수). 실패하면 false → Leaflet 지도 */
   function loadKakao() {
-    return new Promise(function (resolve) {
-      if (!KAKAO_JS_KEY) { resolve(false); return; }
-      var done = false;
-      function finish(ok) { if (!done) { done = true; resolve(ok); } }
-      var timer = window.setTimeout(function () { finish(false); }, KAKAO_LOAD_TIMEOUT_MS);
-      var script = document.createElement("script");
-      script.src = KAKAO_SDK_URL + "?appkey=" + encodeURIComponent(KAKAO_JS_KEY) + "&libraries=services&autoload=false";
-      script.onload = function () {
-        if (!window.kakao || !window.kakao.maps || !window.kakao.maps.load) { window.clearTimeout(timer); finish(false); return; }
-        window.kakao.maps.load(function () { window.clearTimeout(timer); finish(true); });
-      };
-      script.onerror = function () { window.clearTimeout(timer); finish(false); };
-      document.head.appendChild(script);
-    });
+    return Common.loadKakaoMaps();
   }
 
   function initKakao() {

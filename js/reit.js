@@ -10,6 +10,7 @@
           국내: data/assets.json (리츠정보시스템 GIS) 의 연면적으로 비율 계산 (유형별 / 건물별)
           해외: data/global_properties.json 의 대표 자산 + 본사 (비율 자료 없음 → 그래프 대신 안내)
           지도에 건물이 없는 국내 리츠: reit_profiles.json 의 holdings (보도·공시로 확인한 대표 자산)
+          작은 지도: 국내는 카카오맵(Common.loadKakaoMaps), 해외는 Leaflet + OpenStreetMap
      03 숫자를 생활 언어로   배당·P/NAV·WALE (Common 번역 함수)
      04 자료 더 보기        증권사 리포트(한경 컨센서스), 공시(DART), 리츠정보시스템, 미국 SEC 공시
 
@@ -641,11 +642,71 @@
     return [];
   }
 
+  /** 국내 리츠는 카카오맵, 해외 리츠는 Leaflet(카카오맵엔 한국 밖이 거의 안 나옴). 카카오를 못 불러오면 Leaflet */
   function drawMap() {
     var points = mapPoints();
+    if (!points.length) { return; }
+    var tryKakao = state.product.type === "reit";
+    (tryKakao ? Common.loadKakaoMaps() : Promise.resolve(false)).then(function (ok) {
+      if (ok && drawKakaoMap(points)) { return; }
+      drawLeafletMap(points);
+    });
+  }
+
+  function noCoordText(points) {
+    var noCoord = state.product.type === "reit" ? state.assets.length - points.length : 0;
+    return noCoord > 0 ? " 위치 좌표가 없는 건물 " + noCoord + "곳은 지도에서 빠졌어요(목록에는 있어요)." : "";
+  }
+
+  /** 카카오맵: 건물 점을 누르면 이름표. 건물이 1곳이면 처음부터 이름표를 띄운다 */
+  function drawKakaoMap(points) {
+    var kakao = window.kakao;
     var box = $("reit-map");
     var note = $("reit-map-note");
-    if (!points.length) { return; }
+    try {
+      box.classList.remove("is-hidden");
+      var map = new kakao.maps.Map(box, { center: new kakao.maps.LatLng(points[0].lat, points[0].lng), level: 4 });
+      map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
+      var bounds = new kakao.maps.LatLngBounds();
+      var label = null;
+      var showLabel = function (pt) {
+        if (label) { label.setMap(null); }
+        var el = document.createElement("div");
+        el.className = "reit-k-label";
+        el.innerHTML = "<b>" + esc(pt.name) + "</b>" + (pt.sub ? "<span>" + esc(pt.sub) + "</span>" : "");
+        label = new kakao.maps.CustomOverlay({ position: new kakao.maps.LatLng(pt.lat, pt.lng), content: el, xAnchor: 0.5, yAnchor: 1.4, zIndex: 3 });
+        label.setMap(map);
+      };
+      points.forEach(function (pt) {
+        var dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "reit-k-dot";
+        dot.title = pt.name;
+        dot.setAttribute("aria-label", pt.name + " 위치");
+        dot.addEventListener("click", function () { showLabel(pt); });
+        new kakao.maps.CustomOverlay({ position: new kakao.maps.LatLng(pt.lat, pt.lng), content: dot, xAnchor: 0.5, yAnchor: 0.5, clickable: true, zIndex: 2 }).setMap(map);
+        bounds.extend(new kakao.maps.LatLng(pt.lat, pt.lng));
+      });
+      if (points.length === 1) {
+        map.setCenter(new kakao.maps.LatLng(points[0].lat, points[0].lng));
+        showLabel(points[0]);
+      } else {
+        map.setBounds(bounds, 40, 40, 40, 40);
+      }
+      state.map = map;
+      note.textContent = "지도: 카카오맵. 점을 누르면 건물 이름이 나와요(리츠정보시스템 지도 표시 위치). 건물 실제 모습은 '지도' 화면에서 건물을 누르면 로드뷰로 볼 수 있어요." +
+        noCoordText(points);
+      note.classList.remove("is-hidden");
+      return true;
+    } catch (err) {
+      box.innerHTML = "";
+      return false;
+    }
+  }
+
+  function drawLeafletMap(points) {
+    var box = $("reit-map");
+    var note = $("reit-map-note");
     if (!window.L) {
       note.textContent = "지도를 불러오지 못했어요(인터넷 연결 확인). 아래 목록은 그대로 볼 수 있어요.";
       note.classList.remove("is-hidden");
@@ -665,9 +726,8 @@
     });
     var latlngs = points.map(function (pt) { return [pt.lat, pt.lng]; });
     if (latlngs.length === 1) { state.map.setView(latlngs[0], 15); } else { state.map.fitBounds(latlngs, { padding: [30, 30], maxZoom: 15 }); }
-    var noCoord = state.product.type === "reit" ? state.assets.length - points.length : 0;
     note.textContent = "지도: OpenStreetMap. 점은 건물" + (state.product.type === "global" ? ", 초록 '본사' 표시는 본사가 있는 도시예요." : " 위치예요(리츠정보시스템 지도 표시 위치).") +
-      (noCoord > 0 ? " 위치 좌표가 없는 건물 " + noCoord + "곳은 지도에서 빠졌어요(목록에는 있어요)." : "");
+      noCoordText(points);
     note.classList.remove("is-hidden");
   }
 
