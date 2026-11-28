@@ -40,6 +40,7 @@ var Common = (function () {
 
   var DISCLAIMER = "본 사이트는 대학 수업 과제용이며 투자 권유가 아닙니다. 리츠·ETF는 원금 손실이 발생할 수 있습니다.";
   var CARD_DISCLAIMER = "수업 과제용 · 투자 권유 아님 · 리츠·ETF는 원금 손실 가능";
+  var PROJECT_NOTE = "대학 '부동산 프롭테크' 수업 팀 프로젝트 · 주제: 부동산 마케팅 · 2030에게 리츠를 생활 언어로 설명해요";   // 꼬리말 프로젝트 소개
 
   // 투자광고에 쓰면 안 되는 표현 (CONVENTIONS.md 6장)
   var BANNED_WORDS = ["보장", "무조건", "확정", "원금 보장", "대박", "100%", "안전한 투자", "절대", "추천"];
@@ -662,6 +663,8 @@ var Common = (function () {
         '<div class="container">' +
           '<p class="footer-disclaimer">' + escapeHtml(DISCLAIMER) + "</p>" +
           '<p class="footer-sources"><b>데이터 출처</b> ' + escapeHtml(getSourceText(meta, sourceKeys)) + "</p>" +
+          // 프로젝트 소개 (첫 화면 위에 있던 "수업 과제" 표시를 여기로 옮김, 2026-11-28)
+          '<p class="footer-project"><span class="footer-badge">수업 과제</span>' + escapeHtml(PROJECT_NOTE) + "</p>" +
         "</div>";
     });
   }
