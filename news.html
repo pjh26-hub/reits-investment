@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>부동산 뉴스 | 리츠 투자</title>
+  <meta name="description" content="주거용·상업용으로 나눈 최신 부동산 뉴스 제목과, 뉴스 속 건물 유형을 가진 리츠">
+  <link rel="stylesheet" href="css/style.css?v=20261128d">
+  <style>
+    /* 뉴스 화면 전용 스타일 (접두어 news-). 색·크기·간격은 style.css 변수만 쓴다 */
+    .news-words { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+    .news-words-label { font-size: var(--fs-xs); font-weight: 700; color: var(--color-text-sub); }
+    .news-word { padding: var(--dim-2) var(--space-3); border-radius: var(--dim-999); background: var(--color-surface-2); font-size: var(--fs-xs); }
+    .news-word b { color: var(--color-primary); }
+    .news-list { display: grid; gap: var(--space-3); }
+    .news-item { display: grid; gap: var(--space-2); }
+    .news-title { font-size: var(--fs-md); font-weight: 800; line-height: 1.5; color: var(--color-text); text-decoration: none; overflow-wrap: anywhere; }
+    a.news-title:hover, a.news-title:focus-visible { color: var(--color-primary); text-decoration: underline; }
+    .news-meta { font-size: var(--fs-xs); color: var(--color-text-sub); }
+    .news-related { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); padding-top: var(--space-2); border-top: var(--dim-1) solid var(--color-line); }
+    .news-related-label { font-size: var(--fs-xxs); font-weight: 700; color: var(--color-text-sub); }
+    .news-reit { padding: var(--dim-2) var(--space-3); border: var(--dim-1) solid var(--color-primary); border-radius: var(--dim-999); color: var(--color-primary); font-size: var(--fs-xs); font-weight: 700; text-decoration: none; }
+    .news-reit:hover, .news-reit:focus-visible { background: var(--color-primary-soft); }
+  </style>
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main class="container section stack">
+    <div>
+      <div class="chapter"><span class="chapter-tag">NEWS</span><span class="chapter-name">부동산 뉴스</span></div>
+      <h1 class="page-title">오늘의 부동산 뉴스</h1>
+      <p class="lead">주거용과 상업용으로 나눠 최신 기사 제목을 모았어요. 기사를 누르면 언론사 사이트에서 열리고, 아래 리츠 이름을 누르면 그 리츠를 자세히 볼 수 있어요.</p>
+    </div>
+
+    <section class="stack" aria-label="뉴스 분류">
+      <h2 class="sec-title"><span class="sec-no">01</span> 분류 고르기</h2>
+      <div class="chip-row" id="news-tabs" role="group" aria-label="주거용·상업용"></div>
+      <p class="source-note" id="news-persona"></p>
+      <p class="source-note" id="news-tab-desc"></p>
+      <div class="news-words" id="news-words" aria-label="많이 나온 말"></div>
+    </section>
+
+    <section class="stack" aria-label="최신 뉴스">
+      <h2 class="sec-title"><span class="sec-no">02</span> 최신 뉴스</h2>
+      <p class="source-note" id="news-updated" role="status"></p>
+      <!-- 기사 카드: 제목(원문 링크) · 언론사 · 시간 · 관련 리츠 -->
+      <div class="news-list" id="news-list"><p class="notice">뉴스를 불러오는 중이에요...</p></div>
+      <p class="source-note">뉴스 제목과 링크는 네이버 뉴스 검색 API로 모았어요. 기사 본문은 이 사이트에 저장하지 않고, 기사 내용과 의견은 각 언론사의 것이에요. '관련 리츠'는 기사에 나왔거나 같은 유형의 건물(오피스·물류·리테일)을 가진 리츠를 보여주는 정보이고, 투자 권유가 아니에요.</p>
+    </section>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <script src="js/common.js?v=20261128e"></script>
+  <script src="js/news.js?v=20261128b"></script>
+</body>
+</html>

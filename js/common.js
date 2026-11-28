@@ -64,6 +64,8 @@ var Common = (function () {
       icon: '<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>' },
     { key: "compare", label: "비교", short: "비교", href: "compare.html",
       icon: '<path d="M5 20V11M12 20V4M19 20v-6"/>' },
+    { key: "news", label: "뉴스", short: "뉴스", href: "news.html",
+      icon: '<rect x="3" y="5" width="14" height="15" rx="2"/><path d="M17 9h3v9a2 2 0 0 1-2 2"/><path d="M7 9h6M7 13h6M7 17h3"/>' },
     { key: "learn", label: "용어 배우기", short: "용어", href: "learn.html",
       icon: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>' },
     { key: "card", label: "홍보 카드", short: "카드", href: "card.html",
@@ -855,7 +857,7 @@ var Common = (function () {
     return kakaoPromise;
   }
 
-  var TOUR_VERSION = "20261128b";   // js/tour.js 를 고치면 바꾼다 (방문자 브라우저가 옛 파일을 쓰지 않게)
+  var TOUR_VERSION = "20261128d";   // js/tour.js 를 고치면 바꾼다 (방문자 브라우저가 옛 파일을 쓰지 않게)
 
   /** 발표 투어 모드: 주소에 ?tour=숫자 가 있을 때만 js/tour.js 를 불러온다 (평소에는 안 불러옴) */
   function loadTour() {

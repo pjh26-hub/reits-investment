@@ -33,6 +33,8 @@
       text: "집·학교·자주 가는 곳을 넣으면 곳마다 가장 가까운 리츠 건물을 찾아 인스타 스토리 카드로 만들어요. 2030이 직접 공유하게 만드는 장치예요." },
     { page: "compare.html", target: "[aria-label='고르기']", title: "적금과 나란히",
       text: "리츠를 3개까지 골라 은행 적금과 같은 계산법(매달 넣는 돈 기준 1년 배당·이자)으로 비교해요. 적금 금리는 금융감독원 공개 자료예요." },
+    { page: "news.html", target: "[aria-label='뉴스 분류']", title: "오늘의 부동산 뉴스",
+      text: "주거용·상업용으로 나눈 최신 기사 제목을 1시간마다 모아요. 첫 화면에서 고른 타깃에 맞는 칸을 먼저 보여주고, 기사 속 건물 유형을 가진 리츠로 바로 이어져요." },
     { page: "learn.html", target: "#learn-list > :first-child", title: "어려운 말, 쉬운 말로",
       text: "배당, P/NAV, WALE 같은 말을 생활 언어로 풀었어요. 다른 화면에서 밑줄 친 말을 누르면 같은 설명이 말풍선으로 떠요." },
     { page: "card.html", target: "[aria-label='문구 만들기']", title: "타깃별 홍보 카드",
@@ -40,7 +42,7 @@
     { page: "card.html", target: "#site-footer", title: "모든 숫자는 실제 데이터",
       text: "화면 맨 아래에 데이터 출처와 기준일을 항상 적어요. 값이 없으면 지어내지 않고 '데이터 없음'으로 보여줘요. 둘러봐 주셔서 고마워요!" }
   ];
-  var PAGE_NAMES = { "index.html": "첫 화면", "reit.html": "자세히 보기", "map.html": "지도", "compare.html": "비교", "learn.html": "용어", "card.html": "홍보 카드" };
+  var PAGE_NAMES = { "index.html": "첫 화면", "reit.html": "자세히 보기", "map.html": "지도", "compare.html": "비교", "news.html": "뉴스", "learn.html": "용어", "card.html": "홍보 카드" };
   var WAIT_MS = 4000;       // 강조할 곳이 늦게 그려지는 화면(목록·지도)을 기다리는 시간
   var REFRESH_MS = 400;     // 화면이 바뀌어도 강조 위치가 따라가게 다시 재는 간격
 

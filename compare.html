@@ -5,12 +5,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>적금과 비교 | 리츠 투자</title>
   <meta name="description" content="리츠·리츠 ETF를 은행 적금과 같은 잣대로 나란히 비교">
-  <link rel="stylesheet" href="css/style.css?v=20261128c">
+  <link rel="stylesheet" href="css/style.css?v=20261128d">
   <style>
     /* 비교 화면 전용 스타일 (접두어 cmp-) */
-    .cmp-pick { display: grid; gap: var(--space-3); grid-template-columns: 1fr; }
-    @media (min-width: 720px) { .cmp-pick { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    .cmp-assume { display: grid; gap: var(--space-3); grid-template-columns: 1fr 1fr; max-width: var(--dim-480); }
+    /* 고르기: 담은 칩 + 검색 목록 (토스식) */
+    .cmp-picked { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+    .cmp-chip { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--dim-36); padding: var(--space-1) var(--space-2) var(--space-1) var(--space-3); border: var(--dim-1) solid var(--color-line); border-radius: var(--dim-999); background: var(--color-surface); font-size: var(--fs-sm); font-weight: 700; }
+    .cmp-chip--saving { padding-right: var(--space-3); color: var(--color-text-sub); }
+    .cmp-chip-x { min-width: var(--dim-28); min-height: var(--dim-28); border: 0; border-radius: 50%; background: var(--color-surface-2); color: var(--color-text-sub); font-size: var(--fs-md); line-height: 1; cursor: pointer; }
+    .cmp-chip-x:hover, .cmp-chip-x:focus-visible { color: var(--color-text); }
+    .cmp-chip-dot { flex: none; display: inline-block; width: var(--space-3); height: var(--space-3); border-radius: 50%; background: var(--color-good); }
+    .cmp-count { margin-left: auto; font-size: var(--fs-xs); color: var(--color-text-sub); }
+    .cmp-finder { display: grid; gap: var(--space-3); padding: var(--space-4); border: var(--dim-1) solid var(--color-line); border-radius: var(--radius); background: var(--color-surface); }
+    .cmp-list { display: grid; gap: var(--dim-2); max-height: var(--dim-320); overflow-y: auto; overscroll-behavior: contain; }
+    .cmp-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-3); width: 100%; padding: var(--space-3); border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--color-text); text-align: left; cursor: pointer; }
+    .cmp-row:hover, .cmp-row:focus-visible { background: var(--color-surface-2); }
+    .cmp-row.is-on { background: var(--color-primary-soft); }
+    .cmp-row[aria-disabled="true"] { opacity: 0.5; }
+    .cmp-row-main { min-width: 0; }
+    .cmp-row-name { display: block; font-weight: 800; overflow-wrap: anywhere; }
+    .cmp-row-sub { display: block; font-size: var(--fs-xxs); color: var(--color-text-sub); }
+    .cmp-row-price { display: flex; flex-direction: column; align-items: flex-end; font-size: var(--fs-sm); font-weight: 700; }
+    .cmp-row-price span { font-size: var(--fs-xxs); }
+    .cmp-row-add { min-width: var(--dim-56); font-size: var(--fs-xs); font-weight: 800; color: var(--color-primary); text-align: right; }
+    .cmp-assume { display: grid; gap: var(--space-3); grid-template-columns: 1fr; }
+    @media (min-width: 720px) { .cmp-assume { grid-template-columns: auto var(--dim-160); align-items: end; justify-content: start; } }
+
+    /* 한눈에 보기: 1년 배당·이자 막대 */
+    .cmp-summary { display: grid; gap: var(--space-4); }
+    .cmp-sum-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2); }
+    .cmp-sum-name { display: inline-flex; align-items: center; gap: var(--space-2); font-weight: 800; }
+    .cmp-sum-label { font-size: var(--fs-xs); }
+    .cmp-sum-value { margin-top: var(--space-2); font-size: var(--fs-price); font-weight: 800; letter-spacing: var(--tracking-tight); line-height: 1.2; }
+    .cmp-sum-cups { font-size: var(--fs-sm); font-weight: 700; color: var(--color-text-sub); }
+    .cmp-sum-track { display: block; height: var(--space-3); margin-top: var(--space-2); border-radius: var(--dim-999); background: var(--color-surface-2); overflow: hidden; }
+    .cmp-sum-fill { display: block; height: 100%; border-radius: var(--dim-999); }
+    .cmp-sum-fill.is-saving { background: var(--color-good); }
+    .cmp-chip-dot--saving { background: var(--color-good); }
+
+    /* 주가 흐름 겹쳐 보기 */
+    .cmp-readout { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); margin-top: var(--space-3); font-size: var(--fs-sm); }
+    .cmp-read-date { font-weight: 800; }
+    .cmp-read-item { display: inline-flex; align-items: center; gap: var(--space-1); }
+    .cmp-plot { position: relative; height: var(--dim-180); margin-top: var(--space-3); touch-action: pan-y; cursor: crosshair; user-select: none; }
+    .cmp-plot svg { display: block; width: 100%; height: 100%; overflow: visible; }
+    .cmp-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+    .cmp-cursor { position: absolute; top: 0; bottom: 0; width: var(--dim-1); background: var(--color-text-sub); pointer-events: none; }
 
     /* 작은 화면: 상품별로 위에서 아래로 쌓는다 / 큰 화면: 상품이 옆으로 나란히, 줄이 맞게 */
     .cmp-grid { display: block; }
@@ -42,22 +82,25 @@
     <div>
       <div class="chapter"><span class="chapter-tag">COMPARE</span><span class="chapter-name">비교</span></div>
       <h1 class="page-title">적금과 나란히 놓고 보기</h1>
-      <p class="lead">리츠와 리츠 ETF를 3개까지 골라 은행 적금과 같은 잣대로 비교해요. 맨 오른쪽은 늘 은행 적금이에요. 좋은 점과 조심할 점을 같은 크기로 적었어요.</p>
+      <p class="lead">리츠와 리츠 ETF를 3개까지 담아 은행 적금과 같은 잣대로 비교해요. 은행 적금은 늘 같이 나와요. 좋은 점과 조심할 점을 같은 크기로 적었어요.</p>
     </div>
 
     <section class="stack" aria-label="고르기">
       <h2 class="sec-title"><span class="sec-no">01</span> 비교할 상품 고르기</h2>
-      <div class="cmp-pick" id="cmp-pick"></div>
+      <!-- 담은 상품 (×로 빼기) + 은행 적금 -->
+      <div class="cmp-picked" id="cmp-picked" aria-live="polite"></div>
+      <p class="notice is-hidden" id="cmp-pick-notice" role="status"></p>
+      <!-- 이름 검색 + 종류 필터 + 목록에서 담기 -->
+      <div class="cmp-finder">
+        <input class="input" id="cmp-search" type="search" placeholder="리츠·ETF 이름으로 찾기 (예: 롯데, 신한, TIGER)" autocomplete="off" aria-label="리츠 이름으로 찾기">
+        <div class="chip-row" id="cmp-groups" role="group" aria-label="종류 고르기"></div>
+        <div class="cmp-list" id="cmp-list" role="group" aria-label="비교할 상품 목록"></div>
+      </div>
       <div class="cmp-assume">
-        <label class="field">
+        <div class="field">
           <span class="field-label">매달 넣는 돈</span>
-          <select class="select" id="cmp-monthly">
-            <option value="30000">3만 원</option>
-            <option value="50000" selected>5만 원</option>
-            <option value="100000">10만 원</option>
-            <option value="300000">30만 원</option>
-          </select>
-        </label>
+          <div class="chip-row" id="cmp-monthly" role="group" aria-label="매달 넣는 돈"></div>
+        </div>
         <label class="field">
           <span class="field-label">커피 한 잔 값(원)</span>
           <input class="input" id="cmp-coffee" type="number" min="500" max="20000" step="100" inputmode="numeric">
@@ -67,13 +110,27 @@
       <p class="notice is-hidden" id="cmp-notice"></p>
     </section>
 
+    <section class="stack" aria-label="한눈에 보기">
+      <h2 class="sec-title"><span class="sec-no">02</span> 한눈에 보기</h2>
+      <div class="card stack">
+        <p class="card-sub" id="cmp-summary-title">매달 모으면 1년 동안 받는 돈</p>
+        <div class="cmp-summary" id="cmp-summary"></div>
+      </div>
+      <p class="source-note" id="cmp-summary-note"></p>
+    </section>
+
+    <section class="stack" aria-label="주가 흐름 비교">
+      <h2 class="sec-title"><span class="sec-no">03</span> 주가 흐름 겹쳐 보기</h2>
+      <div class="card" id="cmp-trend"></div>
+    </section>
+
     <section class="stack" aria-label="비교표">
-      <h2 class="sec-title"><span class="sec-no">02</span> 나란히 보기</h2>
+      <h2 class="sec-title"><span class="sec-no">04</span> 자세히 나란히 보기</h2>
       <div class="cmp-grid" id="cmp-grid"></div>
     </section>
 
     <section class="stack" aria-label="계산 방법">
-      <h2 class="sec-title"><span class="sec-no">03</span> 이렇게 계산했어요</h2>
+      <h2 class="sec-title"><span class="sec-no">05</span> 이렇게 계산했어요</h2>
       <div class="table-wrap">
         <table class="table">
           <tbody>
@@ -93,7 +150,7 @@
 
   <footer id="site-footer"></footer>
 
-  <script src="js/common.js?v=20261128d"></script>
-  <script src="js/compare.js"></script>
+  <script src="js/common.js?v=20261128e"></script>
+  <script src="js/compare.js?v=20261128"></script>
 </body>
 </html>

@@ -1,0 +1,7 @@
+{
+  "as_of": null,
+  "source": "네이버 뉴스 검색 API (제목·링크만, 본문은 각 언론사)",
+  "source_url": "https://developers.naver.com/docs/serviceapi/search/news/news.md",
+  "note": "GitHub Actions(부동산 뉴스 자동 수집)가 scripts/fetch_news.py 로 1시간마다 채운다. NAVER_CLIENT_ID / NAVER_CLIENT_SECRET Secret 이 들어가기 전에는 비어 있다. 사람이 직접 기사를 적어 넣지 않는다.",
+  "items": []
+}

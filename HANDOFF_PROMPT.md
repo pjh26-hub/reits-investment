@@ -41,11 +41,12 @@
 |---|---|
 | `index.html` | 타깃 3종 선택 → 정렬 기준 공개 → 리츠 목록. 국내(리츠 23 + 리츠 ETF 3) / 해외(미국 리츠 10) 전환, 가격·등락률, 최근 1년 주가 그래프, 생활 언어 문구, 배당수익률 15% 이상 주의 문구. 페이지 아래쪽(03 목적별로 더 살펴보기 다음)에 공식 정보 바로가기 2개(국토부 리츠정보시스템, 금융감독원 금융상품한눈에). 타깃을 바꾸면 정렬 기준 상자 강조 + 알림. 값이 없는 카드엔 이유 표시(배당은 dps_basis 를 쉬운 말로). 카드마다 ♥(관심 리츠) → 위에 '내 관심 리츠' 모아 보기(이 기기에만 저장, `Common.getFavorites/toggleFavorite`) |
 | `reit.html` + `js/reit.js` | **리츠 상세** (`reit.html?id=종목코드`, 첫 화면·비교·지도의 "자세히 보기"에서 들어옴). 머리: 가격 + 그래프([1개월][3개월][1년], 손가락·마우스로 훑으면 그날 종가) + ♥. **배당 달력**(지난 1년 몇 월에 1주당 얼마, `dividends.json` periods, 배당락일 기준, 직전 종가의 20% 넘는 배당은 '특별 분배' 주의 문구) · **매달 커피값으로 모았다면**(지난 1년 실제 종가로 매달 커피값/1만/5만 원씩 1주 단위로 산 기록, 남은 돈 이월, 배당 세전 포함, 해외 리츠는 환율 기록이 없어 계산 안 함) · 운용사(이름·운용 방식·운용사/리츠 홈페이지, `data/reit_profiles.json`) · 02 가진 건물(국내는 `assets.json` 연면적으로 유형별/건물별 도넛 그래프 + 목록 + 작은 지도(국내 카카오맵, 해외 Leaflet), 6칸 넘으면 기타로 묶음 / 해외는 `global_properties.json` 대표 자산 + 본사, 비율 없음 / 지도에 건물 없는 리츠는 `reit_profiles.json` 의 holdings) · 03 숫자 번역 · 04 자료(한경 컨센서스 최근 2년 리포트 목록, DART 종목코드 검색, 리츠정보시스템, 미국 SEC 10-K). 리포트 PDF는 저작권 때문에 링크로만. `status_note` 가 있으면 빨간 주의 상자(제이알글로벌리츠 기업회생) |
-| `compare.html` + `js/compare.js` | 최대 3개 + 맨 오른쪽 은행 적금. 배당·P/NAV·WALE 번역, 계산식, 좋은 점/조심할 점, 주가 그래프 |
+| `compare.html` + `js/compare.js` | 토스식(2026-11-28): 담은 상품 칩(최대 3, ×로 빼기) + 이름 검색·종류 필터 목록에서 담기, 매달 넣는 돈 버튼 / **한눈에 보기**(매달 ○만 원씩 1년 배당·이자 막대, 원금 손실 가능·원금 보장 같은 크기) / **주가 흐름 겹쳐 보기**(1개월·3개월·1년 등락률, 훑으면 그날 값, 배당 제외) / 자세히 나란히 보기(기존 표) / 계산 방법. 주소 `compare.html?ids=` |
 | `map.html` + `js/map.js` | 국내: 카카오맵(지도·장소 검색·건물 누르면 로드뷰 + "이 건물, ○○리츠가 가지고 있어요"·1주 가격). 해외: Leaflet + OpenStreetMap(장소 검색 Nominatim). 카카오 키가 없거나 못 불러오면 국내도 Leaflet. 반경 원, 가까운 순 카드. **03 내 동선 건물주 카드**: 집 근처·학교·회사·자주 가는 곳 3곳 → 곳마다 가장 가까운 리츠 건물 → 인스타 스토리(1080×1920) PNG (집 칸은 장소 이름 안 씀, 장소 저장 안 함) |
+| `news.html` + `js/news.js` | **부동산 뉴스** (2026-11-28): [주거용]/[상업용] 최신 기사 제목·언론사·시간·원문 링크 (`data/news.json`, 본문 저장 안 함). 처음 칸은 첫 화면 타깃(월세 1인가구 → 주거용, 나머지 → 상업용). 많이 나온 말 세기. 기사마다 '관련 리츠'(제목에 나온 리츠, 아니면 같은 건물 유형 오피스·물류·리테일 리츠) → 상세 화면 |
 | `learn.html` + `js/learn.js` | 용어 20개 (쉬운 뜻·계산식·조심할 점·실제 숫자 예시) |
 | `card.html` + `js/card.js` | 타깃·리츠 선택 → 문구 → 1080×1080 카드 → PNG 받기, 금지어가 들어가면 빨간 경고 + 받기 버튼 꺼짐 |
-| `js/tour.js` | **발표 투어 모드**: 주소에 `?tour=1`(첫 화면 "사용법 간단 안내" 버튼) → 화면 6개(상세 화면 포함)를 14단계로 강조하며 설명. ← → / Esc. `Common.initPage` 가 tour 가 있을 때만 불러옴. 고치면 common.js 의 `TOUR_VERSION` 도 바꾸기 |
+| `js/tour.js` | **발표 투어 모드**: 주소에 `?tour=1`(첫 화면 "사용법 간단 안내" 버튼) → 화면 7개(상세·뉴스 포함)를 15단계로 강조하며 설명. ← → / Esc. `Common.initPage` 가 tour 가 있을 때만 불러옴. 고치면 common.js 의 `TOUR_VERSION` 도 바꾸기 |
 
 ### 데이터와 자동 갱신
 | 파일 | 내용 | 출처 / 갱신 |
@@ -65,6 +66,7 @@
 |---|---|---|---|
 | `update-prices.yml` "리츠 시세 자동 갱신" | 평일 14:30·18:30 (한국 시간), 수동 실행 가능 | `scripts/update_prices.py` → `prices.json`, `history.json`, `meta.json` 커밋 | `DATA_GO_KR_KEY` (필수), `FINNHUB_API_KEY` (선택) |
 | `update-dividends.yml` "국내 리츠 배당 자동 갱신" | 매주 월 07:00, 수동 실행 가능 | `scripts/fetch_dividends.py` → `dividends.json`, `meta.json` 커밋 | `DART_API_KEY` (없으면 건너뜀) |
+| `update-news.yml` "부동산 뉴스 자동 수집" | 매일 07:10~23:10 1시간마다, 수동 실행 가능 | `scripts/fetch_news.py` (네이버 뉴스 검색 API, 최신순) → `news.json` 커밋 (`meta.json` 은 안 건드림) | `NAVER_CLIENT_ID`+`NAVER_CLIENT_SECRET`(개발자센터) 또는 `NAVER_HUB_KEY_ID`+`NAVER_HUB_KEY`(NAVER API HUB) (없으면 건너뜀) |
 
 - **Secrets 는 레포 주인(pjh26-hub)만 넣을 수 있어.** Settings → Secrets and variables → Actions → New repository secret.
 - 전일 종가는 다음 영업일 오후 1시 이후에 올라와. 그래서 화면에는 보통 "어제 종가"가 보여.
@@ -86,6 +88,7 @@ reits-investment/
 ├─ reit.html       리츠 상세        → js/reit.js
 ├─ compare.html    비교            → js/compare.js
 ├─ map.html        지도            → js/map.js
+├─ news.html       부동산 뉴스      → js/news.js
 ├─ learn.html      용어 배우기      → js/learn.js
 ├─ card.html       홍보 카드        → js/card.js
 ├─ css/style.css   공통 디자인 (CSS 변수)
@@ -95,6 +98,7 @@ reits-investment/
 ├─ scripts/
 │   ├─ update_prices.py    ★ 시세 자동 갱신 (Actions 가 실행)
 │   ├─ fetch_dividends.py  ★ 국내 리츠 배당 (Actions 가 실행)
+│   ├─ fetch_news.py       ★ 부동산 뉴스 제목 (Actions 가 1시간마다 실행)
 │   ├─ build_public.py     키 없이 받는 데이터로 전체 다시 만들기 (손으로 실행. --etf-only 는 ETF 만)
 │   ├─ etf_confirmed.json  사이트에 넣는 리츠 ETF 목록
 │   ├─ _util.py            스크립트 공통 도구 (API 호출, JSON 저장, meta 기록)
@@ -134,7 +138,8 @@ reits-investment/
    - 성공 기준: 새 커밋 "chore(data): 리츠 시세 자동 갱신 …" 이 생기고, `data/prices.json` 의 `as_of` 가 최근 평일, `source` 에 "금융위원회", 국내 종목의 `price_kind` 가 "종가", `history.json` 끝에 새 날짜가 붙음. 공개 링크 첫 화면 가격 옆 날짜가 바뀜.
    - 실패하면: 로그의 `[실패]` 줄을 읽고, 내 컴퓨터에서 `.env` 에 같은 키를 넣고 `python scripts/update_prices.py --peek --dry-run` 으로 실제 응답 모양을 확인해서 고쳐. 키 승인 직후에는 "등록되지 않은 키" 오류가 잠깐 날 수 있어(시간이 지나면 풀림).
    - GitHub 서버(해외)에서 공공데이터포털 접속이 막히면(연결 실패·시간 초과가 반복) 사용자에게 알려. 대안: 한국 컴퓨터에서 스크립트를 돌려 커밋.
-2. **(선택) 배당 자동 갱신**: OpenDART 키를 받으면 Secret `DART_API_KEY` 를 넣고 "국내 리츠 배당 자동 갱신" 을 Run workflow. `fetch_dividends.py` 도 실제 API로는 처음이라 로그를 확인해.
+2. **뉴스 자동 수집 켜기**: 네이버 개발자 센터(developers.naver.com)에서 '검색' API 애플리케이션을 등록하고, Client ID·Secret 을 레포 주인이 Secret `NAVER_CLIENT_ID`, `NAVER_CLIENT_SECRET` 로 넣은 뒤 (네이버 클라우드 NAVER API HUB 키면 `NAVER_HUB_KEY_ID`, `NAVER_HUB_KEY`) "부동산 뉴스 자동 수집" 을 Run workflow.
+3. **(선택) 배당 자동 갱신**: OpenDART 키를 받으면 Secret `DART_API_KEY` 를 넣고 "국내 리츠 배당 자동 갱신" 을 Run workflow. `fetch_dividends.py` 도 실제 API로는 처음이라 로그를 확인해.
 3. **(선택) 미국 리츠**: Finnhub 를 쓸지 팀이 정하면 Secret `FINNHUB_API_KEY` 추가.
 4. **실기기 점검**: 아이폰 Safari / 안드로이드 크롬에서 홍보 카드 PNG 저장, 360px 화면, 지도 동작.
 5. **발표 전 최종 점검**: 공개 링크에서 5개 화면, 꼬리말 출처·기준일, 금지어 없는지.

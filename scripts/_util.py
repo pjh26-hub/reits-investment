@@ -145,8 +145,8 @@ def mask(text):
 # ---------------------------------------------------------------------------
 # API 호출
 # ---------------------------------------------------------------------------
-def http_get(url, params=None, label="", timeout=30, tries=3):
-    """GET 요청. 연결이 안 되면 몇 번 다시 해보고, 그래도 안 되면 이유를 알려준다"""
+def http_get(url, params=None, label="", timeout=30, tries=3, headers=None):
+    """GET 요청. 연결이 안 되면 몇 번 다시 해보고, 그래도 안 되면 이유를 알려준다 (headers: 네이버 API 키처럼 머리에 넣는 값)"""
     try:
         import requests
     except ImportError:
@@ -154,7 +154,7 @@ def http_get(url, params=None, label="", timeout=30, tries=3):
     last_error = None
     for attempt in range(tries):
         try:
-            return requests.get(url, params=params, timeout=timeout)
+            return requests.get(url, params=params, timeout=timeout, headers=headers)
         except requests.RequestException as e:
             last_error = e
             time.sleep(1.5 * (attempt + 1))
