@@ -39,6 +39,12 @@
     .home-info-title { margin-top: var(--space-1); font-size: var(--fs-md); font-weight: 800; letter-spacing: var(--tracking-card); overflow-wrap: anywhere; }
     .home-info-sub { font-size: var(--fs-sm); color: var(--color-text-sub); overflow-wrap: anywhere; }
     .home-tour { margin-top: var(--space-4); }
+    /* 타깃을 바꿨을 때: 정렬 기준 상자를 잠깐 강조 + 아래 알림 */
+    .home-rule { transition: border-color 0.3s, background-color 0.3s; }
+    .home-rule.is-flash { border-color: var(--color-primary); background: var(--color-primary-soft); }
+    .home-toast { position: fixed; z-index: 46; left: 50%; bottom: var(--space-5); width: max-content; max-width: calc(100vw - var(--space-6)); margin: 0; padding: var(--space-3) var(--space-4); border: var(--dim-1) solid var(--color-primary); border-radius: var(--radius); background: var(--color-surface-2); color: var(--color-text); font-size: var(--fs-sm); font-weight: 700; text-align: center; box-shadow: 0 var(--dim-8) var(--dim-20) var(--color-tooltip-shadow); transform: translate(-50%, var(--space-4)); opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s; }
+    .home-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+    @media (max-width: 639px) { .home-toast { bottom: calc(var(--dim-56) + var(--space-3) + env(safe-area-inset-bottom)); } }
     .home-fav-list { display: grid; gap: var(--space-2); }
     .home-fav-row { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: var(--dim-1) solid var(--color-line); border-radius: var(--radius-sm); background: var(--color-surface); }
     .home-fav-main { flex: 1; min-width: 0; color: inherit; text-decoration: none; }
@@ -65,57 +71,36 @@
   <main class="container section stack">
 
     <section class="stack" aria-label="타깃 선택">
-      <h2 class="sec-title"><span class="sec-no">01</span>나는 ○○예요</h2>
+      <h2 class="sec-title"><span class="sec-no">01</span> 나는 ○○예요</h2>
       <p class="source-note">고르면 아래 목록의 정렬 기준과 설명이 바뀌어요. 선택은 이 기기에만 저장돼요.</p>
       <div class="home-targets" id="home-targets"></div>
     </section>
 
-    <!-- ============================================================
-         [공식 정보 자리]  01 나는 ○○예요 ↔ 02 리츠 둘러보기 사이
-         수익·대가가 없는 공식 정보 바로가기 2개. 유료 광고는 여기 말고
-         맨 아래 광고 칸(home-bottom)에 넣는다 (2026-11-24 쿠팡 파트너스).
-         ============================================================ -->
-    <section class="home-info" aria-label="공식 정보 바로가기">
-      <a class="home-info-card" href="https://reits.molit.go.kr/" target="_blank" rel="noopener noreferrer">
-        <span class="home-info-tag">공식 정보</span>
-        <span class="home-info-title">국토교통부 리츠정보시스템</span>
-        <span class="home-info-sub">국내 상장 리츠 공시·배당·투자보고서 확인 →</span>
-      </a>
-      <!-- 특정 금융회사 상품은 넣지 않는다 (data/ads.json 규칙: 금융상품 광고 금지). 2026-11-23 삼성증권 ISA 배너 → 금융감독원으로 교체 -->
-      <a class="home-info-card" href="https://finlife.fss.or.kr/" target="_blank" rel="noopener noreferrer">
-        <span class="home-info-tag">공식 정보</span>
-        <span class="home-info-title">금융감독원 금융상품한눈에</span>
-        <span class="home-info-sub">은행 예금·적금 금리 비교하기 →</span>
-      </a>
-      <p class="home-info-note">눌러서 외부 사이트로 이동해요. 이 두 링크로는 대가를 받지 않아요.</p>
-    </section>
-    <!-- [배너 자리 끝: home-top] -->
-
     <!-- 내 관심 리츠: ♥ 를 누른 리츠만 모아 보기 (이 기기에만 저장, 담은 게 없으면 숨김) -->
     <section class="stack is-hidden" id="home-fav-sec" aria-label="내 관심 리츠">
-      <h2 class="sec-title"><span class="sec-no">♥</span>내 관심 리츠</h2>
+      <h2 class="sec-title"><span class="sec-no">♥</span> 내 관심 리츠</h2>
       <div class="home-fav-list" id="home-fav"></div>
       <p class="source-note">♥ 를 누른 리츠예요. 이 기기(브라우저)에만 저장되고, 다시 누르면 빠져요.</p>
     </section>
 
     <section class="stack" aria-label="리츠 목록">
-      <h2 class="sec-title"><span class="sec-no">02</span>리츠 둘러보기</h2>
+      <h2 class="sec-title"><span class="sec-no">02</span> 리츠 둘러보기</h2>
       <!-- 국내 리츠 / 해외 리츠 전환 버튼 -->
       <div class="chip-row" id="home-market" role="group" aria-label="국내 리츠와 해외 리츠 전환"></div>
       <div class="note-box home-rule">
         <span><b>정렬 기준</b> <span id="home-sort-label"></span></span>
         <span class="label-risk">원금 손실 가능</span>
       </div>
-      <p class="source-note">이 순서는 권유가 아니에요. 위에 적은 기준 하나로만 줄을 세운 것이고, 값이 없는 상품은 맨 뒤에 있어요.</p>
+      <p class="source-note">이 순서는 권유가 아니에요. 위에 적은 기준 하나로만 줄을 세운 것이고, 값이 없는 상품은 맨 뒤에 있어요. 값이 없는 이유는 카드 안에 적어 뒀어요.</p>
       <!-- 시세 기준 안내: data/prices.json 의 updatedAt(자동 갱신 시각)을 읽어서 넣는다 -->
       <p class="source-note is-hidden" id="home-price-note" role="status"></p>
-      <p class="notice is-hidden" id="home-notice"></p>
+      <p class="notice" id="home-notice" role="status">리츠 목록을 불러오는 중이에요...</p>
       <div class="grid grid-3" id="home-list"></div>
       <div><button class="btn btn-ghost is-hidden" id="home-more" type="button">전체 보기</button></div>
     </section>
 
     <section class="stack" aria-label="둘러볼 곳">
-      <h2 class="sec-title"><span class="sec-no">03</span>어디부터 볼까요</h2>
+      <h2 class="sec-title"><span class="sec-no">03</span> 목적별로 더 살펴보기</h2>
       <div class="grid grid-2 home-links">
         <a class="card" href="map.html">
           <p class="home-link-step">MAP</p>
@@ -140,12 +125,35 @@
       </div>
     </section>
 
+    <!-- ============================================================
+         [공식 정보 자리]  페이지 아래쪽 (2026-11-28: 01→02 흐름이 끊기지 않게 위에서 옮김)
+         수익·대가가 없는 공식 정보 바로가기 2개. 유료 광고는 여기 말고
+         맨 아래 광고 칸(home-bottom)에 넣는다 (2026-11-24 쿠팡 파트너스).
+         ============================================================ -->
+    <section class="home-info" aria-label="공식 정보 바로가기">
+      <a class="home-info-card" href="https://reits.molit.go.kr/" target="_blank" rel="noopener noreferrer">
+        <span class="home-info-tag">공식 정보</span>
+        <span class="home-info-title">국토교통부 리츠정보시스템</span>
+        <span class="home-info-sub">국내 상장 리츠 공시·배당·투자보고서 확인 →</span>
+      </a>
+      <!-- 특정 금융회사 상품은 넣지 않는다 (data/ads.json 규칙: 금융상품 광고 금지). 2026-11-23 삼성증권 ISA 배너 → 금융감독원으로 교체 -->
+      <a class="home-info-card" href="https://finlife.fss.or.kr/" target="_blank" rel="noopener noreferrer">
+        <span class="home-info-tag">공식 정보</span>
+        <span class="home-info-title">금융감독원 금융상품한눈에</span>
+        <span class="home-info-sub">은행 예금·적금 금리 비교하기 →</span>
+      </a>
+      <p class="home-info-note">눌러서 외부 사이트로 이동해요. 이 두 링크로는 대가를 받지 않아요.</p>
+    </section>
+    <!-- [공식 정보 자리 끝] -->
+
     <!-- 광고 칸 (다른 화면처럼 맨 아래). data/ads.json 의 position "home-bottom" 광고가 들어간다 -->
     <div class="ad-slot ad-slot--banner" data-ad="home-bottom"></div>
 
   </main>
 
   <footer id="site-footer"></footer>
+  <!-- 타깃을 바꾸면 잠깐 뜨는 알림 ("정렬 기준을 ○○으로 바꿨어요") -->
+  <p class="home-toast" id="home-toast" role="status" aria-live="polite"></p>
 
   <script src="js/common.js?v=20261128b"></script>
   <script>
@@ -193,20 +201,40 @@
         document.getElementById("home-sort-label").textContent = info.sortLabel + " — " + info.reason;
       }
 
+      /** 배당 데이터에 적힌 원래 이유(dps_basis)를 쉬운 말로. 모양이 다르면 원문 그대로 */
+      function dividendReason(basis) {
+        if (!basis) { return "최근 1년 배당 기록을 받지 못했어요"; }
+        var m = /최근 1년 배당 (\d+)건.*결산 횟수\(([^)]+)\)/.exec(basis);
+        if (!m) { return basis; }
+        if (m[1] === "0") { return "지난 1년 동안 배당 기록이 없어요"; }
+        return /^\d+$/.test(m[2])
+          ? "지난 1년 배당 기록은 " + m[1] + "번인데 원래 1년에 " + m[2] + "번 배당하는 리츠라서, 1년 치를 정확히 알 수 없어 계산하지 않았어요"
+          : "지난 1년 배당 기록은 " + m[1] + "번인데 원래 1년에 몇 번 배당하는지 알 수 없어서 계산하지 않았어요";
+      }
+
       // 타깃마다 카드에서 가장 크게 보여줄 번역 문구 하나
       function mainLine(p) {
         if (state.target === "rookie") {
           if (p.type === "etf") { return { text: Common.NA_ETF, raw: "WALE" }; }
           if (p.type === "global") { return { text: Common.NA_GLOBAL, raw: "WALE" }; }
-          return Common.translateWale(p.waleYears);
+          var wale = Common.translateWale(p.waleYears);
+          // 값이 없으면 왜 없는지 (리츠정보시스템에 값이 없거나 0으로 적힌 리츠)
+          return wale.text === Common.NA ? { text: Common.NA, raw: "이유: 리츠정보시스템에서 WALE 값을 받지 못했어요" } : wale;
         }
         if (state.target === "renter") {
-          return Common.translateDividend(p.priceYield);
+          var dividend = Common.translateDividend(p.priceYield);
+          if (dividend.text !== Common.NA) { return dividend; }
+          // 배당 데이터에 적힌 이유를 그대로 (예: 배당 횟수가 결산 횟수와 안 맞아 합계를 내지 않음)
+          var why = typeof p.price !== "number" ? "시세를 받지 못했어요" : dividendReason(p.dpsBasis);
+          return { text: Common.NA, raw: "이유: " + why };
         }
         var cups = (typeof p.price === "number" && typeof Common.COFFEE.price === "number" &&
           Common.COFFEE.price > 0) ? Math.ceil(p.price / Common.COFFEE.price) : null;
+        if (cups === null) {
+          return { text: Common.NA, raw: "이유: " + (typeof p.price !== "number" ? "시세를 받지 못했어요" : "커피 한 잔 가격 가정 값이 없어요") };
+        }
         return {
-          text: cups === null ? Common.NA : "커피 " + cups + "잔 값이면 1주를 살 수 있어요",
+          text: "커피 " + cups + "잔 값이면 1주를 살 수 있어요",
           raw: "1주 가격 " + Common.formatWon(p.price) + " · 커피 한 잔 " + Common.formatWon(Common.COFFEE.price) + " 가정"
         };
       }
@@ -244,7 +272,7 @@
         var list = document.getElementById("home-list");
         var more = document.getElementById("home-more");
         if (!state.products.length) {
-          notice.textContent = "아직 받은 데이터가 없어요. 데이터 담당이 scripts/build_all.py 를 실행하면 이 자리에 리츠 목록이 나와요.";
+          notice.textContent = "리츠 목록을 불러오지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.";
           notice.classList.remove("is-hidden");
           list.innerHTML = "";
           more.classList.add("is-hidden");
@@ -298,10 +326,26 @@
         if (prices && prices.isFallback) {
           text = "최신 시세 파일을 불러오지 못해서 " + Common.formatDate(prices.as_of) + " 종가 저장본으로 보여줘요.";
         } else if (prices && prices.updatedAt) {
-          text = "시세는 평일 오후에 전 영업일 종가로 자동 갱신돼요(실시간 아님). 마지막 갱신 " + Common.formatDateTime(prices.updatedAt) + " (한국 시간)";
+          text = "시세는 " + (prices.source || "공공데이터") + "의 전 영업일 종가예요. 평일 오후에 자동 갱신돼요(실시간 아님). 마지막 갱신 " +
+            Common.formatDateTime(prices.updatedAt) + " (한국 시간)";
         }
         el.textContent = text;
         el.classList.toggle("is-hidden", !text);
+      }
+
+      // 타깃을 바꾸면: 정렬 기준 상자 잠깐 강조 + 아래 알림 ("○○ 기준으로 줄을 다시 세웠어요")
+      var toastTimer = null;
+      function announceSort() {
+        var rule = document.querySelector(".home-rule");
+        var toast = document.getElementById("home-toast");
+        rule.classList.add("is-flash");
+        toast.textContent = targetInfo().sortLabel.replace(/\s*\(.*\)\s*$/, "") + " 기준으로 줄을 다시 세웠어요";   // 괄호 설명은 빼고 짧게
+        toast.classList.add("is-on");
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function () {
+          rule.classList.remove("is-flash");
+          toast.classList.remove("is-on");
+        }, 1800);
       }
 
       // 큰 제목 아래 한 줄: 고른 타깃에 맞는 문구
@@ -339,6 +383,7 @@
           renderTargets();
           renderHeadline();
           renderList();
+          announceSort();
         });
         document.getElementById("home-more").addEventListener("click", function () {
           state.showAll = true;
