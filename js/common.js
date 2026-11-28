@@ -16,6 +16,7 @@
    규정          BANNED_WORDS, checkBannedWords, DISCLAIMER, getSourceText, getCardDisclaimer
    용어 풀이     termHtml, initTerms
    광고 칸       renderAds
+   관심 리츠     getFavorites, isFavorite, toggleFavorite, favButtonHtml (이 기기에만 저장)
    기타          escapeHtml, getQueryIds, getQueryId, detailHref(상세 화면 주소), isLiveMode, getLivePrice
    상수          NA, NA_ETF, COFFEE, MONTHLY_DEFAULT
 
@@ -53,13 +54,20 @@ var Common = (function () {
       headline: "월세 내는 쪽에서, 월세 받는 쪽도 되어 보기" }
   ];
 
+  // short·icon 은 폰 화면 아래 고정 메뉴용 (아이콘은 24칸 SVG 선 그림, 색은 글자색을 따라감)
   var NAV_ITEMS = [
-    { key: "index", label: "홈", href: "index.html" },
-    { key: "map", label: "지도", href: "map.html" },
-    { key: "compare", label: "비교", href: "compare.html" },
-    { key: "learn", label: "용어 배우기", href: "learn.html" },
-    { key: "card", label: "홍보 카드", href: "card.html" }
+    { key: "index", label: "홈", short: "홈", href: "index.html",
+      icon: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>' },
+    { key: "map", label: "지도", short: "지도", href: "map.html",
+      icon: '<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>' },
+    { key: "compare", label: "비교", short: "비교", href: "compare.html",
+      icon: '<path d="M5 20V11M12 20V4M19 20v-6"/>' },
+    { key: "learn", label: "용어 배우기", short: "용어", href: "learn.html",
+      icon: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>' },
+    { key: "card", label: "홍보 카드", short: "카드", href: "card.html",
+      icon: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 15l3-3 2 2 3-4"/>' }
   ];
+  var FAVORITE_STORAGE_KEY = "reits-favorites";
 
   var SOURCE_LABELS = {        // meta.json 이 없을 때 꼬리말에 보여줄 이름
     reits: "국토교통부 리츠정보", assets: "국토교통부 리츠정보(보유 자산)", metrics: "리츠정보시스템 상장리츠현황",
@@ -519,6 +527,38 @@ var Common = (function () {
     try { window.localStorage.setItem(TARGET_STORAGE_KEY, key); } catch (e) { /* 저장 못 해도 화면은 계속 */ }
   }
 
+  // ---------------------------------------------------------------------
+  // 관심 리츠 (♥). 이 기기(브라우저)에만 저장한다. 상품 key 배열
+  // ---------------------------------------------------------------------
+  function getFavorites() {
+    try {
+      var list = JSON.parse(window.localStorage.getItem(FAVORITE_STORAGE_KEY) || "[]");
+      return Array.isArray(list) ? list.filter(function (k) { return typeof k === "string"; }) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function isFavorite(key) {
+    return getFavorites().indexOf(key) !== -1;
+  }
+
+  /** 담겨 있으면 빼고, 없으면 담는다. 바뀐 뒤 담겨 있는지(true/false)를 돌려준다 */
+  function toggleFavorite(key) {
+    var list = getFavorites();
+    var at = list.indexOf(key);
+    if (at === -1) { list.push(key); } else { list.splice(at, 1); }
+    try { window.localStorage.setItem(FAVORITE_STORAGE_KEY, JSON.stringify(list)); } catch (e) { /* 저장 못 해도 화면은 계속 */ }
+    return at === -1;
+  }
+
+  /** ♥ 버튼 HTML (누르면 페이지 js 가 toggleFavorite 을 부른다). data-fav 에 상품 key */
+  function favButtonHtml(key, name) {
+    var on = isFavorite(key);
+    return '<button type="button" class="fav-btn' + (on ? " is-on" : "") + '" data-fav="' + escapeHtml(key) + '" aria-pressed="' + on +
+      '" aria-label="' + escapeHtml((name || "") + " 관심 리츠에 " + (on ? "담김" : "담기")) + '" title="관심 리츠">' + (on ? "♥" : "♡") + "</button>";
+  }
+
   /** 타깃의 정렬 기준대로 정렬한 새 배열. 값이 없는 상품은 맨 뒤로 보낸다 */
   function sortByTarget(products, targetKey) {
     var field = targetKey === "student" ? "price" : (targetKey === "rookie" ? "waleYears" : "priceYield");
@@ -577,6 +617,24 @@ var Common = (function () {
             ">" + item.label + "</a>";
         }).join("") +
         "</nav></div>";
+    renderTabbar(activePage);
+  }
+
+  /** 폰 화면 아래 고정 메뉴 (CSS 로 639px 이하에서만 보인다) */
+  function renderTabbar(activePage) {
+    var bar = document.getElementById("site-tabbar");
+    if (!bar) {
+      bar = document.createElement("nav");
+      bar.id = "site-tabbar";
+      bar.className = "tabbar";
+      bar.setAttribute("aria-label", "아래 메뉴");
+      document.body.appendChild(bar);
+    }
+    bar.innerHTML = NAV_ITEMS.map(function (item) {
+      var active = item.key === activePage;
+      return '<a class="tabbar-item' + (active ? " is-active" : "") + '" href="' + item.href + '"' + (active ? ' aria-current="page"' : "") + ">" +
+        '<svg viewBox="0 0 24 24" aria-hidden="true">' + item.icon + "</svg><span>" + item.short + "</span></a>";
+    }).join("");
   }
 
   /**
@@ -762,7 +820,7 @@ var Common = (function () {
     return Promise.all([renderFooter(opts.sources || []), renderAds()]);
   }
 
-  var TOUR_VERSION = "20261128";   // js/tour.js 를 고치면 바꾼다 (방문자 브라우저가 옛 파일을 쓰지 않게)
+  var TOUR_VERSION = "20261128b";   // js/tour.js 를 고치면 바꾼다 (방문자 브라우저가 옛 파일을 쓰지 않게)
 
   /** 발표 투어 모드: 주소에 ?tour=숫자 가 있을 때만 js/tour.js 를 불러온다 (평소에는 안 불러옴) */
   function loadTour() {
@@ -789,6 +847,7 @@ var Common = (function () {
     translatePNav: translatePNav, translateWale: translateWale, translateDividend: translateDividend,
     getBestSaving: getBestSaving,
     getTarget: getTarget, setTarget: setTarget, sortByTarget: sortByTarget,
+    getFavorites: getFavorites, isFavorite: isFavorite, toggleFavorite: toggleFavorite, favButtonHtml: favButtonHtml,
     checkBannedWords: checkBannedWords, getSourceText: getSourceText, getCardDisclaimer: getCardDisclaimer,
     termHtml: termHtml, initTerms: initTerms, renderAds: renderAds,
     escapeHtml: escapeHtml, getQueryIds: getQueryIds, getQueryId: getQueryId, detailHref: detailHref, isLiveMode: isLiveMode, getLivePrice: getLivePrice

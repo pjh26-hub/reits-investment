@@ -1,6 +1,6 @@
 /* ==========================================================================
    js/tour.js — 발표 투어 모드
-   - 주소 끝에 ?tour=1 을 붙이면(첫 화면의 "2분 만에 둘러보기" 버튼) 화면 5개를 순서대로 돌며
+   - 주소 끝에 ?tour=1 을 붙이면(첫 화면의 "2분 만에 둘러보기" 버튼) 화면 6개를 순서대로 돌며
      중요한 곳을 강조하고 한두 줄씩 설명한다. 교수님이 링크만 열어도 흐름을 따라올 수 있게.
    - Common.initPage 가 주소에 tour 가 있을 때만 이 파일을 불러온다 (평소에는 안 불러옴).
    - [다음]·[이전] 버튼, 키보드 ← → , Esc(끝내기). 다른 화면 차례가 되면 그 화면으로 이동한다.
@@ -19,6 +19,12 @@
       text: "이 순서는 권유가 아니라 기준 하나로 줄 세운 결과라는 걸 먼저 보여주고, '원금 손실 가능'을 항상 같이 붙여요." },
     { page: "index.html", target: "#home-list > :first-child", title: "실제 시세와 1년 그래프",
       text: "가격은 금융위원회 공공데이터의 전일 종가예요. 평일마다 자동으로 새로 받아 오고, 1주 가격을 커피 몇 잔 값으로 바꿔 보여줘요." },
+    { page: "reit.html", query: "id=330590", target: ".reit-price-box", title: "리츠마다 자세히 보기",
+      text: "카드의 '자세히 보기'를 누르면 이 화면이 나와요. 그래프를 손가락으로 훑으면 그날 종가가 보이고, 1개월·3개월·1년으로 바꿔 볼 수 있어요. ♥ 를 누르면 첫 화면 '내 관심 리츠'에 모여요." },
+    { page: "reit.html", query: "id=330590", target: "#reit-div-sec", title: "배당은 언제 나왔나요",
+      text: "지난 1년 동안 몇 월에, 1주당 얼마씩 배당이 나왔는지 달력으로 보여줘요. 날짜는 배당락일 기준이고, 앞으로도 같은 달이라는 뜻은 아니라고 같이 적어요." },
+    { page: "reit.html", query: "id=330590", target: "#reit-sim-sec", title: "매달 커피값으로 모았다면",
+      text: "지난 1년 실제 종가로, 매달 커피 한 잔 값씩 1주 단위로 모았다면 지금 얼마인지 계산해요. 손실이 났으면 손실도 그대로 보여줘요." },
     { page: "map.html", target: ".map-search", title: "자주 가는 그곳, 누가 가지고 있을까",
       text: "학교·회사·자취방 같은 장소를 검색하면 그 근처에 리츠가 가진 건물을 카카오맵에 표시해요." },
     { page: "map.html", target: "#map-kakao:not(.is-hidden), #map-canvas:not(.is-hidden)", title: "건물을 누르면",
@@ -34,7 +40,7 @@
     { page: "card.html", target: "#site-footer", title: "모든 숫자는 실제 데이터",
       text: "화면 맨 아래에 데이터 출처와 기준일을 항상 적어요. 값이 없으면 지어내지 않고 '데이터 없음'으로 보여줘요. 둘러봐 주셔서 고마워요!" }
   ];
-  var PAGE_NAMES = { "index.html": "첫 화면", "map.html": "지도", "compare.html": "비교", "learn.html": "용어", "card.html": "홍보 카드" };
+  var PAGE_NAMES = { "index.html": "첫 화면", "reit.html": "자세히 보기", "map.html": "지도", "compare.html": "비교", "learn.html": "용어", "card.html": "홍보 카드" };
   var WAIT_MS = 4000;       // 강조할 곳이 늦게 그려지는 화면(목록·지도)을 기다리는 시간
   var REFRESH_MS = 400;     // 화면이 바뀌어도 강조 위치가 따라가게 다시 재는 간격
 
@@ -179,11 +185,12 @@
     if (n < 1) { return; }
     if (n > STEPS.length) { end(); return; }
     var step = STEPS[n - 1];
-    if (step.page !== currentPage()) {
-      window.location.href = step.page + "?tour=" + n;
+    var search = "?" + (step.query ? step.query + "&" : "") + "tour=" + n;   // 상세 화면은 ?id=종목코드 가 같이 필요
+    if (step.page !== currentPage() || (step.query && window.location.search.indexOf(step.query) === -1)) {
+      window.location.href = step.page + search;
       return;
     }
-    window.history.replaceState(null, "", window.location.pathname + "?tour=" + n);
+    window.history.replaceState(null, "", window.location.pathname + search);
     show(n);
   }
 

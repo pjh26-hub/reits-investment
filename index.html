@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>리츠 투자 | 2030을 위한 리츠 안내</title>
   <meta name="description" content="리츠를 생활 언어로 번역해서 보여주는 대학 수업 과제 사이트">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=20261128b">
   <style>
     /* 첫 화면 전용 스타일 (접두어 home-) */
     .home-targets { display: grid; gap: var(--space-3); grid-template-columns: 1fr; }
@@ -39,6 +39,12 @@
     .home-info-title { margin-top: var(--space-1); font-size: var(--fs-md); font-weight: 800; letter-spacing: var(--tracking-card); overflow-wrap: anywhere; }
     .home-info-sub { font-size: var(--fs-sm); color: var(--color-text-sub); overflow-wrap: anywhere; }
     .home-tour { margin-top: var(--space-4); }
+    .home-fav-list { display: grid; gap: var(--space-2); }
+    .home-fav-row { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border: var(--dim-1) solid var(--color-line); border-radius: var(--radius-sm); background: var(--color-surface); }
+    .home-fav-main { flex: 1; min-width: 0; color: inherit; text-decoration: none; }
+    .home-fav-name { display: block; font-weight: 800; overflow-wrap: anywhere; }
+    .home-fav-price { display: block; margin-top: var(--dim-2); font-size: var(--fs-sm); color: var(--color-text-sub); }
+    .home-fav-row .fav-btn { margin-left: 0; }
     .home-info-note { grid-column: 1 / -1; font-size: var(--fs-xxs); color: var(--color-text-sub); text-align: center; }
   </style>
 </head>
@@ -84,6 +90,13 @@
       <p class="home-info-note">눌러서 외부 사이트로 이동해요. 이 두 링크로는 대가를 받지 않아요.</p>
     </section>
     <!-- [배너 자리 끝: home-top] -->
+
+    <!-- 내 관심 리츠: ♥ 를 누른 리츠만 모아 보기 (이 기기에만 저장, 담은 게 없으면 숨김) -->
+    <section class="stack is-hidden" id="home-fav-sec" aria-label="내 관심 리츠">
+      <h2 class="sec-title"><span class="sec-no">♥</span>내 관심 리츠</h2>
+      <div class="home-fav-list" id="home-fav"></div>
+      <p class="source-note">♥ 를 누른 리츠예요. 이 기기(브라우저)에만 저장되고, 다시 누르면 빠져요.</p>
+    </section>
 
     <section class="stack" aria-label="리츠 목록">
       <h2 class="sec-title"><span class="sec-no">02</span>리츠 둘러보기</h2>
@@ -134,7 +147,7 @@
 
   <footer id="site-footer"></footer>
 
-  <script src="js/common.js"></script>
+  <script src="js/common.js?v=20261128b"></script>
   <script>
     /* 첫 화면 스크립트: 타깃 선택 → 정렬 기준대로 목록 표시 */
     (function () {
@@ -209,7 +222,8 @@
         return '<article class="card home-item">' +
           '<div class="home-item-head"><h3 class="card-title">' + Common.escapeHtml(p.name) + "</h3>" +
           '<span class="badge">' + (p.type === "etf" ? "리츠 ETF" : (p.type === "global"
-            ? "해외 리츠" + (p.country ? " · " + Common.escapeHtml(p.country) : "") : Common.escapeHtml(p.assetType || "리츠"))) + "</span></div>" +
+            ? "해외 리츠" + (p.country ? " · " + Common.escapeHtml(p.country) : "") : Common.escapeHtml(p.assetType || "리츠"))) + "</span>" +
+          Common.favButtonHtml(p.key, p.name) + "</div>" +
           '<div class="home-item-top"><div>' +
           '<p class="home-item-price">' + (typeof p.price === "number" ? Common.formatWon(p.price) : '<span class="na">' + Common.NA + "</span>") +
           (change.text ? ' <span class="home-item-change ' + change.cls + '">' + change.text + "</span>" : "") + "</p>" +
@@ -252,6 +266,31 @@
         more.textContent = "전체 " + sorted.length + "개 보기";
       }
 
+      // 내 관심 리츠: ♥ 누른 상품만 한 줄씩 (국내·해외 상관없이)
+      function renderFav() {
+        var keys = Common.getFavorites();
+        var list = state.products.filter(function (p) { return keys.indexOf(p.key) !== -1; });
+        document.getElementById("home-fav-sec").classList.toggle("is-hidden", !list.length);
+        document.getElementById("home-fav").innerHTML = list.map(function (p) {
+          var change = Common.formatChange(p.changePct);
+          return '<div class="home-fav-row"><a class="home-fav-main" href="' + Common.detailHref(p.key) + '">' +
+            '<span class="home-fav-name">' + Common.escapeHtml(p.name) + "</span>" +
+            '<span class="home-fav-price">' + (typeof p.price === "number" ? Common.formatWon(p.price) : Common.NA) +
+            (change.text ? ' <span class="' + change.cls + '">' + change.text + "</span>" : "") +
+            (p.priceDate ? " · " + Common.escapeHtml(Common.formatPriceBasis(p)) : "") + " · 자세히 보기 →</span></a>" +
+            Common.favButtonHtml(p.key, p.name) + "</div>";
+        }).join("");
+      }
+
+      // ♥ 버튼 (목록·관심 리츠 어디서 눌러도 같은 동작)
+      function onFavClick(event) {
+        var button = event.target.closest("[data-fav]");
+        if (!button) { return; }
+        Common.toggleFavorite(button.getAttribute("data-fav"));
+        renderFav();
+        renderList();
+      }
+
       // 시세 기준 안내: 자동 갱신 시각, 또는 최신 파일을 못 읽어 저장본을 쓰는 중이라는 사실
       function renderPriceNote(prices) {
         var el = document.getElementById("home-price-note");
@@ -280,7 +319,10 @@
           renderPriceNote(data.prices);
           renderMarket();
           renderList();
+          renderFav();
         });
+        document.getElementById("home-list").addEventListener("click", onFavClick);
+        document.getElementById("home-fav").addEventListener("click", onFavClick);
         document.getElementById("home-market").addEventListener("click", function (event) {
           var button = event.target.closest("[data-market]");
           if (!button) { return; }

@@ -300,3 +300,24 @@ a.card:hover, .card:hover { border-color: var(--color-line); }
 .tour-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-3); }
 .tour-hint { margin-top: var(--space-2); font-size: var(--fs-xxs); color: var(--color-text-sub); }
 @media (hover: none) { .tour-hint { display: none; } }
+
+/* ---------------------------------------------------------------------------
+   관심 리츠 ♥ 버튼 (Common.favButtonHtml)
+   --------------------------------------------------------------------------- */
+.fav-btn { display: inline-flex; align-items: center; justify-content: center; min-width: var(--dim-36); min-height: var(--dim-36); margin-left: auto; padding: 0 var(--space-2); border: var(--dim-1) solid var(--color-line); border-radius: var(--dim-999); background: transparent; color: var(--color-text-sub); font-size: var(--fs-md); line-height: 1; cursor: pointer; transition: color 0.15s, border-color 0.15s; }
+.fav-btn:hover, .fav-btn:focus-visible { color: var(--color-up); border-color: var(--color-up); }
+.fav-btn.is-on { color: var(--color-up); border-color: var(--color-up); }
+
+/* ---------------------------------------------------------------------------
+   폰 화면 아래 고정 메뉴 (Common.renderTabbar). 639px 이하에서만 보이고, 그때는 위쪽 메뉴를 숨긴다
+   --------------------------------------------------------------------------- */
+.tabbar { display: none; }
+@media (max-width: 639px) {
+  .site-nav { display: none; }
+  body { padding-bottom: calc(var(--dim-56) + env(safe-area-inset-bottom)); }
+  .tabbar { position: fixed; z-index: 45; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding-bottom: env(safe-area-inset-bottom); border-top: var(--dim-1) solid var(--color-line); background: var(--color-header-glass); -webkit-backdrop-filter: blur(var(--dim-14)); backdrop-filter: blur(var(--dim-14)); }
+  .tabbar-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--dim-3); min-height: var(--dim-56); color: var(--color-text-sub); font-size: var(--fs-xxs); font-weight: 700; text-decoration: none; }
+  .tabbar-item svg { width: var(--dim-20); height: var(--dim-20); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .tabbar-item.is-active { color: var(--color-text); }
+  .tour-box { bottom: calc(var(--dim-56) + var(--space-3) + env(safe-area-inset-bottom)); }
+}

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>리츠 자세히 보기 | 리츠 투자</title>
   <meta name="description" content="리츠 한 종목의 운용사, 가진 건물과 비율, 숫자, 공시·리포트 자료를 한 화면에서">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=20261128b">
   <!-- 가진 건물 지도: Leaflet + OpenStreetMap (API 키 필요 없음) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
@@ -14,13 +14,44 @@
     .reit-back:hover { color: var(--color-text); }
     .reit-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
     .reit-amc-line { margin-top: var(--space-2); font-size: var(--fs-sm); color: var(--color-text-sub); }
-    .reit-price-box { display: grid; gap: var(--space-4); grid-template-columns: 1fr; align-items: end; }
-    @media (min-width: 720px) { .reit-price-box { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+    .reit-price-box { display: grid; gap: var(--space-4); grid-template-columns: 1fr; }
     .reit-price { font-size: var(--fs-mobile-hero); font-weight: 800; letter-spacing: var(--tracking-hero); line-height: 1.1; }
     @media (min-width: 720px) { .reit-price { font-size: var(--fs-hero); } }
     .reit-change { font-size: var(--fs-md); font-weight: 700; }
     .reit-price-sub { margin-top: var(--space-1); font-size: var(--fs-xs); color: var(--color-text-sub); }
-    .reit-chart .spark { height: var(--dim-68); }
+    /* 가격 그래프: 기간 버튼 + 훑으면 그날 종가 */
+    .reit-period .chip:disabled { opacity: 0.4; cursor: default; }
+    .reit-readout { margin-top: var(--space-3); font-size: var(--fs-md); }
+    .reit-readout b { font-weight: 800; }
+    .reit-readout-sub { display: block; margin-top: var(--dim-2); font-size: var(--fs-xs); color: var(--color-text-sub); }
+    .reit-plot { position: relative; height: var(--dim-160); margin-top: var(--space-3); touch-action: pan-y; cursor: crosshair; user-select: none; }
+    .reit-plot .spark { height: 100%; }
+    .reit-cursor { position: absolute; top: 0; bottom: 0; width: var(--dim-1); background: var(--color-text-sub); pointer-events: none; }
+    .reit-dot { position: absolute; width: var(--space-3); height: var(--space-3); border: var(--dim-2) solid var(--color-surface); border-radius: 50%; background: var(--color-text); transform: translate(-50%, -50%); pointer-events: none; }
+    .reit-head .fav-btn { margin-left: var(--space-1); }
+
+    /* 배당 달력 */
+    .reit-div-summary { font-size: var(--fs-md); font-weight: 700; }
+    .reit-cal { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-2); margin-top: var(--space-3); }
+    @media (min-width: 720px) { .reit-cal { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+    .reit-cal-cell { display: flex; flex-direction: column; gap: var(--dim-2); min-height: var(--dim-56); padding: var(--space-2); border: var(--dim-1) solid var(--color-line); border-radius: var(--radius-sm); color: var(--color-text-sub); font-size: var(--fs-xs); }
+    .reit-cal-cell.is-on { border-color: var(--color-primary); background: var(--color-primary-soft); color: var(--color-text); }
+    .reit-cal-month { font-weight: 700; }
+    .reit-cal-amount { font-size: var(--fs-xs); font-weight: 800; color: var(--color-primary); overflow-wrap: anywhere; }
+    .reit-div-list { margin: var(--space-3) 0 0; padding-left: var(--indent-list); font-size: var(--fs-sm); color: var(--color-text-sub); }
+
+    /* 매달 모았다면 */
+    .reit-sim-head { margin-top: var(--space-3); font-size: var(--fs-sm); color: var(--color-text-sub); }
+    .reit-sim-result { margin-top: var(--space-1); font-size: var(--fs-lg); font-weight: 700; }
+    .reit-sim-result b { font-weight: 800; }
+    .reit-sim-bars { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
+    .reit-sim-bar { display: grid; grid-template-columns: var(--dim-56) minmax(0, 1fr); align-items: center; gap: var(--space-2); font-size: var(--fs-xs); color: var(--color-text-sub); }
+    .reit-sim-track { display: block; height: var(--space-3); border-radius: var(--dim-999); background: var(--color-surface-2); overflow: hidden; }
+    .reit-sim-fill { display: block; height: 100%; border-radius: var(--dim-999); }
+    .reit-sim-fill.is-in { background: var(--color-text-sub); }
+    .reit-sim-fill.is-up { background: var(--color-up); }
+    .reit-sim-fill.is-down { background: var(--color-down); }
+    .reit-sim-kv { margin-top: var(--space-3); }
     .reit-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
     .reit-kv { display: grid; gap: var(--space-2) var(--space-4); grid-template-columns: auto 1fr; font-size: var(--fs-sm); }
     .reit-kv dt { color: var(--color-text-sub); }
@@ -76,7 +107,7 @@
     <div class="stack is-hidden" id="reit-body">
       <div>
         <div class="chapter"><span class="chapter-tag">DETAIL</span><span class="chapter-name">리츠 자세히 보기</span></div>
-        <div class="reit-head"><h1 class="page-title" id="reit-name">리츠 자세히 보기</h1><span class="badge" id="reit-badge"></span></div>
+        <div class="reit-head"><h1 class="page-title" id="reit-name">리츠 자세히 보기</h1><span class="badge" id="reit-badge"></span><span id="reit-fav-slot"></span></div>
         <p class="reit-amc-line" id="reit-amc-line"></p>
         <p class="lead" id="reit-summary"></p>
       </div>
@@ -91,6 +122,20 @@
         <div class="reit-chart" id="reit-chart"></div>
       </section>
       <div class="reit-actions" id="reit-actions"></div>
+
+      <!-- 배당 달력: 지난 1년 몇 월에 배당이 나왔나 (번호는 js 가 보이는 섹션 순서대로 매김) -->
+      <section class="stack is-hidden" id="reit-div-sec" aria-label="배당 달력">
+        <h2 class="sec-title"><span class="sec-no">01</span>배당은 언제 나왔나요</h2>
+        <div class="card" id="reit-div"></div>
+        <p class="source-note" id="reit-div-note"></p>
+      </section>
+
+      <!-- 매달 모았다면: 지난 1년 실제 종가로 계산한 기록 -->
+      <section class="stack is-hidden" id="reit-sim-sec" aria-label="매달 모았다면">
+        <h2 class="sec-title"><span class="sec-no">02</span>매달 커피값으로 모았다면</h2>
+        <div class="card" id="reit-sim"></div>
+        <p class="source-note" id="reit-sim-note"></p>
+      </section>
 
       <section class="stack" aria-label="운용사">
         <h2 class="sec-title"><span class="sec-no">01</span>누가 운용하나요</h2>
@@ -127,7 +172,7 @@
   <footer id="site-footer"></footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="js/common.js"></script>
-  <script src="js/reit.js"></script>
+  <script src="js/common.js?v=20261128b"></script>
+  <script src="js/reit.js?v=20261128b"></script>
 </body>
 </html>
